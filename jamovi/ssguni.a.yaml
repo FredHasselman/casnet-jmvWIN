@@ -1,0 +1,70 @@
+---
+name:  ssgUNI
+title: Univariate State Space Grid
+menuGroup: casnetjmv
+version: '1.0.0'
+jas: '1.2'
+
+options:
+    - name: data
+      type: Data
+
+    - name: y1
+      title: "Variable 1"
+      type: Variable
+      rejectUnusedLevels: false
+      suggested:
+        - nominal
+      permitted:
+        - factor
+      default:
+      description:
+          R: An unordered categorical state variable
+
+    - name: time
+      title: "Time (optional)"
+      type: Variable
+      rejectUnusedLevels: true
+      suggested:
+        - ordinal
+        - continuous
+      permitted:
+        - numeric
+      default:
+      description:
+          R: A variable indicating time
+
+    - type: String
+      name: v1_labels
+      default: ""
+
+    - type: Integer
+      name: v1_Nstates
+      default: 0
+
+    - name: ssgUNIlag
+      title: "Lagged analysis"
+      type: Number
+      default: 1
+
+    - type: Number
+      name: MinReturns
+      title: "Minimum number of returns"
+      default: 2
+    - type: Number
+      name: MaxReturnTime
+      title: "Maximum return time"
+      default: 0
+    - type: Number
+      name: MaxReturnVisits
+      title: "Maximum number of return visits"
+      default: 0
+    - type: Number
+      name: MinEventDuration
+      title: "Minimum event duration"
+      default: 0
+    - type: Number
+      name: MinCellDuration
+      title: "Minimum cell duration"
+      default: 0
+...

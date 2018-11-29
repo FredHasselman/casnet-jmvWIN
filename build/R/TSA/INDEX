@@ -1,0 +1,125 @@
+ARMAspec                Theoretical spectral density function of a
+                        stationary ARMA model
+BoxCox.ar               Determine the power transformation for serially
+                        correlated data
+CREF                    Daily CREF Values
+JJ                      Quarterly earnings per share for the Johnson &
+                        Johnson Company
+Keenan.test             Keenan's one-degree test for nonlinearity
+LB.test                 Portmanteau Tests for Fitted ARIMA models
+McLeod.Li.test          McLeod-Li test
+SP                      Quarterly Standard & Poor's Composite Index of
+                        stock price values / time series
+TSA-package             Time Series Analysis
+Tsay.test               Tsay's Test for nonlinearity
+acf                     Auto- and Cross- Covariance and -Correlation
+                        Function Estimation
+airmiles                Monthly Airline Passenger-Miles in the US
+airpass                 Monthly total international airline passengers
+ar1.2.s                 A simulated AR(1) series
+ar1.s                   A simulated AR(1) series
+ar2.s                   Asimulated AR(2) series / time series
+arima                   Fitting an ARIMA model with Exogeneous
+                        Variables
+arima.boot              Compute the Bootstrap Estimates of an ARIMA
+                        Model
+arimax                  Fitting an ARIMA model with Exogeneous
+                        Variables
+arma11.s                A Simulated ARMA(1,1) Series/ time series
+armasubsets             Selection of Subset ARMA Models
+beersales               Monthly beer sales / time series
+bluebird                Blue Bird Potato Chip Data
+bluebirdlite            Bluebird Lite potato chip data
+boardings               Monthly public transit boardings and gasoline
+                        price in Denver
+co2                     Levels of Carbon Dioxide at Alert, Canada /
+                        Time series
+color                   Color property/time series
+cref.bond               Daily CREF Bond Values
+days                    Number of days between payment to Winegard
+                        Corp. / time series
+deere1                  Deviations of an industrial process at Deere &
+                        Co. - Series 1
+deere2                  Deviations of an industrial process at Deere &
+                        Co. - Series 2
+deere3                  Deviations of an industrial process at Deere &
+                        Co. - Series 3
+detectAO                Additive Outlier Detection
+detectIO                Innovative Outlier Detection
+eacf                    Compute the sample extended acf (ESACF)
+eeg                     EEG Data
+electricity             Monthly US electricity production / time series
+euph                    A digitized sound file of a B flat played on a
+                        euphonium
+explode.s               A simulated explosive AR(1) series
+fitted.Arima            Fitted values of an arima model.
+flow                    Monthly River Flow for the Iowa River
+gBox                    Generalized Portmanteau Tests for GARCH Models
+garch.sim               Simulate a GARCH process
+gold                    Gold Price / time series
+google                  Daily returns of the google stock
+hare                    Canadian hare data/ time series
+harmonic                Construct harmonic functions for fitting
+                        harmonic trend model
+hours                   Average hours worked in US manufacturing sector
+                        / time series
+ima22.s                 Simulated IMA(2,2) series / time series
+kurtosis                Kurtosis
+lagplot                 Lagged Regression Plot
+larain                  Annual rainfall in Los Angeles / time series
+ma1.1.s                 A simulated MA(1) series / time series
+ma1.2.s                 A simulated MA(1) series / time series
+ma2.s                   A simulated MA(2) series
+milk                    Monthly Milk Production
+oil.price               Monthly Oil Price / time series
+oilfilters              Monthly sales to dealers of a specialty oil
+                        filter/time series
+periodogram             Computing the periodogram
+plot.Arima              Compute and Plot the Forecasts Based on a
+                        Fitted Time Series Model
+plot.armasubsets        Plot the Best Subset ARMA models
+plot1.acf               Plot1
+predict.TAR             Prediction based on a fitted TAR model
+prescrip                Cost per prescription / time series
+prewhiten               Prewhiten a Bivariate Time Series, and Compute
+                        and Plot Their Sample Cross-Correlation
+                        Function
+prey.eq                 Prey series / time series
+qar.sim                 Simulate a first-order quadratic AR model
+retail                  U.K. retail sales / time series
+robot                   The distance of a robot from a desired position
+                        / time series
+rstandard.Arima         Compute the Standardized Residuals from a
+                        Fitted ARIMA Model
+runs                    Runs test
+rwalk                   A simulated random walk / Time series
+season                  Extract the season info from a time series
+skewness                Skewness
+spec                    Computing the spectrum
+spots                   Relative annual sunspot number / time series
+spots1                  Annual international sunspot numbers
+star                    Star Brightness
+summary.armasubsets     Summary of output from the armasubsets function
+tar                     Estimation of a TAR model
+tar.sim                 Simulate a two-regime TAR model
+tar.skeleton            Find the asympotitc behavior of the skeleton of
+                        a TAR model
+tbone                   A digitized sound file of a B flat played on a
+                        tenor trombone
+tempdub                 Monthly average temperature in Dubuque/time
+                        series
+tlrt                    Likelihood ratio test for threshold
+                        nonlinearity
+tsdiag.Arima            Model Diagnostics for a Fitted ARIMA Model
+tsdiag.TAR              Model diagnostics for a fitted TAR model
+tuba                    A digitized sound file of a B flat played on a
+                        BB flat tuba
+units                   Annual sales of certain large equipment
+usd.hkd                 Daily US Dollar to Hong Kong Dollar Exchange
+                        Rates
+veilleux                An experimental prey-predator time series
+wages                   Average hourly wages in the apparel industry /
+                        time series
+winnebago               Monthly unit sales of recreational vehicles /
+                        time series
+zlag                    Compute the lag of a vector.

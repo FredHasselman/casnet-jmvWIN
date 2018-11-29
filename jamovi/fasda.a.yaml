@@ -1,0 +1,51 @@
+---
+name:  faSDA
+title: Standardised Dispersion Analysis
+menuGroup: casnetjmv
+version: '1.0.0'
+jas: '1.2'
+
+options:
+    - name: data
+      type: Data
+
+    - name: y1
+      title: Time series
+      type: Variable
+
+    - name: standardise
+      title: Standardise
+      type: List
+      options:
+        - name: meanSD
+          title: Mean and SD
+        - name: medianMAD
+          title: Median and MAD
+      default: meanSD
+
+    - name: sumORDER
+      title: Adjust summation order
+      type: Bool
+      default: false
+
+    - name: removeTrend
+      title: "Remove trend:"
+      type: List
+      options:
+        - name: nodet
+          title: "No detrending"
+        - name: polydet
+          title: "Polynomial detrending"
+      default: nodet
+
+    - name: polydet_order
+      title: "Polynomial order"
+      type: Integer
+      default: 1
+
+    - name: scaleExclude
+      title: "Estimates based on at least"
+      type: Number
+      default: 4
+
+...

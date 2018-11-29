@@ -1,0 +1,106 @@
+---
+title: CASNET
+name: casnetjmv
+version: 0.0.2
+jms: '1.0'
+authors:
+  - Fred Hasselman
+maintainer: Fred Hasselman <f.hasselman@bsi.ru.nl>
+date: '2018-01-01'
+type: R
+description: >-
+  A collection of analytic tools for studying (multivariate) signals recorded
+  from Complex Adaptive Systems or Networks
+analyses:
+  - title: Statistical Tests of Data Assumptions
+    name: tsTST
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Basic time series
+    menuTitle: Statistical Tests of Data Assumptions
+    menuSubtitle: stationarity | homogeneity | linearity
+    description: null
+  - title: Linear Temporal Correlations
+    name: tsACF
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Basic time series
+    menuTitle: Linear Temporal Correlations
+    menuSubtitle: ACF | PACF | lag plot
+    description: null
+  - title: Entropy & Roughness
+    name: tsENT
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Basic time series
+    menuTitle: Entropy & Roughness
+    menuSubtitle: Sample Entropy | Relative Roughness
+    description: null
+  - title: Detrended Fluctuation Analysis
+    name: faDFA
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Fluctuation analyses
+    menuTitle: Detrended Fluctuation Analysis
+    menuSubtitle: null
+    description: null
+  - title: Standardised Dispersion Analysis
+    name: faSDA
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Fluctuation analyses
+    menuTitle: Standardised Dispersion Analysis
+    menuSubtitle: null
+    description: null
+  - title: Power Spectral Density Slope
+    name: faPSD
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Fluctuation analyses
+    menuTitle: Power Spectral Density Slope
+    menuSubtitle: null
+    description: null
+  - title: Univariate State Space Grid
+    name: ssgUNI
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: State Space Grids
+    menuTitle: Univariate State Space Grid
+    menuSubtitle: lagged analysis
+  - title: Bivariate State Space Grid
+    name: ssgBI
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuTitle: Bivariate State Space Grid
+    menuSubgroup: State Space Grids
+  - title: Auto RQA
+    name: rqaAU
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Recurrence Quantification Analyses
+    menuTitle: Auto RQA
+    menuSubtitle: null
+    description: null
+  - title: Cross RQA
+    name: rqaCR
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Recurrence Quantification Analyses
+    menuTitle: Cross RQA
+    menuSubtitle: null
+    description: null
+  - title: Generate random surrogates
+    name: tsSUR
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Time series features
+    menuTitle: Generate random surrogates
+    menuSubtitle: shuffle | block | AAFT
+  - title: Detect levels & peaks
+    name: tsLVL
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Time series features
+    menuTitle: Detect levels & peaks
+
+...

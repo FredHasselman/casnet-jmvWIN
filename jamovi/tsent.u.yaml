@@ -1,0 +1,31 @@
+title: Entropy & Roughness
+name: tsENT
+jus: '2.0'
+stage: 0
+compilerMode: aggressive
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Time Series
+        children:
+          - type: VariablesListBox
+            name: y1
+            maxItemCount: 1
+            isTarget: true
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: Ent_edim
+        format: number
+        inputPattern: '[0-9]+'
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: Ent_r
+        format: number
+        inputPattern: '[0-9]+'

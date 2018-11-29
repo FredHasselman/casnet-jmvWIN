@@ -1,0 +1,81 @@
+title: Univariate State Space Grid
+name: ssgUNI
+jus: '2.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: y1
+            maxItemCount: 1
+            isTarget: true
+  - type: CollapseBox
+    label: 'Variable 1: Specify categories'
+    collapsed: true
+    children:
+      - type: Label
+        label: How many unique states can be observed for Variable 1? (optional)
+        children:
+          - type: TextBox
+            name: v1_Nstates
+            label: N unique states
+            format: number
+            inputPattern: '[0-9]+'
+      - type: Label
+        label: Provide state labels seperated by comma's (optional)
+        children:
+          - type: TextBox
+            name: v1_labels
+            label: State labels
+            format: string
+            width: largest
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        label: Time (optional)
+        children:
+          - type: VariablesListBox
+            name: time
+            maxItemCount: 1
+            isTarget: true
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Lagged analysis
+        children:
+          - type: TextBox
+            name: ssgUNIlag
+            format: number
+            inputPattern: '[0-9]+'
+  - type: CollapseBox
+    label: State measures
+    collapsed: true
+    children:
+      - type: TextBox
+        name: MinReturns
+        format: number
+        inputPattern: '[0-9]+'
+      - type: TextBox
+        name: MaxReturnTime
+        format: number
+        inputPattern: '[0-9]+'
+      - type: TextBox
+        name: MaxReturnVisits
+        format: number
+        inputPattern: '[0-9]+'
+      - type: TextBox
+        name: MinEventDuration
+        format: number
+        inputPattern: '[0-9]+'
+      - type: TextBox
+        name: MinCellDuration
+        format: number
+        inputPattern: '[0-9]+'

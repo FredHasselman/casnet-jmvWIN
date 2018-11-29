@@ -1,0 +1,98 @@
+%++%                    Positive increment
+%+-%                    Signed increment
+%00%                    Rose tinted infix
+%e%                     Is element of... with multiple input types
+MFDFA                   Multi-fractal Detrended Fluctuation Analysis
+add_alpha               Add transparency to a colour
+as.numeric_character    Convert character vector to a named numeric
+                        vector
+as.numeric_factor       Convert numeric factor to numeric vector
+bandReplace             Replace matrix diagonals
+crqa_cl                 Fast (C)RQA (command line crp)
+crqa_parameters         Find optimal (C)RQA parameters
+crqa_radius             Find fixed or optimal radius
+crqa_rp                 Get bootsrapped (C)RQA measures based on a
+                        recurrence matrix
+di2bi                   Distance to binary matrix
+di2we                   Distance 2 weighted matrix
+dist_hamming            Calculate Hamming distance
+elascer                 Elastic Scaler - A Flexible Rescale Function
+est_emDim               Estimate number of embedding dimensions
+est_emLag               Estimate embedding lag (tau)
+extractors              Extract vectors by index
+fINDexers               Find row or column by name or index
+faDFA                   Detrended Fluctuation Analysis
+faPSD                   Power Spectral Density Slope
+faSDA                   Standardised Dispersion Analysis
+factor_obs_exp          Factor labels
+fd_RR                   Relative Roughness
+fd_allan                Allan Variance Analysis
+fd_dfa                  Detrended Fluctuation Analysis (DFA)
+fd_psd                  Power Spectral Density Slope (PSD).
+fd_sda                  Standardised Dispersion Analysis (SDA).
+fd_sev                  Calculate FD using Sevcik's method
+gg_plotHolder           gg_plotHolder
+gg_theme                gg_theme
+growth_ac               Examples of dynamical growth models (maps)
+growth_ac_cond          Examples of conditional dynamical growth models
+                        (maps)
+insiders                Inside interval
+mi_mat                  Mutual Information variations
+mif                     Mutual Information Function
+mif_interlayer          Inter-layer mutual information
+outsiders               Outside interval
+pacf_fisherZ            FisherZ for PACF
+padders                 Padd vector by index
+plotNET_BA              Example of Barabasi scale-free network
+plotNET_SW              Example of Strogatz-Watts small-world network
+plotNET_groupColour     Vertex Group Colours
+plotNET_groupWeight     Set Edge weights by group
+plotNET_prep            Plot Network Based on RQA
+plotRED_acf             Plot ACF and PACF
+plotRED_mif             Plot various MI functions
+plotSUR_hist            Surrogate Test
+regressors              Regress vectors
+repmat                  Repeat Copies of a Matrix
+rp                      Create a Distance Matrix
+rp_copy_attributes      Copy Matrix Attributes
+rp_lineDist             Line length distributions
+rp_nzdiags              rp_nzdiags
+rp_plot                 Plot (thresholded) distance matrix
+rp_size                 rp_size
+rqaAU                   Auto RQA
+rqaCR                   Cross RQA
+sa2fd_dfa               Informed Dimension estimate from DFA slope (H)
+sa2fd_psd               Informed Dimension estimate from Spectral Slope
+                        (aplha)
+sa2fd_sda               Informed Dimension estimate from SDA slope.
+ssgBI                   Bivariate State Space Grid
+ssgUNI                  Univariate State Space Grid
+ssg_gwf2long            Import GrdWare files
+ssg_winnowing           ssg_winnowing
+symbolize               Convert numeric vectors to symbolic vectors.
+trimmers                Trim vector by index
+tsACF                   Linear Temporal Correlations
+tsENT                   Entropy & Roughness
+tsLVL                   Detect levels & peaks
+tsPKS                   Detect peaks
+tsRR                    Relative Roughness
+tsSUR                   Generate random surrogates
+tsTST                   Statistical Tests of Data Assumptions
+ts_center               Center a vector
+ts_changeindex          Find change indices
+ts_checkfix             Check and/or Fix a vector
+ts_detrend              Detrend a time series
+ts_diff                 Derivative of time series
+ts_discrete             Discrete representation
+ts_duration             Time series to Duration series
+ts_embed                Delay embedding of a time series
+ts_integrate            Create a timeseries profile
+ts_levels               Detect levels in time series
+ts_peaks                Find Peaks or Wells
+ts_sd                   Standard Deviation estimates
+ts_slice                Slice columns of a matrix in epochs
+ts_standardise          Standardise a vector
+ts_sumorder             Adjust time series by summation order
+ts_symbolic             Symbolic representation
+ts_trimfill             Trim or Fill Vectors
+ts_windower             Get sliding window indices
