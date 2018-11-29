@@ -17,4 +17,4 @@ Imports: jmvcore, R6, tseries, tidyr, quadprog, zoo, quantmod, xts,
         sapa, fractal, ifultools, splus2R, scatterplot3d, wmtsa, dplyr,
         bindrcpp, bindr, pkgconfig, Matrix, flexclust, modeltools
 RoxygenNote: 6.1.1
-Built: R 3.3.0; ; 2018-11-28 20:21:52 UTC; unix
+Built: R 3.4.1; ; 2018-11-29 19:16:20 UTC; windows

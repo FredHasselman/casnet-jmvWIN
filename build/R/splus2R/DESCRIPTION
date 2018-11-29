@@ -18,5 +18,5 @@ NeedsCompilation: yes
 Repository: CRAN
 Packaged: 2016-08-30 20:29:23 UTC; spk
 Date/Publication: 2016-09-02 15:17:06
-Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2016-09-03 09:57:05 UTC; unix
-Archs: splus2R.so.dSYM
+Built: R 3.4.4; x86_64-w64-mingw32; 2018-11-05 13:47:31 UTC; windows
+Archs: i386, x64

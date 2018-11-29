@@ -110,7 +110,7 @@ tempdub                 Monthly average temperature in Dubuque/time
                         series
 tlrt                    Likelihood ratio test for threshold
                         nonlinearity
-tsdiag.Arima            Model Diagnostics for a Fitted ARIMA Model
+tsdiag.Arimax           Model Diagnostics for a Fitted ARIMAX Model
 tsdiag.TAR              Model diagnostics for a fitted TAR model
 tuba                    A digitized sound file of a B flat played on a
                         BB flat tuba

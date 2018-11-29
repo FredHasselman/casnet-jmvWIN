@@ -11,7 +11,7 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;pracma&rsquo; version 2.1.1</h2>
+</div><h2>Documentation for package &lsquo;pracma&rsquo; version 2.1.8</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../demo">Code demos</a>.  Use <a href="../../utils/help/demo">demo()</a> to run them.</li>
@@ -127,7 +127,7 @@
 <tr><td style="width: 25%;"><a href="bernstein.html">bernsteinb</a></td>
 <td>Bernstein Polynomials</td></tr>
 <tr><td style="width: 25%;"><a href="bisect.html">bisect</a></td>
-<td>Rootfinding Through Bisection</td></tr>
+<td>Rootfinding Through Bisection or Secant Rule</td></tr>
 <tr><td style="width: 25%;"><a href="bits.html">bits</a></td>
 <td>Binary Representation</td></tr>
 <tr><td style="width: 25%;"><a href="blanks.html">blanks</a></td>
@@ -173,6 +173,8 @@
 <td>Chebyshev Polynomials</td></tr>
 <tr><td style="width: 25%;"><a href="chebPoly.html">chebPoly</a></td>
 <td>Chebyshev Polynomials</td></tr>
+<tr><td style="width: 25%;"><a href="sici.html">Ci</a></td>
+<td>Sine and Cosine Integral Functions</td></tr>
 <tr><td style="width: 25%;"><a href="circlefit.html">circlefit</a></td>
 <td>Fitting a Circle</td></tr>
 <tr><td style="width: 25%;"><a href="flipdim.html">circshift</a></td>
@@ -242,8 +244,6 @@
 <td>Evaluate ODE Solution</td></tr>
 <tr><td style="width: 25%;"><a href="diag.html">Diag</a></td>
 <td>Matrix Diagonal</td></tr>
-<tr><td style="width: 25%;"><a href="direct1d.html">direct1d</a></td>
-<td>Univariate Global Optimization</td></tr>
 <tr><td style="width: 25%;"><a href="beep.html">disp</a></td>
 <td>Utility functions (Matlab style)</td></tr>
 <tr><td style="width: 25%;"><a href="distmat.html">distmat</a></td>
@@ -367,7 +367,7 @@
 <tr><td style="width: 25%;"><a href="fsolve.html">fsolve</a></td>
 <td>Solve System of Nonlinear Equations</td></tr>
 <tr><td style="width: 25%;"><a href="fzero.html">fzero</a></td>
-<td>Root Finding</td></tr>
+<td>Root Finding Algorithm</td></tr>
 <tr><td style="width: 25%;"><a href="fzsolve.html">fzsolve</a></td>
 <td>Complex Root Finding</td></tr>
 </table>
@@ -712,6 +712,8 @@
 <td>Pseudoinverse or Generalized Inverse</td></tr>
 <tr><td style="width: 25%;"><a href="plotyy.html">plotyy</a></td>
 <td>Plotting Two y-Axes</td></tr>
+<tr><td style="width: 25%;"><a href="poisson2disk.html">poisson2disk</a></td>
+<td>Poisson Disk Sampling</td></tr>
 <tr><td style="width: 25%;"><a href="cart2sph.html">pol2cart</a></td>
 <td>Coordinate Transformations</td></tr>
 <tr><td style="width: 25%;"><a href="polar.html">polar</a></td>
@@ -851,7 +853,7 @@
 <tr><td style="width: 25%;"><a href="regexprep.html">regexprep</a></td>
 <td>Replace string using regular expression</td></tr>
 <tr><td style="width: 25%;"><a href="bisect.html">regulaFalsi</a></td>
-<td>Rootfinding Through Bisection</td></tr>
+<td>Rootfinding Through Bisection or Secant Rule</td></tr>
 <tr><td style="width: 25%;"><a href="mod.html">rem</a></td>
 <td>Integer Division</td></tr>
 <tr><td style="width: 25%;"><a href="repmat.html">repmat</a></td>
@@ -859,7 +861,7 @@
 <tr><td style="width: 25%;"><a href="reshape.html">Reshape</a></td>
 <td>Reshape Matrix</td></tr>
 <tr><td style="width: 25%;"><a href="ridders.html">ridders</a></td>
-<td>Ridders' Method</td></tr>
+<td>Ridders' Root Finding Method</td></tr>
 <tr><td style="width: 25%;"><a href="rk4.html">rk4</a></td>
 <td>Classical Runge-Kutta</td></tr>
 <tr><td style="width: 25%;"><a href="rk4.html">rk4sys</a></td>
@@ -874,8 +876,6 @@
 <td>Matrix Square and p-th Roots</td></tr>
 <tr><td style="width: 25%;"><a href="roots.html">roots</a></td>
 <td>Polynomial Roots</td></tr>
-<tr><td style="width: 25%;"><a href="randortho.html">rortho</a></td>
-<td>Generate Random Orthonormal or Unitary Matrix</td></tr>
 <tr><td style="width: 25%;"><a href="rosser.html">rosser</a></td>
 <td>Rosser Matrix</td></tr>
 <tr><td style="width: 25%;"><a href="rot90.html">rot90</a></td>
@@ -895,8 +895,8 @@
 <td>Savitzky-Golay Smoothing</td></tr>
 <tr><td style="width: 25%;"><a href="trigonometric.html">sec</a></td>
 <td>More Trigonometric Functions</td></tr>
-<tr><td style="width: 25%;"><a href="newtonRaphson.html">secant</a></td>
-<td>Rootfinding through Newton-Raphson or Secant.</td></tr>
+<tr><td style="width: 25%;"><a href="bisect.html">secant</a></td>
+<td>Rootfinding Through Bisection or Secant Rule</td></tr>
 <tr><td style="width: 25%;"><a href="sind.html">secd</a></td>
 <td>Trigonometric Functions in Degrees</td></tr>
 <tr><td style="width: 25%;"><a href="hyperbolic.html">sech</a></td>
@@ -915,6 +915,10 @@
 <td>Sorting Routines</td></tr>
 <tr><td style="width: 25%;"><a href="shooting.html">shooting</a></td>
 <td>Shooting Method</td></tr>
+<tr><td style="width: 25%;"><a href="shubert.html">shubert</a></td>
+<td>Shubert-Piyavskii Method</td></tr>
+<tr><td style="width: 25%;"><a href="sici.html">Si</a></td>
+<td>Sine and Cosine Integral Functions</td></tr>
 <tr><td style="width: 25%;"><a href="sigmoid.html">sigmoid</a></td>
 <td>Sigmoid Function</td></tr>
 <tr><td style="width: 25%;"><a href="sqrtm.html">signm</a></td>

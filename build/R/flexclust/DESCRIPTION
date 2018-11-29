@@ -29,4 +29,5 @@ Author: Friedrich Leisch [aut, cre] (<https://orcid.org/0000-0001-7278-1983>),
 Maintainer: Friedrich Leisch <Friedrich.Leisch@R-project.org>
 Repository: CRAN
 Date/Publication: 2018-09-24 22:50:03 UTC
-Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2018-11-19 12:37:43 UTC; unix
+Built: R 3.4.4; x86_64-w64-mingw32; 2018-11-28 09:24:24 UTC; windows
+Archs: i386, x64

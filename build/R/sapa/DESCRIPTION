@@ -16,5 +16,5 @@ Author: William Constantine [cre, aut],
 Maintainer: William Constantine <wlbconstan@gmail.com>
 Repository: CRAN
 Date/Publication: 2016-05-21 00:09:16
-Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2016-05-21 10:34:50 UTC; unix
-Archs: sapa.so.dSYM
+Built: R 3.4.4; x86_64-w64-mingw32; 2018-11-28 10:21:52 UTC; windows
+Archs: i386, x64

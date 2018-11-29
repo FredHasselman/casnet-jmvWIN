@@ -102,7 +102,9 @@ futures.expiry	options.expiry
 getDefaults	Defaults
 getDividends	getDividends
 getFin	getFinancials
+getFin.google	quantmod-defunct
 getFinancials	getFinancials
+getFinancials.google	quantmod-defunct
 getFX	getFX
 getMetals	getMetals
 getModelData	getModelData
@@ -120,13 +122,14 @@ getSymbols.av	getSymbols.av
 getSymbols.Bloomberg	getSymbols
 getSymbols.csv	getSymbols.csv
 getSymbols.FRED	getSymbols.FRED
-getSymbols.google	getSymbols.google
+getSymbols.google	quantmod-defunct
 getSymbols.MySQL	getSymbols.MySQL
 getSymbols.mysql	getSymbols.MySQL
 getSymbols.oanda	getSymbols.oanda
 getSymbols.rda	getSymbols.rda
 getSymbols.RData	getSymbols.rda
 getSymbols.SQLite	getSymbols.SQLite
+getSymbols.tiingo	getSymbols.tiingo
 getSymbols.yahoo	getSymbols.yahoo
 getSymbols.yahooj	getSymbols.yahooj
 has.Ad	has
@@ -194,6 +197,7 @@ periodReturn	periodReturn
 plot.quantmod	fittedModel
 quantmod	quantmod-package
 quantmod-class	quantmod-class
+quantmod-defunct	quantmod-defunct
 quantmod.OHLC	quantmod.OHLC
 quantmodenv	quantmod-package
 quantmodResults-class	quantmod-class

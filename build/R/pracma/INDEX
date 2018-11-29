@@ -5,6 +5,7 @@ Norm                    Vector Norm
 Poly                    Define Polynomial by Roots
 Rank                    Matrix Rank
 Reshape                 Reshape Matrix
+Si                      Sine and Cosine Integral Functions
 Toeplitz                Toeplitz Matrix
 Trace                   Matrix trace
 abm3pc                  Adams-Bashford-Moulton
@@ -23,7 +24,7 @@ barylag                 Barycentric Lagrange Interpolation
 barylag2d               2-D Barycentric Lagrange Interpolation
 bernoulli               Bernoulli Numbers and Polynomials
 bernstein               Bernstein Polynomials
-bisect                  Rootfinding Through Bisection
+bisect                  Rootfinding Through Bisection or Secant Rule
 bits                    Binary Representation
 blanks                  String of Blank Carakters
 blkdiag                 Block Diagonal Matrix
@@ -65,7 +66,6 @@ deeve                   Event Detection in ODE solution
 deg2rad                 Degrees to Radians
 detrend                 Remove Linear Trends
 deval                   Evaluate ODE Solution
-direct1d                Univariate Global Optimization
 disp                    Utility functions (Matlab style)
 distmat                 Distance Matrix
 dot                     Scalar Product
@@ -103,7 +103,7 @@ fprintf                 Formatted Printing (Matlab style)
 fractalcurve            Fractal Curves
 fresnelS                Fresnel Integrals
 fsolve                  Solve System of Nonlinear Equations
-fzero                   Root Finding
+fzero                   Root Finding Algorithm
 fzsolve                 Complex Root Finding
 gammainc                Incomplete Gamma Function
 gammaz                  Complex Gamma Function
@@ -204,6 +204,7 @@ perms                   Generate Permutations
 piecewise               Piecewise Linear Function
 pinv                    Pseudoinverse or Generalized Inverse
 plotyy                  Plotting Two y-Axes
+poisson2disk            Poisson Disk Sampling
 polar                   Polar Coordinate Plot (Matlab Style)
 poly2str                Print Polynomial
 polyApprox              Polynomial Approximation
@@ -249,7 +250,7 @@ refindall               Find overlapping regular expression matches.
 regexp                  Match regular expression
 regexprep               Replace string using regular expression
 repmat                  Replicate Matrix
-ridders                 Ridders' Method
+ridders                 Ridders' Root Finding Method
 rk4                     Classical Runge-Kutta
 rkf54                   Runge-Kutta-Fehlberg
 rmserr                  Accuracy Measures
@@ -264,6 +265,7 @@ segm_distance           Segment Distance
 segm_intersect          Segment Intersection
 semilogx                Semi-logarithmic Plots (Matlab Style)
 shooting                Shooting Method
+shubert                 Shubert-Piyavskii Method
 sigmoid                 Sigmoid Function
 simpadpt                Adaptive Simpson Quadrature
 simpson2d               Double Simpson Integration

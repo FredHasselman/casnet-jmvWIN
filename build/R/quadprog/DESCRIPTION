@@ -14,5 +14,5 @@ Packaged: 2013-04-17 08:35:43 UTC; berwin
 NeedsCompilation: yes
 Repository: CRAN
 Date/Publication: 2013-04-17 13:42:49
-Built: R 3.3.0; x86_64-apple-darwin13.4.0; 2016-05-04 14:15:36 UTC; unix
-Archs: quadprog.so.dSYM
+Built: R 3.4.4; x86_64-w64-mingw32; 2018-11-05 13:43:40 UTC; windows
+Archs: i386, x64

@@ -46,10 +46,10 @@ getSymbols.MySQL        Retrieve Data from MySQL Database
 getSymbols.SQLite       Retrieve Data from SQLite Database
 getSymbols.av           Download OHLC Data from Alpha Vantage
 getSymbols.csv          Load Data from csv File
-getSymbols.google       Download OHLC Data From Google Finance
 getSymbols.oanda        Download Currency and Metals Data from
                         Oanda.com
 getSymbols.rda          Load Data from R Binary File
+getSymbols.tiingo       Download OHLC Data from Tiingo
 getSymbols.yahoo        Download OHLC Data From Yahoo Finance
 getSymbols.yahooj       Download OHLC Data From Yahoo! Japan Finance
 has.OHLC                Check For OHLC Data

@@ -52,6 +52,7 @@ charpoly	charpoly
 chebApprox	chebApprox
 chebCoeff	chebCoeff
 chebPoly	chebPoly
+Ci	sici
 circlefit	circlefit
 circshift	flipdim
 clear	clear
@@ -84,7 +85,6 @@ deg2rad	deg2rad
 detrend	detrend
 deval	deval
 Diag	diag
-direct1d	direct1d
 disp	beep
 distmat	distmat
 dot	dot
@@ -289,6 +289,7 @@ perms	perms
 piecewise	piecewise
 pinv	pinv
 plotyy	plotyy
+poisson2disk	poisson2disk
 pol2cart	cart2sph
 polar	polar
 Poly	poly
@@ -365,7 +366,6 @@ rmserr	rmserr
 romberg	romberg
 rootm	sqrtm
 roots	roots
-rortho	randortho
 rosser	rosser
 rot90	rot90
 rref	rref
@@ -373,7 +373,7 @@ runge	runge
 sample_entropy	entropy
 savgol	savgol
 sec	trigonometric
-secant	newtonRaphson
+secant	bisect
 secd	sind
 sech	hyperbolic
 segm_distance	segm_distance
@@ -383,6 +383,8 @@ semilogx	semilog
 semilogy	semilog
 shellSort	sorting
 shooting	shooting
+shubert	shubert
+Si	sici
 sigmoid	sigmoid
 signm	sqrtm
 simpadpt	simpadpt
