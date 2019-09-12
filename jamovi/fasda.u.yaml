@@ -23,6 +23,10 @@ children:
         label: Adjust time series
         children:
           - type: RadioButton
+            name: standardise_none
+            optionName: standardise
+            optionPart: none
+          - type: RadioButton
             name: standardise_meanSD
             optionName: standardise
             optionPart: meanSD
@@ -48,14 +52,56 @@ children:
                 name: polydet_order
                 label: Polynomial order
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (removeTrend_polydet)
   - type: LayoutBox
     margin: large
+    style: inline
     children:
+      - type: Label
+        label: "Minimum scale"
+        children:
+        - type: RadioButton
+          name: minScale_autoMin
+          optionName: minScale
+          optionPart: autoMin
+        - type: RadioButton
+          name: minScale_userMin
+          optionName: minScale
+          optionPart: userMin
+          children:
+            - type: TextBox
+              name: userMinScale
+              label: "Maximum bin size: 2^"
+              format: number
+              enable: (minScale_userMin)
+      - type: Label
+        label: "Maximum scale"
+        children:
+        - type: RadioButton
+          name: maxScale_autoMax
+          optionName: maxScale
+          optionPart: autoMax
+        - type: RadioButton
+          name: maxScale_userMax
+          optionName: maxScale
+          optionPart: userMax
+          children:
+            - type: TextBox
+              name: userMaxScale
+              label: "Maximum bin size: 2^"
+              format: number
+              enable: (maxScale_userMax)
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: "Scale resolution"
+        children:
+          - type: TextBox
+            name: scaleRES
+            format: number
           - type: TextBox
             name: scaleExclude
             label: "Estimates based on at least"
             suffix: "data points"
             format: number
-            inputPattern: '[0-9]+'

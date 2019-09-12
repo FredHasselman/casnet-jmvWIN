@@ -25,7 +25,6 @@ children:
             name: v1_Nstates
             label: N unique states
             format: number
-            inputPattern: '[0-9]+'
       - type: Label
         label: Provide state labels seperated by comma's (optional)
         children:
@@ -54,7 +53,6 @@ children:
           - type: TextBox
             name: ssgUNIlag
             format: number
-            inputPattern: '[0-9]+'
   - type: CollapseBox
     label: State measures
     collapsed: true
@@ -62,20 +60,15 @@ children:
       - type: TextBox
         name: MinReturns
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MaxReturnTime
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MaxReturnVisits
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MinEventDuration
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MinCellDuration
         format: number
-        inputPattern: '[0-9]+'

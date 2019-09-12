@@ -17,7 +17,7 @@ fd_allan(y, fs = stats::tsp(stats::hasTsp(y))[3], doPlot = FALSE,
 \item{useSD}{Use the standarddeviation instead of variance?}
 }
 \value{
-A dataframe with the Allan Factor (variance), Alan standard deviation and error due to bin size
+A dataframe with for each scale \code{tau}, the Allan variance (or Allan factor for poisson processes), Alan standard deviation and error due to bin size
 }
 \description{
 Allan Variance Analysis

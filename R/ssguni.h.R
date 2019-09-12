@@ -304,11 +304,15 @@ ssgUNI <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('ssgUNI requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
+    if ( ! missing(time)) time <- jmvcore::resolveQuo(jmvcore::enquo(time))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL),
             `if`( ! missing(time), time, NULL))
+
+    for (v in y1) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
 
     options <- ssgUNIOptions$new(
         y1 = y1,
@@ -321,9 +325,6 @@ ssgUNI <- function(
         MaxReturnVisits = MaxReturnVisits,
         MinEventDuration = MinEventDuration,
         MinCellDuration = MinCellDuration)
-
-    results <- ssgUNIResults$new(
-        options = options)
 
     analysis <- ssgUNIClass$new(
         options = options,

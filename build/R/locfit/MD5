@@ -1,4 +1,4 @@
-466187ed8fa022270bf3c793aafd610f *DESCRIPTION
+2bd8c5a44a3230cc0f4f3e8ae5e9cfef *DESCRIPTION
 ec2a8513f2a6727a84b1b98fdcc02472 *INDEX
 e6fb415b39dc36cf17af93002e0e4bcb *Meta/Rd.rds
 d06bb634fb457d8da59025b21d7307fa *Meta/data.rds
@@ -6,7 +6,7 @@ d06bb634fb457d8da59025b21d7307fa *Meta/data.rds
 d24c5bd872bcc881683e2046e7d5bd6f *Meta/hsearch.rds
 041bcbfef13b88b44b670f61c0676fd9 *Meta/links.rds
 e9c8f001b68d7a641c7e77129d73ec01 *Meta/nsInfo.rds
-c9b2cd533188405df1563ad2b1b3bf45 *Meta/package.rds
+aa4be4f91f59e9c1613a80475e0cfebf *Meta/package.rds
 145615a3c01c2f5e7c87c7e4affd4b90 *NAMESPACE
 cfb753adc26c57e1a349ba5a0ce83938 *NEWS
 ebf0fc819595d631b8bf280c4b049940 *R/locfit
@@ -40,12 +40,12 @@ dbbc7d95a7dc9325b33374328327e3f3 *data/spencer.rda
 814c2e8cdba028f0d6081d35e50612b5 *data/trimod.tab.gz
 46bee92f9f4ffb07b31ead985ed446c4 *help/AnIndex
 dd2e26d72046b4101c352d665cd3a811 *help/aliases.rds
-f868e9c440c301535abe36e43de572eb *help/locfit.rdb
-3b56fdc1055ae77aae584707246e62a9 *help/locfit.rdx
-73018ed31cfc705edd98a6eac7232bbc *help/paths.rds
+f5e6efbe62b2dc93bf7f3acb12ae009a *help/locfit.rdb
+ed209821144fdc124965fbb633e9572d *help/locfit.rdx
+2e6c549c812bd24fcaf0531042fc02bb *help/paths.rds
 861d9fe3b19472c0a8e21539581a005a *html/00Index.html
 b6763e6916890c631fdc3f2643803b1a *html/R.css
-4990ee06c66f67124d8ba20f834243c7 *libs/i386/locfit.dll
+0219e339a8a821ab6133c99e353b7507 *libs/i386/locfit.dll
 3db4a7fba6eeef8c2645e879ea156ca5 *libs/i386/symbols.rds
-0c9e8db4553ca5b6022b1eb84f48bb57 *libs/x64/locfit.dll
+6475f413b2d64d59fec6cb2b801d3d7c *libs/x64/locfit.dll
 464da9fb353f5a5ce0d4e1efbf1e02bd *libs/x64/symbols.rds

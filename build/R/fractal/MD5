@@ -1,11 +1,11 @@
-4cd27132cc2bfef426138de752de150c *DESCRIPTION
+883966947f32c52a0dc6431090480957 *DESCRIPTION
 9f039d9fa11cfbe5cffd7f3d335ddf61 *INDEX
 c47a139921ee1c81b0d293329edf055a *Meta/Rd.rds
 317735fd3091c51c4b67896cd2ea82be *Meta/features.rds
 afb1872b3f6eb76108c87b9b5b2ee936 *Meta/hsearch.rds
 88511cd307baba0274160020cc56f8ae *Meta/links.rds
 2200aeae8b6010a8272f0aabe9e05bcf *Meta/nsInfo.rds
-97f11a961d3d8f400b2f93007cb65508 *Meta/package.rds
+37247ca64d532ecb8fe706949b361a18 *Meta/package.rds
 e531034a3c5ab2e3ac7c3f18091e921a *NAMESPACE
 ebf0fc819595d631b8bf280c4b049940 *R/fractal
 165e56d4dee39610be175d6cc16cbc06 *R/fractal.rdb
@@ -20,8 +20,8 @@ c0910a762cac3490f304e0b6d27e86ff *bookexams/group-Chapter_4.ssc
 836a3eb240906d60de778daf39eac150 *bookexams/group-Chapter_6.ssc
 2c77cf65fa0fde1be8b7ed6228252374 *help/AnIndex
 8e71287b5af7c09fc93827bdeb6d7cb8 *help/aliases.rds
-46f00c81125c69a91ce57e8a93b5d4d3 *help/fractal.rdb
-2f03a2cf1dd006418c35c69a7fd908c5 *help/fractal.rdx
-74e484c0bc04b92c45d542b0db345628 *help/paths.rds
+4dbe303af2e00459d0f5c1df05933abc *help/fractal.rdb
+2475ca111f8109c200c81ca0d379ff61 *help/fractal.rdx
+8a6bae3b4302549279de1860fe517492 *help/paths.rds
 e9897a85b9976c977a9cdf00ff94758b *html/00Index.html
 b6763e6916890c631fdc3f2643803b1a *html/R.css

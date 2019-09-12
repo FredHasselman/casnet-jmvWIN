@@ -1,5 +1,5 @@
 ce27980f11ae3cdfe19a1da71b3db73e *CITATION
-6c58be54f7f8c2e3c6839df649cea4e2 *DESCRIPTION
+33311f250db6e9ba32dab1d38fb3e9d6 *DESCRIPTION
 4319774933e77300699964367e1012bf *INDEX
 0dee05243b220789e8b1cd578a5462d4 *Meta/Rd.rds
 98339dc0c50f0915f7d4d3bc35aa2f79 *Meta/data.rds
@@ -7,7 +7,7 @@ ce27980f11ae3cdfe19a1da71b3db73e *CITATION
 aca0f9e01c8c879642f529e9abf8d8a0 *Meta/hsearch.rds
 2bf1e5c14a8416fe93b3f418593af12a *Meta/links.rds
 5369e1f17ba33d1d8b713c5008f6b2c2 *Meta/nsInfo.rds
-4d7053264d3859b081d33bfd67973828 *Meta/package.rds
+aca641a010c0b72b14414f5fafc9d852 *Meta/package.rds
 cdc8894457c6efd2f1e49cfa79272d7b *NAMESPACE
 ebf0fc819595d631b8bf280c4b049940 *R/tseries
 e46475def45bf475c44ac5ce8932e859 *R/tseries.rdb
@@ -22,12 +22,12 @@ c5c77e3218fdb9875e5d80899418b95c *data/tcm.rda
 8d187037c40a9317bc642f510a4d441f *data/tcmd.rda
 a5af5ce36a11f17fae8c25ca3f524917 *help/AnIndex
 c31ea95040f62c3836302f74182e9c8b *help/aliases.rds
-269a8303dfd12b8411b5e1a8a5e9ad37 *help/paths.rds
-3e614333aaba3c2a256bc152a7ea5cf4 *help/tseries.rdb
-1995f202e3afe12f821e993e099ef6ac *help/tseries.rdx
+5b126cb05fce6962a3b54d0172914588 *help/paths.rds
+aba7e375f24aa57a443fbac5ec0e9daf *help/tseries.rdb
+728a1f1a1308656a3e8f069a0024a159 *help/tseries.rdx
 75992701e2edfab49115e868dc427cc9 *html/00Index.html
 b6763e6916890c631fdc3f2643803b1a *html/R.css
 d9e852d9af44af5456d4241fa0f525f3 *libs/i386/symbols.rds
-e9e45784ea50c04b8cd11ee44ab58653 *libs/i386/tseries.dll
+a322682370fc8c2c876fe7fab7c5af7c *libs/i386/tseries.dll
 6002b450666bd3b5812464c3aba6ca42 *libs/x64/symbols.rds
-dbdc2f4fd359e2d2986f057b29ce20d9 *libs/x64/tseries.dll
+d5096527741af36272596fa642aa720a *libs/x64/tseries.dll

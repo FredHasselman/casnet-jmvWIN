@@ -58,7 +58,8 @@ Hasselman, F. (2013). When the blind curve is finite: dimension estimation and m
 }
 \seealso{
 Other Fluctuation Analyses: \code{\link{MFDFA}},
-  \code{\link{fd_RR}}, \code{\link{fd_dfa}}
+  \code{\link{fd_RR}}, \code{\link{fd_dfa}},
+  \code{\link{fd_sda}}
 }
 \author{
 Fred Hasselman

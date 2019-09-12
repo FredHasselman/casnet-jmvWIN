@@ -1,4 +1,4 @@
-19ad6dc0067b16a47778833fbde4f2f4 *DESCRIPTION
+09e1f7ac372a618544affae1d379f36b *DESCRIPTION
 fc8a28ee24ad1a581727ec8a228e3ed4 *INDEX
 0d70cc761f7ee7dd05401124fc011c3f *Meta/Rd.rds
 0a3150c246fd37eb23b63068c81fde0c *Meta/data.rds
@@ -6,7 +6,7 @@ fc8a28ee24ad1a581727ec8a228e3ed4 *INDEX
 64cbe797fff5a4ec89ada62989022957 *Meta/hsearch.rds
 8334280c31c3b0068ae2ca4a1eb895a5 *Meta/links.rds
 37a7acfeb9bc1951b353f28bb8daf4d6 *Meta/nsInfo.rds
-e34e1051b8c7f071c081b19dbaf0dd65 *Meta/package.rds
+3994c74547c58cd8759bc9f2d83badb7 *Meta/package.rds
 51f37e15f3604c337ea3dc250b29932d *NAMESPACE
 ebf0fc819595d631b8bf280c4b049940 *R/TSA
 6bee16e3d6b5e2fff94fc0c76cb2b661 *R/TSA.rdb
@@ -65,9 +65,9 @@ b76c012a699838f3f6a27e55ceae4279 *data/veilleux.rda
 a7cfaa65846840c549d53bc3bdfca607 *data/wages.rda
 46df078e57a8a8822bfb616dc68cc57c *data/winnebago.rda
 f5fa8a5be1f8f1a26ecd9db45def4c64 *help/AnIndex
-d3126bd4ef4275306cba2e0ce2f5bbb8 *help/TSA.rdb
-dca3a8aba769dc0205b1c9f445759bed *help/TSA.rdx
+91a38ef1a9103cf4c5343ea34edb31b9 *help/TSA.rdb
+20d3678174862cf3c09981cac2fffffd *help/TSA.rdx
 e0265111b9fb70fdd2a76c503ff862b7 *help/aliases.rds
-73630a2afae7892c3745c5f07dbfa8de *help/paths.rds
+28200baa712ba939dbfedd3d8269ec8f *help/paths.rds
 0de087cfb001cb39b7d8130ad2b35f8a *html/00Index.html
 b6763e6916890c631fdc3f2643803b1a *html/R.css

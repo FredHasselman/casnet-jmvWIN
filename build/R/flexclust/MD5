@@ -1,5 +1,5 @@
 2b897bed2853631f5b66ebab5f738df2 *CITATION
-b65dde4ccc4dcbd60c13147256a405a1 *DESCRIPTION
+a950717aeed8adf604533f899ea14962 *DESCRIPTION
 cde2d8710a7b5380124f83cbd870da7a *INDEX
 0978e7721889dce4b0fda9868af91ad8 *Meta/Rd.rds
 f767c38563f55c95ea1f87816db4a618 *Meta/data.rds
@@ -7,7 +7,7 @@ f767c38563f55c95ea1f87816db4a618 *Meta/data.rds
 b75da15bf8fd2927e7e365a28038a79e *Meta/hsearch.rds
 a034d56401af03f297f3f68d12189b76 *Meta/links.rds
 e05ff249d5fb356a75812c51f776883d *Meta/nsInfo.rds
-14462f7ed8bcd0a8a5f0814fa2c13c37 *Meta/package.rds
+875e743525f71540f01c310f0f29d100 *Meta/package.rds
 02d57ff29f0e3672d841bf730095d2c4 *NAMESPACE
 7f35533cda562e5ae27ab22c53592898 *NEWS
 ebf0fc819595d631b8bf280c4b049940 *R/flexclust
@@ -27,12 +27,12 @@ bc67ed05fe33ab4f4c04c9787143a0ee *data/dentitio.txt.gz
 46e5926c999c58f105d84844e7a16d86 *data/volunteers.RData
 ad4a4ca32aa41cd8ac95da1bdddcf7b0 *help/AnIndex
 17c9395cb286cafe3bc658db3017768a *help/aliases.rds
-d0b622f9acbe29b9ba02c18fd73c3781 *help/flexclust.rdb
-3a113f694012db21514f88bbcdcd7c77 *help/flexclust.rdx
-0596a2f68c8530895b28dd17dbc43104 *help/paths.rds
+420b76a65faaaa652bb8618cc18362d9 *help/flexclust.rdb
+50725f985fe00f0a6aa50df1cbd8d068 *help/flexclust.rdx
+ac033dda3c60fb0e506733e165f474cd *help/paths.rds
 cd84856b98655fa80a62706c11ef79fc *html/00Index.html
 b6763e6916890c631fdc3f2643803b1a *html/R.css
-dbea4389f7d7660a57df90fa647d8ca2 *libs/i386/flexclust.dll
+d0fa21aa224c8387f71b8b82a5a76eb9 *libs/i386/flexclust.dll
 5101433b8d7e91c6e94eb64a21872696 *libs/i386/symbols.rds
-0b6435d5efec721b0617af2512383fd2 *libs/x64/flexclust.dll
+e91c5f028bea84d60a227a45c0f5b4e7 *libs/x64/flexclust.dll
 25376780176c716c08924559b9cc9410 *libs/x64/symbols.rds

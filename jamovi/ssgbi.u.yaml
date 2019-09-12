@@ -46,19 +46,18 @@ children:
     collapsed: true
     children:
       - type: Label
-        label: How many unique states can be observed for Variable 1? (optional)
+        label: "How many unique states can be observed for Variable 1? (optional)"
         children:
           - type: TextBox
             name: v1_Nstates
             label: N unique states
             format: number
-            inputPattern: '[0-9]+'
       - type: Label
-        label: Provide state labels seperated by comma's (optional)
+        label: "Provide unobserved state labels seperated by comma's (optional)"
         children:
           - type: TextBox
             name: v1_labels
-            label: State labels
+            label: "Unobserved state labels"
             format: string
             width: largest
   - type: CollapseBox
@@ -72,13 +71,12 @@ children:
             name: v2_Nstates
             label: N unique states
             format: number
-            inputPattern: '[0-9]+'
       - type: Label
-        label: Provide state labels seperated by comma's (optional)
+        label: "Provide unobserved state labels seperated by comma's (optional)"
         children:
           - type: TextBox
             name: v2_labels
-            label: State labels
+            label: "Unobserved state labels"
             format: string
             width: largest
   - type: CollapseBox
@@ -88,23 +86,18 @@ children:
       - type: TextBox
         name: MinReturns
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MaxReturnTime
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MaxReturnVisits
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MinEventDuration
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: MinCellDuration
         format: number
-        inputPattern: '[0-9]+'
 
   - type: CollapseBox
     label: "Detect Attractor Cells (Winnowing Procedure)"
@@ -115,4 +108,3 @@ children:
       - type: TextBox
         name: screeCut
         format: number
-        inputPattern: '[0-9]+'

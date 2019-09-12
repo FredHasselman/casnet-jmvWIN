@@ -31,7 +31,6 @@ children:
           - type: TextBox
             name: maxLAG
             format: number
-            inputPattern: '[0-9]+'
           - type: LayoutBox
             margin: large
             children:
@@ -43,7 +42,6 @@ children:
                   - type: TextBox
                     name: siglevel
                     format: number
-                    inputPattern: '[0-9]+'
                   - type: LayoutBox
                     margin: large
                     children:
@@ -58,9 +56,7 @@ children:
           - type: TextBox
             name: rtLAG1
             format: number
-            inputPattern: '[0-9]+'
           - type: TextBox
             name: rtLAG2
             format: number
-            inputPattern: '[0-9]+'
 

@@ -1,8 +1,50 @@
 # pracma NEWS
 
+## pracma 2.2.5 (2019-04-08)
+
+* fsolve() and broyden() are no longer applicable to univariate 
+  functions (Morrison-Sherman formula not working in this case).
+* Alias cgmin() and option 'dfree=F' in fminsearch() are removed,
+  both have been deprecated since half a year.
+
+## pracma 2.2.4 (2018-12-12)
+
+* qpsolve() minimizes quadratic forms such as 0.5*t(x)*x-d*x
+  with linear quality and inequality constraints.
+* fmincon() now has an 'augmented Lagrangian' option with a
+  'variable metric' approach as inner solver.
+
+## pracma 2.2.3 (2018-12-10)
+
+* linearproj() linear projection onto a linear subspace, and
+  affineproj() linear projection onto an affine subspace of R^n.
+
+## pracma 2.2.2 (2018-11-30)
+
+* Corrected "length > 1 in coercion to logical" in expm().
+
+## pracma 2.2.1 (2018-11-30)
+
+* fminunc() unconstrained minimization of nonlinear objective
+  function, based on stripped-down 'Rvmmin' code by John Nash.
+* 'fmincon()' minimization of nonlinear objective function with
+  constraints; wraps suggested package NlcOptim with SQP method.
+
+## pracma 2.2.0 (2018-11-27)
+
+* Reintroduced 'nelder_mead()' and 'hooke_jeeves()'.
+* fminsearch() now calls 'Nelder-Mead' or 'Hooke-Jeeves',
+  i.e., derivative-free methods only; 'dfree=F' gets deprecated.
+
+## pracma 2.1.9 (2018-11-22)
+
+* Renamed 'cgmin()' to its original name 'fletcher_powell',
+  alias 'cgmin' is deprecated since this version.
+* Removed alias 'normest2' that was anyway non-existing.
+
 ## pracma 2.1.8 (2018-10-16)
 
-* Corrected a bug in hessenberg() thanks to Ben Ubah.
+* Corrected a bug in hessenberg() reported by Ben Ubah.
 
 ## pracma 2.1.7 (2018-09-24)
 
@@ -53,8 +95,7 @@
 
 * bernstein() generates the Bernstein polynomial B_,_().
 * legendre(n,_) corrected for n=0, thanks to Peter W. Marcy.
-* fletcher_powell() renamed to cgmin(), constraint gradient method;
-  as such it will be used in fminsearch() with method name 'CG'.
+* cgmin() alias for fletcher_powell(), a constraint gradient method.
 
 ## pracma 2.0.6 (2017-06-06)
 

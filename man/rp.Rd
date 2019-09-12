@@ -6,7 +6,8 @@
 \usage{
 rp(y1, y2 = NULL, emDim = 1, emLag = 1, emRad = NULL,
   to.ts = NULL, order.by = NULL, to.sparse = FALSE,
-  method = "Euclidean", doPlot = FALSE, silent = TRUE, ...)
+  method = "Euclidean", weighted = FALSE, doPlot = FALSE,
+  silent = TRUE, ...)
 }
 \arguments{
 \item{y1}{A numeric vector or time series}
@@ -26,6 +27,8 @@ rp(y1, y2 = NULL, emDim = 1, emLag = 1, emRad = NULL,
 \item{to.sparse}{Should sparse matrices be used?}
 
 \item{method}{Distance measure to use. Any option that is valid for argument \code{method} of \code{\link[proxy]{dist}}. Type \code{proxy::pr_DB$get_entries()} to se a list of all the options. Common methods are: "Euclidean", "Manhattan", "Minkowski", "Chebysev" (or the same but shorter: "L2","L1","Lp" and "max" distance) (default = \code{"Euclidean"})}
+
+\item{weighted}{Creates a matrix with \code{0} for distances greater than \code{emRad} and the distance magnitude for distances that fall within the radius. An atribute \code{weighted = TRUE} will be added to the matrix object (default = \code{FALSE})}
 
 \item{doPlot}{Plot the matrix by calling \code{\link{rp_plot}} with defult settings}
 

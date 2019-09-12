@@ -50,7 +50,6 @@ children:
                 name: polydet_order
                 label: Polynomial order
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (removeTrend_polydet)
   - type: LayoutBox
     margin: large
@@ -62,7 +61,6 @@ children:
              - type: TextBox
                name: fs
                format: number
-               inputPattern: '[0-9]+'
              - type: RadioButton
                name: nfft_nyquist
                optionName: nfft
@@ -75,5 +73,4 @@ children:
                 - type: TextBox
                   name: userNFFT
                   format: number
-                  inputPattern: '[0-9]+'
                   enable: (nfft_user)

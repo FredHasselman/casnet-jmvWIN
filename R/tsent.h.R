@@ -151,18 +151,17 @@ tsENT <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('tsENT requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- tsENTOptions$new(
         y1 = y1,
         Ent_edim = Ent_edim,
         Ent_r = Ent_r)
-
-    results <- tsENTResults$new(
-        options = options)
 
     analysis <- tsENTClass$new(
         options = options,

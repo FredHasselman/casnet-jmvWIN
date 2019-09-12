@@ -22,8 +22,8 @@ items:
        - name: na
          type: integer
          title: "NA values"
-       - name: discretised
-         title: "discretised?"
+       - name: transformed
+         title: "transformation"
          type: text
        - name: uni_obs
          title: "# of unique values"
@@ -35,11 +35,45 @@ items:
       width: 600
       height: 600
       renderFun: .rpplot
+      clearWith:
+          - y1
+          - emRad
+          - emLag
+          - emDim
+          - VLmin
+          - DLmin
+          - HLmin
+          - VLmax
+          - DLmax
+          - HLmax
+          - fixRR
+          - fixRAD
+          - fixed
+          - theiler
+          - norm
+          - standardise
 
     - name:  tblRP
       title: "Global RQA measures"
       type: Table
       rows:  1
+      clearWith:
+          - y1
+          - emRad
+          - emLag
+          - emDim
+          - VLmin
+          - DLmin
+          - HLmin
+          - VLmax
+          - DLmax
+          - HLmax
+          - fixRR
+          - fixRAD
+          - fixed
+          - theiler
+          - norm
+          - standardise
       columns:
        - name: RP
          title: "# recurrences"
@@ -67,6 +101,23 @@ items:
       title: "RQA measures based on line structures"
       type: Table
       rows:  3
+      clearWith:
+        - y1
+        - emRad
+        - emLag
+        - emDim
+        - VLmin
+        - DLmin
+        - HLmin
+        - VLmax
+        - DLmax
+        - HLmax
+        - fixRR
+        - fixRAD
+        - fixed
+        - theiler
+        - norm
+        - standardise
       columns:
        - name: LineType
          title: "Line type"
@@ -105,5 +156,24 @@ items:
       height: 600
       visible: false
       renderFun: .DPplot
+      clearWith:
+        - y1
+        - emRad
+        - emLag
+        - emDim
+        - VLmin
+        - DLmin
+        - HLmin
+        - VLmax
+        - DLmax
+        - HLmax
+        - fixRR
+        - fixRAD
+        - fixed
+        - theiler
+        - norm
+        - plotDP
+        - diagWin
+        - standardise
 
 ...

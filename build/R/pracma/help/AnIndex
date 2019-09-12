@@ -8,6 +8,7 @@ acoth	hyperbolic
 acsc	trigonometric
 acscd	sind
 acsch	hyperbolic
+affineproj	linearproj
 agmean	agmean
 aitken	aitken
 akimaInterp	akima
@@ -47,7 +48,6 @@ cart2pol	cart2sph
 cart2sph	cart2sph
 cd	cd
 ceil	ceil
-cgmin	cgmin
 charpoly	charpoly
 chebApprox	chebApprox
 chebCoeff	chebCoeff
@@ -128,11 +128,14 @@ finds	find
 findstr	strfind
 findzeros	findzeros
 Fix	ceil
+fletcher_powell	fletcherpowell
 flipdim	flipdim
 fliplr	flipdim
 flipud	flipdim
 fminbnd	fminbnd
+fmincon	fmincon
 fminsearch	fminsearch
+fminunc	fminunc
 fnorm	fnorm
 fornberg	fornberg
 fplot	ezplot
@@ -174,6 +177,7 @@ hessian_csd	complexstep
 hilb	hilb
 histc	histc
 histss	histss
+hooke_jeeves	hookejeeves
 horner	horner
 hornerdefl	horner
 householder	householder
@@ -215,6 +219,7 @@ Lcm	gcd
 lebesgue	lebesgue
 legendre	legendre
 li	expint
+linearproj	linearproj
 line_integral	line_integral
 linprog	linprog
 linspace	linspace
@@ -250,6 +255,7 @@ muller	muller
 nchoosek	nchoosek
 ndims	ndims
 nearest_spd	nearest_spd
+nelder_mead	neldermead
 neville	neville
 newmark	newmark
 newton	newtonRaphson
@@ -262,7 +268,6 @@ nile	nile
 nnz	nnz
 Norm	norm
 normest	normest
-normest2	normest
 nthroot	nthroot
 null	nullspace
 nullspace	nullspace
@@ -319,6 +324,7 @@ procrustes	procrustes
 psi	psi
 psinc	humps
 pwd	cd
+qpsolve	qpspecial
 qpspecial	qpspecial
 qrSolve	qrSolve
 quad	quad

@@ -1,14 +1,16 @@
-%++%                    Positive increment
+%++%                    Non-negative increment
 %+-%                    Signed increment
 %00%                    Rose tinted infix
 %e%                     Is element of... with multiple input types
 MFDFA                   Multi-fractal Detrended Fluctuation Analysis
 add_alpha               Add transparency to a colour
-as.numeric_character    Convert character vector to a named numeric
+as.numeric_character    Character vector to named numeric vector
+as.numeric_discrete     Discrete (factor or character) to numeric
                         vector
-as.numeric_factor       Convert numeric factor to numeric vector
+as.numeric_factor       Numeric factor to numeric vector
 bandReplace             Replace matrix diagonals
 crqa_cl                 Fast (C)RQA (command line crp)
+crqa_diagPofile         Diagonal Recurrence Profile
 crqa_parameters         Find optimal (C)RQA parameters
 crqa_radius             Find fixed or optimal radius
 crqa_rp                 Get bootsrapped (C)RQA measures based on a
@@ -43,6 +45,8 @@ mif_interlayer          Inter-layer mutual information
 outsiders               Outside interval
 pacf_fisherZ            FisherZ for PACF
 padders                 Padd vector by index
+plotFD_loglog           Plot output from fluctuation analyses based on
+                        log-log regression
 plotNET_BA              Example of Barabasi scale-free network
 plotNET_SW              Example of Strogatz-Watts small-world network
 plotNET_groupColour     Vertex Group Colours
@@ -51,8 +55,8 @@ plotNET_prep            Plot Network Based on RQA
 plotRED_acf             Plot ACF and PACF
 plotRED_mif             Plot various MI functions
 plotSUR_hist            Surrogate Test
+recNet                  Recurrence Networks
 regressors              Regress vectors
-repmat                  Repeat Copies of a Matrix
 rp                      Create a Distance Matrix
 rp_copy_attributes      Copy Matrix Attributes
 rp_lineDist             Line length distributions
@@ -69,6 +73,7 @@ ssgBI                   Bivariate State Space Grid
 ssgUNI                  Univariate State Space Grid
 ssg_gwf2long            Import GrdWare files
 ssg_winnowing           ssg_winnowing
+statNet                 Static Networks
 symbolize               Convert numeric vectors to symbolic vectors.
 trimmers                Trim vector by index
 tsACF                   Linear Temporal Correlations

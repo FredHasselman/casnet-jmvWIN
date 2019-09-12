@@ -4,17 +4,17 @@
 \alias{rqaAU}
 \title{Auto RQA}
 \usage{
-rqaAU(data, y1, discretise = FALSE, emLag = 1, emDim = 1,
+rqaAU(data, y1, standardise = "none", emLag = 1, emDim = 1,
   fixRR = 0.05, fixRAD = 0, fixed = "RAD", DLmin = 2, DLmax = 0,
   VLmin = 2, VLmax = 0, HLmin = 2, HLmax = 0, theiler = 0,
-  norm = "euclidean")
+  norm = "euclidean", plotDP = FALSE, diagWin = 10)
 }
 \arguments{
 \item{data}{.}
 
 \item{y1}{.}
 
-\item{discretise}{.}
+\item{standardise}{.}
 
 \item{emLag}{.}
 
@@ -41,6 +41,10 @@ rqaAU(data, y1, discretise = FALSE, emLag = 1, emDim = 1,
 \item{theiler}{.}
 
 \item{norm}{.}
+
+\item{plotDP}{.}
+
+\item{diagWin}{.}
 }
 \value{
 A results object containing:
@@ -49,6 +53,7 @@ A results object containing:
   \code{results$rpplot} \tab \tab \tab \tab \tab an image \cr
   \code{results$tblRP} \tab \tab \tab \tab \tab a table \cr
   \code{results$tblRQA} \tab \tab \tab \tab \tab a table \cr
+  \code{results$DPplot} \tab \tab \tab \tab \tab an image \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

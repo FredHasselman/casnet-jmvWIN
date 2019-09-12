@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Fred Hasselman" />
+
+<meta name="date" content="2019-03-06" />
+
+<title>Changing vectors and values: Replace, Add/Subtract, Trim, Pad</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Changing vectors and values: Replace, Add/Subtract, Trim, Pad</h1>
+<h4 class="author"><em>Fred Hasselman</em></h4>
+<h4 class="date"><em>2019-03-06</em></h4>
+
+
+
+<div id="replace-values" class="section level2">
+<h2>Replace values</h2>
+<p>The examples below use a variety of infix functions that can be used to change values in a vector.</p>
+<div id="use-index-finders" class="section level3">
+<h3>Use index finders</h3>
+<p>If you already know indices of the columns or rows you want to change, these functions will not be shorter, however often the opposite is the case, one knows a name, but not the exact column/row number. In these cases the infix functions are much shorter.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x=</span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">y=</span><span class="dv">6</span>, <span class="dt">txt=</span><span class="kw">paste0</span>(<span class="st">&quot;delta = &quot;</span>,<span class="dv">6</span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">row.names=</span><span class="kw">paste0</span>(<span class="st">&quot;ri&quot;</span>,<span class="dv">5</span><span class="op">:</span><span class="dv">1</span>), <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(d)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="right">y</th>
+<th align="left">txt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ri5</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="left">delta = 5</td>
+</tr>
+<tr class="even">
+<td>ri4</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="left">delta = 4</td>
+</tr>
+<tr class="odd">
+<td>ri3</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="left">delta = 3</td>
+</tr>
+<tr class="even">
+<td>ri2</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="left">delta = 2</td>
+</tr>
+<tr class="odd">
+<td>ri1</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="left">delta = 1</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># Change a column name based on the current name</span>
+<span class="co"># colnames(d)[colnames(d)%in%&quot;y&quot;] &lt;- &quot;Yhat&quot;</span>
+  <span class="kw">colnames</span>(d)[<span class="st">&quot;y&quot;</span><span class="op">%ci%</span>d] &lt;-<span class="st"> &quot;Yhat&quot;</span> 
+  <span class="dv">1</span><span class="op">:</span><span class="dv">3</span><span class="op">%ci%</span>d
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="st">&quot;x&quot;</span>    <span class="st">&quot;Yhat&quot;</span> <span class="st">&quot;txt&quot;</span>
+
+<span class="co"># Use a range of values in variable to change cells</span>
+<span class="co"># d$txt[d$x&gt;=2&amp;d$x&lt;=4] &lt;- &quot;Changed!&quot;</span>
+  d<span class="op">$</span>txt[d<span class="op">$</span>x<span class="op">%[]%</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>)] &lt;-<span class="st"> &quot;Changed!&quot;</span>
+  knitr<span class="op">::</span><span class="kw">kable</span>(d)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="right">Yhat</th>
+<th align="left">txt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ri5</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="left">delta = 5</td>
+</tr>
+<tr class="even">
+<td>ri4</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="left">Changed!</td>
+</tr>
+<tr class="odd">
+<td>ri3</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="left">Changed!</td>
+</tr>
+<tr class="even">
+<td>ri2</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="left">Changed!</td>
+</tr>
+<tr class="odd">
+<td>ri1</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="left">delta = 1</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># Use row names to change cells</span>
+<span class="co"># d$txt[rownames(d)%in%c(&quot;ri2,ri4&quot;)] &lt;- &quot;Changed again!&quot;</span>
+  d<span class="op">$</span>txt[<span class="kw">c</span>(<span class="st">&quot;ri2&quot;</span>,<span class="st">&quot;ri4&quot;</span>)<span class="op">%ri%</span>d] &lt;-<span class="st"> &quot;Changed again!&quot;</span>
+  knitr<span class="op">::</span><span class="kw">kable</span>(d)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="right">Yhat</th>
+<th align="left">txt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ri5</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="left">delta = 5</td>
+</tr>
+<tr class="even">
+<td>ri4</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="left">Changed again!</td>
+</tr>
+<tr class="odd">
+<td>ri3</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="left">Changed!</td>
+</tr>
+<tr class="even">
+<td>ri2</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="left">Changed again!</td>
+</tr>
+<tr class="odd">
+<td>ri1</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="left">delta = 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="the-rose-tinted-infix" class="section level3">
+<h3>The rose tinted infix</h3>
+<p>Use the rose tinted glasses <code>%00%</code> to change any nasty number into a cute fluffy value of your choice.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Replace special numerical values</span>
+<span class="kw">c</span>(<span class="dv">0</span>,<span class="ot">Inf</span>,<span class="dv">1</span>,<span class="ot">NA</span>,<span class="dv">2</span>,<span class="ot">NaN</span>,<span class="dv">3</span>) <span class="op">%00%</span><span class="st"> </span><span class="ot">NA</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>]  <span class="dv">0</span> <span class="ot">NA</span>  <span class="dv">1</span> <span class="ot">NA</span>  <span class="dv">2</span> <span class="ot">NA</span>  <span class="dv">3</span>
+
+<span class="co"># Also works with NULL</span>
+<span class="ot">NULL</span> <span class="op">%00%</span><span class="st"> </span><span class="ot">NA</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="ot">NA</span>
+
+<span class="co"># Length 0 vectors</span>
+<span class="kw">logical</span>(<span class="dv">0</span>) <span class="op">%00%</span><span class="st"> </span><span class="ot">NA</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="ot">NA</span>
+
+<span class="kw">numeric</span>(<span class="dv">0</span>) <span class="op">%00%</span><span class="st"> &quot;lenghth 0!!&quot;</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="st">&quot;lenghth 0!!&quot;</span>
+         <span class="dv">0</span> <span class="op">%00%</span><span class="st"> &quot;lenghth 0!!&quot;</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">0</span></code></pre></div>
+</div>
+</div>
+<div id="using-counter-infix-functions" class="section level2">
+<h2>Using counter infix functions</h2>
+<p>The counter infix functions can add or subtract values from an input source. This can be a value, or an object.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> <span class="co"># Signed increment</span>
+ <span class="co"># Notice the difference between passing an object and a value for counter</span>
+
+ <span class="co"># Value</span>
+ (<span class="dv">11</span> <span class="op">%+-%</span><span class="st"> </span><span class="op">-</span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">6</span>
+ (<span class="dv">11</span> <span class="op">%+-%</span><span class="st">  </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">16</span>
+
+ <span class="co"># Object</span>
+ i &lt;-<span class="st"> </span><span class="dv">11</span>
+ (i <span class="op">%+-%</span><span class="st"> </span><span class="op">-</span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">6</span>
+ (i <span class="op">%+-%</span><span class="st">  </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">11</span>
+
+ <span class="co"># This means we can use the infix in a while ... statement</span>
+ <span class="co"># </span><span class="al">WARNING</span><span class="co">: As is the case for any while ... statement, be careful not to create an infinite loop!</span>
+ i &lt;-<span class="st"> </span><span class="dv">5</span>
+ <span class="cf">while</span>(i <span class="op">&gt;</span><span class="st"> </span><span class="op">-</span><span class="dv">5</span>){
+   i <span class="op">%+-%</span><span class="st"> </span><span class="op">-</span><span class="dv">1</span>
+   <span class="kw">print</span>(i)
+ }
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">4</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">3</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">2</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">1</span>
+<span class="op">&gt;</span><span class="st"> </span>Warning <span class="cf">in</span> i <span class="op">%+-%</span><span class="st"> </span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="st"> </span>Positive valued counter changed <span class="kw">sign</span> (counter <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>)<span class="op">!</span>
+<span class="er">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">0</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="op">-</span><span class="dv">1</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="op">-</span><span class="dv">2</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="op">-</span><span class="dv">3</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="op">-</span><span class="dv">4</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="op">-</span><span class="dv">5</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> <span class="co"># Non-negative increment</span>
+ <span class="co"># Notice the difference between passing an object and a value for counter</span>
+
+ <span class="co"># Value</span>
+ (<span class="dv">0</span> <span class="op">%++%</span><span class="st"> </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">5</span>
+ (<span class="dv">0</span> <span class="op">%++%</span><span class="st"> </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">5</span>
+
+ <span class="co"># Object</span>
+ i &lt;-<span class="st"> </span><span class="dv">0</span>
+ (i <span class="op">%++%</span><span class="st"> </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">5</span>
+ (i <span class="op">%++%</span><span class="st"> </span><span class="dv">5</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">10</span>
+
+ <span class="co"># This means we can use the infix in a while ... statement</span>
+ <span class="co"># </span><span class="al">WARNING</span><span class="co">: As is the case for any while ... statement, be careful not to create an infinite loop!</span>
+
+ i &lt;-<span class="st"> </span><span class="dv">0</span>
+ <span class="cf">while</span>(i <span class="op">&lt;</span><span class="st"> </span><span class="dv">20</span>){
+ i <span class="op">%++%</span><span class="st"> </span><span class="dv">5</span>
+ <span class="kw">print</span>(i)
+ }
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">5</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">10</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">15</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">20</span></code></pre></div>
+</div>
+<div id="padding-vectors" class="section level2">
+<h2>Padding vectors</h2>
+<p>Use <code>x %[+% n</code> to add <code>n</code> <code>0</code>s to the front of <code>x</code>. Similarly, <code>%+]%</code> would add to the rear, and <code>%[+]%</code> to front and rear. If you want to add a value other than <code>0</code>, use <code>x %[+% c(n,v)</code></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+ (x &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">runif</span>(<span class="dv">10</span>,<span class="dv">1</span>,<span class="dv">10</span>)))
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">2</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">7</span> <span class="dv">9</span> <span class="dv">7</span> <span class="dv">1</span> <span class="dv">3</span> <span class="dv">7</span> <span class="dv">6</span>
+
+ <span class="co"># Pad front with 10 zeros</span>
+ x<span class="op">%[+%</span><span class="dv">5</span>
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">2</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">7</span> <span class="dv">9</span> <span class="dv">7</span> <span class="dv">1</span> <span class="dv">3</span> <span class="dv">7</span> <span class="dv">6</span>
+ <span class="co"># Same as</span>
+ x<span class="op">%[+%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">0</span>)
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">2</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">7</span> <span class="dv">9</span> <span class="dv">7</span> <span class="dv">1</span> <span class="dv">3</span> <span class="dv">7</span> <span class="dv">6</span>
+
+ <span class="co"># Pad rear with zeros</span>
+ x<span class="op">%+]%</span><span class="dv">5</span>
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">2</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">7</span> <span class="dv">9</span> <span class="dv">7</span> <span class="dv">1</span> <span class="dv">3</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span>
+ <span class="co"># Same as</span>
+ x<span class="op">%+]%</span><span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">0</span>)
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">2</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">7</span> <span class="dv">9</span> <span class="dv">7</span> <span class="dv">1</span> <span class="dv">3</span> <span class="dv">7</span> <span class="dv">6</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span>
+
+ <span class="co"># Pad front + rear with NA</span>
+ x<span class="op">%[+]%</span><span class="kw">c</span>(<span class="dv">4</span>,<span class="ot">NA</span>)
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="ot">NA</span> <span class="ot">NA</span>  <span class="dv">2</span>  <span class="dv">7</span>  <span class="dv">6</span>  <span class="dv">7</span>  <span class="dv">9</span>  <span class="dv">7</span>  <span class="dv">1</span>  <span class="dv">3</span>  <span class="dv">7</span>  <span class="dv">6</span> <span class="ot">NA</span> <span class="ot">NA</span>
+
+ <span class="co"># Pad front + rear of a character vector</span>
+ <span class="st">&quot;yes&quot;</span><span class="op">%[+]%</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="st">&quot;no&quot;</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="st">&quot;no&quot;</span>  <span class="st">&quot;yes&quot;</span> <span class="st">&quot;no&quot;</span>
+ <span class="st">&quot;yes&quot;</span><span class="op">%[+]%</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="st">&quot;no&quot;</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="st">&quot;yes&quot;</span> <span class="st">&quot;no&quot;</span>
+ <span class="st">&quot;yes&quot;</span><span class="op">%[+]%</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="st">&quot;no&quot;</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="st">&quot;yes&quot;</span></code></pre></div>
+</div>
+<div id="trimming-vectors" class="section level2">
+<h2>Trimming vectors</h2>
+<p>Use <code>x %[-% n</code>, <code>x %-]% n</code>, or <code>x %[-]% c(n,m)</code> to trim <code>x</code> by <code>n</code> from the front, rear, or, <code>n</code> from the front and <code>m</code> fro the rear. When <code>n</code> is uneven, <code>floor(n)</code> wil be trimmed from the front and <code>ceiling(n)</code> from the rear.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> <span class="kw">set.seed</span>(<span class="dv">4321</span>)
+ (x &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">runif</span>(<span class="dv">10</span>,<span class="dv">1</span>,<span class="dv">10</span>)))
+<span class="op">&gt;</span><span class="st">  </span>[<span class="dv">1</span>] <span class="dv">4</span> <span class="dv">9</span> <span class="dv">5</span> <span class="dv">1</span> <span class="dv">8</span> <span class="dv">8</span> <span class="dv">8</span> <span class="dv">9</span> <span class="dv">5</span> <span class="dv">5</span>
+
+ <span class="co"># Trim front</span>
+ x<span class="op">%[-%</span><span class="dv">5</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">8</span> <span class="dv">8</span> <span class="dv">9</span> <span class="dv">5</span> <span class="dv">5</span>
+
+ <span class="co"># Trim rear</span>
+ x<span class="op">%-]%</span><span class="dv">5</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">4</span> <span class="dv">9</span> <span class="dv">5</span> <span class="dv">1</span> <span class="dv">8</span>
+
+ <span class="co"># Trim front + rear</span>
+ x<span class="op">%[-]%</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>)
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">5</span> <span class="dv">1</span> <span class="dv">8</span> <span class="dv">8</span>
+
+ x<span class="op">%[-]%</span><span class="dv">3</span>
+<span class="op">&gt;</span><span class="st"> </span>[<span class="dv">1</span>] <span class="dv">9</span> <span class="dv">5</span> <span class="dv">1</span> <span class="dv">8</span> <span class="dv">8</span> <span class="dv">8</span> <span class="dv">9</span></code></pre></div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

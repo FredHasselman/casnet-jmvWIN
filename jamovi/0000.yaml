@@ -1,12 +1,12 @@
 ---
 title: CASNET
 name: casnetjmv
-version: 0.0.3
+version: 0.0.7
 jms: '1.0'
 authors:
   - Fred Hasselman
 maintainer: Fred Hasselman <f.hasselman@bsi.ru.nl>
-date: '2018-01-01'
+date: '2019-08-01'
 type: R
 description: >-
   A collection of analytic tools for studying (multivariate) signals recorded
@@ -88,6 +88,22 @@ analyses:
     menuSubgroup: Recurrence Quantification Analyses
     menuTitle: Cross RQA
     menuSubtitle: null
+    description: null
+  - title: Recurrence Networks
+    name: recNet
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Network analyses
+    menuTitle: Recurrence Networks
+    menuSubtitle: null
+    description: null
+  - title: Static Networks
+    name: statNet
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Network analyses
+    menuTitle: Static Networks
+    menuSubtitle: social | cov. matrix
     description: null
   - title: Generate random surrogates
     name: tsSUR

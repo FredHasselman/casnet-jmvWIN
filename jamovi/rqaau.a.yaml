@@ -13,10 +13,22 @@ options:
       title: "Time Series Y1"
       type: Variable
 
-    - name: discretise
-      title: "Change to symbolic representation"
-      type: Bool
-      default: false
+    - name: standardise
+      title: "Transform time series?"
+      type: List
+      options:
+        - name: none
+          title: No transformation
+        - name: meanSD
+          title: "Standardise on Mean and SD"
+        - name: medianMAD
+          title: "Standardise on Median and MAD"
+        - name: unitScale
+          title: "Scale to Min. and Max. (unit scale)"
+        - name: symbolicScale
+          title: "Symbolic representation"
+      default: none
+
 
     - name: emLag
       title: "Embedding lag"

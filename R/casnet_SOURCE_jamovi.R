@@ -1,6 +1,13 @@
+#' @import invctr
+#' @import ggplot2
+
+
 # (C)RQA ------------------------
 
-#' crqa_cl_main
+#' @name crqa_cl_main
+#'
+#' @title Command line crp
+#'
 #'
 #' @param y1 y1
 #' @param y2 y1
@@ -1589,7 +1596,7 @@ crqa_rp <- function(RM,
 #'
 #' @examples
 crqa_diagPofile <- function(RM,
-                            diagWin = 0,
+                            diagWin = NULL,
                             xname = "",
                             yname = "",
                             DLmin = 2,
@@ -1618,18 +1625,31 @@ crqa_diagPofile <- function(RM,
     if(diagWin>0){
       diagWin <- seq(-diagWin,diagWin)
     } else {
-      diagWin <- NULL
+      diagWin <- seq(-1*NCOL(RM),NCOL(RM))
     }
   } else {
     stop("Diagonal window must be 1 positive integer!!")
   }
 
-  B <- rp_nzdiags(RM,d=diagWin,returnNZ = FALSE)
+  #rp_lineDist(RM,d = diagWin, matrices = TRUE)
+  B <- rp_nzdiags(RM,removeNZ = FALSE)
   diagID <- 1:NCOL(B)
   names(diagID) <- colnames(B)
+  if(length(diagWin)<NCOL(B)){
+    cID <- which(colnames(B)%in%diagWin)
+    B <- B[,cID]
+    diagID <- seq_along(cID)
+    names(diagID) <- colnames(B)
+  }
 
   dp <- plyr::ldply(diagID, function(i){
-    data.frame(RR = sum(B[,i]==1, na.rm = TRUE)/(NROW(B)-abs(as.numeric(colnames(B)[i]))))
+    N <- NROW(B)-abs(as.numeric(colnames(B)[i]))
+    Nh1 <-
+    p <- sum(B[,i]==1, na.rm = TRUE)/N
+    data.frame(RR = p,
+               N = N,
+               SEd = sqrt((p*(1-p))/N),
+               SEh = sqrt((p*(1-p))/N))
   }, .id = "Diagonal")
 
   dp$group  <- 1
@@ -1638,13 +1658,30 @@ crqa_diagPofile <- function(RM,
   dp$labels.f <- factor(dp$labels,levels = dp$labels,ordered = TRUE)
 
   if(length(levels(dp$labels.f))>21){
-    breaks <- dp$labels[c(seq(1,which(dp$Diagonal==-1),length.out = 10),which(dp$Diagonal==-1),seq(which(dp$Diagonal==1),which.max(dp$Diagonal),length.out = 10))]
+    ext <- max(min(abs(dp$Diagonal),na.rm = TRUE),abs(max(dp$Diagonal,na.rm = TRUE)))
+    breaks <- c(seq(-ext,-1,length.out = 10),0,seq(1,ext,length.out = 10))
   } else {
     breaks <- dp$labels
   }
 
   x1<-(which.min(as.numeric(paste(dp$Diagonal))))
   x2<-(which.max(as.numeric(paste(dp$Diagonal))))
+
+  B
+  B_long <- B %>% as_tibble() %>% gather(key = "diagonal", value = "rec")
+
+  dpdense <- density(dp$RR,n = 21)
+  round(seq(1,21,length.out=512))
+
+   ggplot2::ggplot(data.frame(x=dpdense$x,y=dpdense$y), aes(x=x,y=y)) +
+     ggplot2::geom_line() +
+     ggplot2::scale_x_continuous(breaks = dpdense$x, labels = breaks) +
+     theme_bw()
+
+
+
+
+   # scale_fill_manual(values=c("0"="white","1"="black"))
 
  g <- ggplot2::ggplot(dp, ggplot2::aes_(x=~labels.f,y=~RR, group = ~group)) +
    ggplot2::geom_path(alpha=.7) +
@@ -1788,15 +1825,19 @@ rp_nzdiags <- function(RM=NULL, d=NULL, returnVectorList=TRUE, returnNZtriplets=
     nzdiags  <- data.frame(row   = nzdiagsM@i,
                            col   = nzdiagsM@j,
                            value = nzdiagsM@x,
-                           ndiag = nzdiagsM@j-nzdiagsM@i)
+                           ndiag = (nzdiagsM@j)-(nzdiagsM@i))
     nzdiags <- dplyr::arrange(nzdiags,nzdiags$ndiag)
 
+ if(removeNZ){
     if(!is.null(d)){
       nd <- unique(nzdiags$ndiag)
       # Get diagonals which have nonzero elements
       d <- nd[nd%in%sort(as.vector(d))]
     } else {
       d <- unique(nzdiags$ndiag)
+    }
+   } else {
+      d <-  c(-1*rev(1:(NCOL(nzdiagsM)-1)),0,1:(NCOL(nzdiagsM)-1))
     }
 
     indMat <- col(RM)-row(RM)
@@ -1817,7 +1858,7 @@ rp_nzdiags <- function(RM=NULL, d=NULL, returnVectorList=TRUE, returnNZtriplets=
       B[(nzdiags$row[nzdiags$ndiag==d[i]])+1,i] <- nzdiags$value[nzdiags$ndiag==d[i]]
     }
 
-    zID <- which(colSums(B)==0)
+    zID <- which(Matrix::colSums(Matrix::as.matrix(B))==0)
     if(length(zID)>0){
       if(removeNZ){
       B  <- B[,-zID]
@@ -1834,126 +1875,128 @@ rp_nzdiags <- function(RM=NULL, d=NULL, returnVectorList=TRUE, returnNZtriplets=
     } else {
       return(B)
     }
+  } else {
+    stop("Input to rp_nzdiags is not a matrix-like object.")
   }
 }
 
-
-rp_nzdiags_matlab <- function(RP,d=NULL){
-  # Loosely based on MATLAB function spdiags() by Rob Schreiber - Copyright 1984-2014 The MathWorks, Inc.
-  #require(Matrix)
-
-  if(grepl("matrix",class(RP),ignore.case = TRUE)){
-
-    A <- RP
-
-    if(all(A>0)){warning("All matrix elements are nonzero.")}
-
-    # create an indicator for all diagonals in the matrix
-    ind   <- col(A)-row(A)
-
-    # Split the matrix!
-    spd <- split(A, ind)
-
-    if(is.null(d)){
-
-      # Get diagonals which have nonzero elements
-      keepID <-plyr::ldply(spd, function(di) any(di>0))
-      nzdiag <- spd[keepID$V1]
-      # Indices of nonzero diagonals
-      d      <- as.numeric(keepID$.id[keepID$V1])
-
-    } else {
-
-      # Diagonals are specified
-      d <- sort(as.vector(d))
-      keepID <- names(spd)%in%d
-      nzdiag <- spd[keepID]
-    }
-
-    # Deal with uneven rows and cols
-    m  <- NROW(A)
-    n  <- NCOL(A)
-    p  <- length(d)
-    if(is.logical(A)){
-      B <- matrix(FALSE,nrow = min(c(m,n), na.rm = TRUE), ncol = p)
-    } else {
-      B <- matrix(0, nrow = min(c(m,n), na.rm = TRUE), ncol = p)
-    }
-
-    for(i in seq_along(d)){
-      B[zoo::index(nzdiag[[i]]),i] <- nzdiag[[i]]
-    }
-    colnames(B) <- paste(d)
-
-    return(B)
-  }
-}
-
-
-rp_nzdiags_chroma <- function(RP, d=NULL){
-  # Loosely based on MATLAB function spdiags() by Rob Schreiber - Copyright 1984-2014 The MathWorks, Inc.
-  #require(Matrix)
-
-  if(grepl("matrix",class(RP),ignore.case = TRUE)){
-
-    A <- RP
-
-    if(all(A>0)){warning("All matrix elements are nonzero.")}
-
-    # create an indicator for all diagonals in the matrix
-    ind   <- col(A)-row(A)
-
-    # Split the matrix!
-    spd <- split(A, ind)
-
-    if(is.null(d)){
-
-      # Get diagonals which have nonzero elements
-      keepID <-plyr::ldply(spd, function(di) any(di>0))
-      nzdiag <- spd[keepID$V1]
-      # Indices of nonzero diagonals
-      d      <- as.numeric(keepID$.id[keepID$V1])
-
-    } else {
-
-      # Diagonals are specified
-      d <- sort(as.vector(d))
-      keepID <-  names(spd)%in%d
-      nzdiag <- spd[keepID]
-    }
-
-    # Deal with uneven rows and cols
-    m  <- NROW(A)
-    n  <- NCOL(A)
-    p  <- length(d)
-    if(is.logical(A)){
-      B <- matrix(FALSE,nrow = min(c(m,n), na.rm = TRUE), ncol = p)
-    } else {
-      B <- matrix(0, nrow = min(c(m,n), na.rm = TRUE), ncol = p)
-    }
-
-    for(i in seq_along(d)){
-      B[zoo::index(nzdiag[[i]]),i] <- nzdiag[[i]]
-    }
-    colnames(B) <- paste(d)
-
-    return(B)
-  }
-}
+#
+# rp_nzdiags_matlab <- function(RP,d=NULL){
+#   # Loosely based on MATLAB function spdiags() by Rob Schreiber - Copyright 1984-2014 The MathWorks, Inc.
+#   #require(Matrix)
+#
+#   if(grepl("matrix",class(RP),ignore.case = TRUE)){
+#
+#     A <- RP
+#
+#     if(all(A>0)){warning("All matrix elements are nonzero.")}
+#
+#     # create an indicator for all diagonals in the matrix
+#     ind   <- col(A)-row(A)
+#
+#     # Split the matrix!
+#     spd <- split(A, ind)
+#
+#     if(is.null(d)){
+#
+#       # Get diagonals which have nonzero elements
+#       keepID <-plyr::ldply(spd, function(di) any(di>0))
+#       nzdiag <- spd[keepID$V1]
+#       # Indices of nonzero diagonals
+#       d      <- as.numeric(keepID$.id[keepID$V1])
+#
+#     } else {
+#
+#       # Diagonals are specified
+#       d <- sort(as.vector(d))
+#       keepID <- names(spd)%in%d
+#       nzdiag <- spd[keepID]
+#     }
+#
+#     # Deal with uneven rows and cols
+#     m  <- NROW(A)
+#     n  <- NCOL(A)
+#     p  <- length(d)
+#     if(is.logical(A)){
+#       B <- matrix(FALSE,nrow = min(c(m,n), na.rm = TRUE), ncol = p)
+#     } else {
+#       B <- matrix(0, nrow = min(c(m,n), na.rm = TRUE), ncol = p)
+#     }
+#
+#     for(i in seq_along(d)){
+#       B[zoo::index(nzdiag[[i]]),i] <- nzdiag[[i]]
+#     }
+#     colnames(B) <- paste(d)
+#
+#     return(B)
+#   }
+# }
+#
+#
+# rp_nzdiags_chroma <- function(RP, d=NULL){
+#   # Loosely based on MATLAB function spdiags() by Rob Schreiber - Copyright 1984-2014 The MathWorks, Inc.
+#   #require(Matrix)
+#
+#   if(grepl("matrix",class(RP),ignore.case = TRUE)){
+#
+#     A <- RP
+#
+#     if(all(A>0)){warning("All matrix elements are nonzero.")}
+#
+#     # create an indicator for all diagonals in the matrix
+#     ind   <- col(A)-row(A)
+#
+#     # Split the matrix!
+#     spd <- split(A, ind)
+#
+#     if(is.null(d)){
+#
+#       # Get diagonals which have nonzero elements
+#       keepID <-plyr::ldply(spd, function(di) any(di>0))
+#       nzdiag <- spd[keepID$V1]
+#       # Indices of nonzero diagonals
+#       d      <- as.numeric(keepID$.id[keepID$V1])
+#
+#     } else {
+#
+#       # Diagonals are specified
+#       d <- sort(as.vector(d))
+#       keepID <-  names(spd)%in%d
+#       nzdiag <- spd[keepID]
+#     }
+#
+#     # Deal with uneven rows and cols
+#     m  <- NROW(A)
+#     n  <- NCOL(A)
+#     p  <- length(d)
+#     if(is.logical(A)){
+#       B <- matrix(FALSE,nrow = min(c(m,n), na.rm = TRUE), ncol = p)
+#     } else {
+#       B <- matrix(0, nrow = min(c(m,n), na.rm = TRUE), ncol = p)
+#     }
+#
+#     for(i in seq_along(d)){
+#       B[zoo::index(nzdiag[[i]]),i] <- nzdiag[[i]]
+#     }
+#     colnames(B) <- paste(d)
+#
+#     return(B)
+#   }
+# }
 
 
 
 
 #' Line length distributions
 #'
-#' @param RP A thresholded recurrence matrix (binary: 0 - 1)
+#' @param RM A thresholded recurrence matrix (binary: 0 - 1)
 #' @param DLmin Minimal diagonal line length (default = \code{2})
 #' @param VLmin Minimal vertical line length (default = \code{2})
 #' @param HLmin Minimal horizontal line length (default = \code{2})
 #' @param DLmax Maximal diagonal line length (default = length of diagonal -1)
 #' @param VLmax Maximal vertical line length (default = length of diagonal -1)
 #' @param HLmax Maximal horizontal line length (default = length of diagonal -1)
-#' @param d Vector of diagonals to be extracted from matrix \code{RP} before line length distributions are calculated. A one element vector will be interpreted as a windowsize, e.g., \code{d = 50} will extract the diagonal band \code{-50:50}. A two element vector will be interpreted as a band, e.g. \code{d = c(-50,100)} will extract diagonals \code{-50:100}. If \code{length(d) > 2}, the numbers will be interpreted to refer to individual diagonals, \code{d = c(-50,50,100)} will extract diagonals \code{-50,50,100}.
+#' @param d Vector of diagonals to be extracted from matrix \code{RM} before line length distributions are calculated. A one element vector will be interpreted as a windowsize, e.g., \code{d = 50} will extract the diagonal band \code{-50:50}. A two element vector will be interpreted as a band, e.g. \code{d = c(-50,100)} will extract diagonals \code{-50:100}. If \code{length(d) > 2}, the numbers will be interpreted to refer to individual diagonals, \code{d = c(-50,50,100)} will extract diagonals \code{-50,50,100}.
 #' @param theiler Size of the theiler window, e.g. \code{theiler = 1} removes diagonal bands -1,0,1 from the matrix. If \code{length(d)} is \code{NULL}, 1 or 2, the theiler window is applied before diagonals are extracted. The theiler window is ignored if \code{length(d)>2}, or if it is larger than the matrix or band indicated by parameter \code{d}.
 #' @param invert Relevant for Recurrence Time analysis: Return the distribution of 0 valued segments in nonzero diagonals/verticals/horizontals. This indicates the time between subsequent line structures.
 #' @param AUTO Is this an AUTO RQA?
@@ -2011,6 +2054,7 @@ rp_lineDist <- function(RM,
     RM <- bandReplace(RM,-theiler,theiler,0)
   }
 
+  RP <- matrix(0,ncol=NCOL(RM),nrow = NROW(rm))
   if(Matrix::isSymmetric(unname(RM))){
     if(all(Matrix::diag(RM)==1)){
       RP <- bandReplace(RM,0,0,0)
@@ -2019,9 +2063,14 @@ rp_lineDist <- function(RM,
     RP <- RM
   }
 
-  B <- rp_nzdiags(RP)
-  V <- Matrix::as.matrix(RP)[,colSums(Matrix::as.matrix(RP))>0]
 
+  B <- rp_nzdiags(RP)
+  if(length(B)==0){B<-as.matrix(0)}
+  nzV <- which(colSums(Matrix::as.matrix(RP))>0)
+  V <- Matrix::as.matrix(Matrix::as.matrix(RP)[,nzV])
+  colnames(V) <- nzV
+
+  RP <- matrix(0,ncol=NCOL(RM),nrow = NROW(rm))
   if(Matrix::isSymmetric(unname(RM))){
     if(all(Matrix::diag(RM)==1)){
       RP <- bandReplace(Matrix::t(RM),0,0,0)
@@ -2030,7 +2079,9 @@ rp_lineDist <- function(RM,
     RP <- Matrix::t(RM)
   }
 
-  H <- Matrix::as.matrix(RP)[,colSums(Matrix::as.matrix(RP))>0]
+  nzH <- which(colSums(Matrix::as.matrix(RP))>0)
+  H <- Matrix::as.matrix(Matrix::as.matrix(RP)[,nzH])
+  colnames(H) <- nzH
   rm(RP)
 
   # Get diagonal lines & pad with zeros
@@ -2185,6 +2236,7 @@ bandReplace <- function(mat, lower, upper, value = NA, silent=TRUE){
 #' @param order.by If \code{to.ts = TRUE}, pass a vector of the same length as \code{y1} and \code{y2}. It will be used as the time index, if \code{NA} the vector indices will be used to represent time.
 #' @param to.sparse Should sparse matrices be used?
 #' @param method Distance measure to use. Any option that is valid for argument \code{method} of \code{\link[proxy]{dist}}. Type \code{proxy::pr_DB$get_entries()} to se a list of all the options. Common methods are: "Euclidean", "Manhattan", "Minkowski", "Chebysev" (or the same but shorter: "L2","L1","Lp" and "max" distance) (default = \code{"Euclidean"})
+#' @param weighted Creates a matrix with \code{0} for distances greater than \code{emRad} and the distance magnitude for distances that fall within the radius. An atribute \code{weighted = TRUE} will be added to the matrix object (default = \code{FALSE})
 #' @param doPlot Plot the matrix by calling \code{\link{rp_plot}} with defult settings
 #' @param silent Silent-ish mode
 #' @param ... Any paramters to pass to \code{\link{rp_plot}} if \code{doPlot = TRUE}
@@ -2202,6 +2254,7 @@ rp <- function(y1, y2 = NULL,
                order.by = NULL,
                to.sparse = FALSE,
                method = "Euclidean",
+               weighted = FALSE,
                doPlot = FALSE,
                silent = TRUE,
                ...){
@@ -2230,12 +2283,13 @@ rp <- function(y1, y2 = NULL,
   et1 <- ts_embed(y1, emDim, emLag, silent = silent)
   et2 <- ts_embed(y2, emDim, emLag, silent = silent)
 
-   dist_method <- try_CATCH(proxy::pr_DB$get_entry(method))
+  # dist_method <- try_CATCH(proxy::pr_DB$get_entry(method))
   # if("error"%in%class(dist_method$value)){
   #   stop("Unknown distance metric!\nUse proxy::pr_DB$get_entries() to see a list of valid options.")
-  # } else {
-    dmat <- flexclust::dist2(x=et1,y=et2,
-                        method = tolower(method))
+  #  } else {
+    # dmat <- proxy::dist(x=et2, y=et1,
+    #                     method = tolower(method))
+    dmat <- flexclust::dist2(x=et2, y=et1, method = tolower(method))
   #}
 
   # Remove proxy class
@@ -2260,7 +2314,11 @@ rp <- function(y1, y2 = NULL,
 
   if(to.sparse){
     if(!is.null(emRad)){
-      dmat <- di2bi(dmat, emRad = emRad, convMat = TRUE)
+      if(weighted){
+        dmat <- di2we(dmat, emRad = emRad, convMat = TRUE)
+      } else {
+        dmat <- di2bi(dmat, emRad = emRad, convMat = TRUE)
+      }
     }
     attributes(dmat)$emDims1  <- et1
     attributes(dmat)$emDims2  <- et2
@@ -2269,12 +2327,17 @@ rp <- function(y1, y2 = NULL,
     #dmat <- rp_checkfix(dmat, checkAUTO=TRUE, fixAUTO=TRUE)
   } else {
     if(!is.null(emRad)){
-      dmat <- di2bi(dmat, emRad = emRad, convMat = FALSE)
+      if(weighted){
+        dmat <- di2we(dmat, emRad = emRad, convMat = FALSE)
+      } else {
+        dmat <- di2bi(dmat, emRad = emRad, convMat = FALSE)
+      }
     }
     attr(dmat,"emDims1") <- et1
     attr(dmat,"emDims2") <- et2
     attr(dmat,"emDims1.name") <- colnames(y1)
     attr(dmat,"emDims2.name") <- colnames(y2)
+    attr(dmat,"weighted") <- weighted
   }
 
   dmat <- rp_checkfix(dmat, checkAUTO = TRUE, fixAUTO = TRUE)
@@ -2394,6 +2457,7 @@ rp_checkfix <- function(RM, checkS4 = TRUE, checkAUTO = TRUE, checkSPARSE = FALS
 #' @param xlab An x-axis label
 #' @param ylab An y-axis label
 #' @param plotSurrogate Should a 2-panel comparison plot based on surrogate time series be added? If \code{RM} has attributes \code{y1} and \code{y2} containing the time series data (i.e. it was created by a call to \code{\link{rp}}), the following options are available: "RS" (random shuffle), "RP" (randomised phases), "AAFT" (amplitude adjusted fourier transform). If no timeseries data is included, the columns will be shuffled.  NOTE: This is not a surrogate test, just 1 surrogate is created from \code{y1}.
+#' @param weighted If this is a weighted matrix, treat it as an unthresholded matrix (default = \code{FALSE})
 #' @param returnOnlyObject Return the ggplot object only, do not draw the plot (default = \code{TRUE})
 #' @param useGtable Use package \code{\link{gtable}}. If this results in errors (e.g. viewport settings), set set to FALSE to use package \code{patchwork}. This package is in development, see the warning for instructions on how to install it.
 #'
@@ -2402,7 +2466,7 @@ rp_checkfix <- function(RM, checkS4 = TRUE, checkAUTO = TRUE, checkSPARSE = FALS
 #'
 #' @family Distance matrix operations
 #'
-rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusRRbar = TRUE, markEpochsLOI = NULL, markEpochsGrid = NULL, radiusValue = NA, title = "", xlab = "", ylab="", plotSurrogate = NA, returnOnlyObject = FALSE, useGtable = TRUE){
+rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusRRbar = TRUE, markEpochsLOI = NULL, markEpochsGrid = NULL, radiusValue = NA, title = "", xlab = "", ylab="", plotSurrogate = NA, weighted = FALSE, returnOnlyObject = FALSE, useGtable = TRUE){
 
   # # check patchwork
   # if(!length(find.package("patchwork",quiet = TRUE))>0){
@@ -2412,11 +2476,15 @@ rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusR
 
 
   # check auto-recurrence and make sure Matrix has sparse triplet representation
-  if(is.null(RM)){
+  if(is.null(attr(RM,"AUTO"))){
     RM   <- rp_checkfix(RM, checkAUTO = TRUE)
   }
 
   AUTO <- attr(RM,"AUTO")
+
+  if(is.null(attr(RM,"weighted"))){
+    attr(RM,"weighted") <- weighted
+  }
 
   # prepare data
   if(attr(RM,"package")%00%""%in%"Matrix"){
@@ -2431,7 +2499,7 @@ rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusR
   }
 
   # check unthresholded
-  if(!all(as.vector(meltRP$value[!is.na(meltRP$value)])==0|as.vector(meltRP$value[!is.na(meltRP$value)])==1)){
+  if(!all(as.vector(meltRP$value[!is.na(meltRP$value)])==0|as.vector(meltRP$value[!is.na(meltRP$value)])==1)|weighted){
     unthresholded <- TRUE
   } else {
     unthresholded <- FALSE
@@ -2458,7 +2526,7 @@ rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusR
   }
 
   # main plot
-  gRP <-  ggplot2::ggplot(ggplot2::aes_(x=~Var1, y=~Var2, fill = ~value), data= meltRP) +
+  gRP <-  ggplot2::ggplot(ggplot2::aes_(x=~Var2, y=~Var1, fill = ~value), data= meltRP) +
     ggplot2::geom_raster(hjust = 0, vjust=0,show.legend = FALSE) +
     ggplot2::geom_abline(slope = 1,colour = "grey50", size = 1)
   #ggtitle(label=title, subtitle = ifelse(AUTO,"Auto-recurrence plot","Cross-recurrence plot")) +
@@ -2512,7 +2580,7 @@ rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusR
       resol <- resol[-1,]
 
       breaks <- RecScale$RR
-      if(round(diff(breaks))==0){
+      if(any(round(diff(breaks))==0)){
         id <- which(round(diff(breaks))==0)
         breaks[id] <- (breaks[id] + mean(diff(breaks[id]),na.rm=TRUE))
       }
@@ -3686,7 +3754,8 @@ di2bi <- function(distmat, emRad, theiler = 0, convMat = FALSE){
   if(convMat&matPack){RP <- Matrix::as.matrix(RP)}
 
   suppressWarnings(RP <- rp_copy_attributes(source = distmat,  target = RP))
-  attributes(RP)$emRad <- emRad
+  attributes(RP)$emRad    <- emRad
+  attributes(RP)$weighted <- FALSE
 
   return(RP)
 }
@@ -3741,7 +3810,8 @@ di2we <- function(distmat, emRad, convMat = FALSE){
   if(convMat&matPack){RP <- Matrix::as.matrix(RP)}
 
   RP <- rp_copy_attributes(source = distmat,  target = RP)
-  attributes(RP)$emRad <- emRad
+  attributes(RP)$emRad    <- emRad
+  attributes(RP)$weighted <- TRUE
 
   return(RP)
 }
@@ -4285,6 +4355,7 @@ fd_psd <- function(y, fs = NULL, nfft = NA, standardise = c("none","mean.sd","me
   return(outList[c(returnPLAW,TRUE,TRUE,returnInfo,returnPlot)])
 }
 
+
 #' fd_sda
 #'
 #' @title Standardised Dispersion Analysis (SDA).
@@ -4294,36 +4365,35 @@ fd_psd <- function(y, fs = NULL, nfft = NA, standardise = c("none","mean.sd","me
 #' @param standardise standardise the series (default = "mean.sd")
 #' @param detrend Subtract linear trend from the series (default = FALSE)
 #' @param polyOrder Order of detrending polynomial
-#' @param adjustSumOrder  Adjust the time series (summation or differencing), based on the global scaling exponent, see e.g. [Ihlen (2012)](https://www.frontiersin.org/files/Articles/23948/fphys-03-00141-r2/image_m/fphys-03-00141-t001.jpg) (default = \code{TRUE})
+#' @param adjustSumOrder  Adjust the time series (summation or differencing), based on the global scaling exponent, see e.g. <https://www.frontiersin.org/files/Articles/23948/fphys-03-00141-r2/image_m/fphys-03-00141-t001.jpg>{Ihlen (2012)} (default = `FALSE`)
 #' @param scaleMax   Maximum scale to use
 #' @param scaleMin   Minimium scale to use
-#' @param scaleResolution  The scales at which detrended fluctuation will be evaluated will are calculatd as: \code{(scaleMax-scaleMin)/scaleResolution}
-#' @param scaleS If not \code{NA}, it should be a numeric vector listing the scales on which to evaluate the detrended fluctuations. Arguments \code{scaleMax, scaleMin, scaleResolution} will be ignored.
-#' @param overlap Turn SDA into a sliding window analysis. A number in \code{[0 ... 1]} representing the amount of 'bin overlap'. If \code{length(y) = 1024} and overlap is \code{.5}, a scale of \code{4} will be considered a sliding window of size \code{4} with stepsize \code{floor(.5 * 4) = 2} (default = \code{0})
+#' @param scaleResolution  The scales at which the standardised fluctuations are calculated as: `(scaleMax-scaleMin)/scaleResolution`
+#' @param scaleS If not `NA`, it should be a numeric vector listing the scales on which to evaluate the fluctuations. Arguments `scaleMax, scaleMin, scaleResolution` will be ignored.
+#' @param overlap Turn SDA into a sliding window analysis. A number in `[0 ... 1]` representing the amount of 'bin overlap'. If `length(y) = 1024` and overlap is `.5`, a scale of `4` will be considered a sliding window of size `4` with stepsize `floor(.5 * 4) = 2` (default = `0`)
 #' @param minData Minimum number of data points in a bin needed to calculate standardised dispersion
-#' @param doPlot   Output the log-log scale versus fluctuation plot with linear fit (default = \code{TRUE}).
-#' @param returnPlot Return ggplot2 objects
-#' @param returnPLAW Return the power law data (default = \code{FALSE})
-#' @param returnInfo Return all the data used in DFA (default = \code{FALSE})
+#' @param doPlot   Output the log-log scale versus fluctuation plot with linear fit by calling function `plotFD_loglog()` (default = `TRUE`)
+#' @param returnPlot Return ggplot2 object (default = `FALSE`)
+#' @param returnPLAW Return the power law data (default = `FALSE`)
+#' @param returnInfo Return all the data used in SDA (default = `FALSE`)
 #' @param silent Silent-ish mode
 #' @param noTitle Do not generate a title (only the subtitle)
-#' @param tsName Name of y
-#'
+#' @param tsName Name of y added as a subtitle to the plot
 #'
 #' @author Fred Hasselman
-#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
+#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. <http://doi.org/10.3389/fphys.2013.00075>
 #'
 #' @return A list object containing:
 #' \itemize{
-#' \item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
-#' \item Estimate of scaling exponent \code{sap} based on a fit over the standard range (\code{fullRange}), or on a user defined range \code{fitRange}.
-#' \item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+#' \item A data matrix `PLAW` with columns `freq.norm`, `size` and `bulk`.
+#' \item Estimate of scaling exponent `sap` based on a fit over the standard range (`fullRange`), or on a user defined range `fitRange`.
+#' \item Estimate of the the Fractal Dimension (`FD`) using conversion formula's reported in Hasselman(2013).
 #' \item Information output by various functions.
 #' }
 #'
 #' @export
 #'
-#' @family FD estimators
+#' @family Fluctuation Analyses
 #'
 fd_sda <- function(y,
                    fs = NULL,
@@ -4334,14 +4404,25 @@ fd_sda <- function(y,
                    scaleMin = 2,
                    scaleMax = floor(log2(NROW(y)/2)),
                    scaleResolution = 30,
-                   scaleS = NA, overlap = 0, minData = 4, doPlot = TRUE, returnPlot = FALSE, returnPLAW = FALSE, returnInfo = FALSE, silent = TRUE, noTitle = FALSE, tsName="y"){
+                   scaleS = NA,
+                   overlap = 0,
+                   minData = 4,
+                   doPlot = FALSE,
+                   returnPlot = FALSE,
+                   returnPLAW = FALSE,
+                   returnInfo = FALSE,
+                   silent = FALSE,
+                   noTitle = FALSE,
+                   tsName="y"){
 
 
   if(!stats::is.ts(y)){
     if(is.null(fs)){fs <- 1}
     y <- stats::ts(y, frequency = fs)
-    if(!silent){cat("\n\nfd.sda:\tSample rate was set to 1.\n\n")}
+    if(!silent){cat("\n\nfd_sda:\tSample rate was set to 1.\n\n")}
   }
+
+  y_ori <- y
 
   N             <- length(y)
   # Simple linear detrending.
@@ -4365,7 +4446,7 @@ fd_sda <- function(y,
   }
 
   if(adjustSumOrder){
-    y       <- ts_sumorder(y_ori, scaleS = scaleS, polyOrder = polyOrder, minData = minData)
+    y       <- ts_sumorder(y, scaleS = scaleS, polyOrder = polyOrder, minData = minData)
     Hadj    <- attr(y,"Hadj")
     Hglobal <- attr(y,"Hglobal.excl")
   } else {
@@ -4377,34 +4458,91 @@ fd_sda <- function(y,
 
   fitRange <- which(lengths(lapply(out$scale, function(s){ts_slice(y,s)}))>=minData)
 
-  lmfit1        <- stats::lm(log(out) ~ log(out$scale))
+  lmfit1        <- stats::lm(log(out$sd) ~ log(out$scale))
   lmfit2        <- stats::lm(log(out$sd[fitRange]) ~ log(out$scale[fitRange]))
 
   outList <- list(
-    PLAW  =  cbind.data.frame(freq.norm = stats::frequency(y)/out$scale, size = out$scale, bulk = out$sd),
-    fullRange = list(sap = stats::coef(lmfit1)[2], H = 1+stats::coef(lmfit1)[2] + Hadj, FD = sa2fd_sda(stats::coef(lmfit1)[2]), fitlm1 = lmfit1),
-    fitRange  = list(sap = stats::coef(lmfit2)[2], H = 1+stats::coef(lmfit2)[2] + Hadj, FD = sa2fd_sda(stats::coef(lmfit2)[2]), fitlm2 = lmfit2),
-    info = out)
+    PLAW  =  cbind.data.frame(freq.norm = stats::frequency(y)/out$scale,
+                              size = out$scale,
+                              bulk = out$sd),
+    fullRange = list(sap = stats::coef(lmfit1)[2],
+                     H = 1+stats::coef(lmfit1)[2] + Hadj,
+                     FD = sa2fd_sda(stats::coef(lmfit1)[2]),
+                     fitlm1 = lmfit1,
+                     method = paste0("Full range (n = ",length(out$scale),")\nSlope = ",round(stats::coef(lmfit1)[2],2)," | FD = ",round(sa2fd_sda(stats::coef(lmfit1)[2]),2))),
+    fitRange  = list(sap = stats::coef(lmfit2)[2],
+                     H = 1+stats::coef(lmfit2)[2] + Hadj,
+                     FD = sa2fd_sda(stats::coef(lmfit2)[2]),
+                     fitlm2 = lmfit2,
+                     method = paste0("Fit range (n = ",length(out$scale[fitRange]),")\nSlope = ",round(stats::coef(lmfit2)[2],2)," | FD = ",round(sa2fd_sda(stats::coef(lmfit2)[2]),2))),
+    info = out,
+    plot = NA,
+    analysis = list(
+      name = "Standardised Dispersion Analysis",
+      logBaseFit = "log",
+      logBasePlot = "e")
+  )
 
+  # if(doPlot|returnPlot){
+  #   if(noTitle){
+  #     title <- ""
+  #   } else {
+  #     title <- "log-log regression (SDA)"
+  #   }
+  #
+  #   if(doPlot){
+  #     g <- plotFD_loglog(fd.OUT = outList, title = title, subtitle = tsName, logBase = "e", ylabel = "Standardised Dispersion")
+  #     if(returnPlot){
+  #       outList$plot <- g
+  #     }
+  #   }
+  # }
+
+  if(noTitle){title <- ""} else {title <- "Time series"}
+
+  tsData <- data.frame(y=c(as.numeric(y_ori),as.numeric(y)),
+                       x=c(time(y),time(y)),
+                       label = c(rep(tsName,NROW(y_ori)),rep(paste(tsName," adj."),NROW(y))),
+                       stringsAsFactors = FALSE)
+
+
+  g1 <- ggplot2::ggplot(tsData,ggplot2::aes_(x=~x,y=~y)) +
+    ggplot2::geom_line() +
+    ggplot2::facet_grid(label ~ ., scales = "free") +
+    ggplot2::scale_x_continuous("Time", expand=c(0,0)) +
+    ggplot2::scale_y_continuous("", expand=c(0,0)) +
+    ggplot2::ggtitle(label = title, subtitle = paste0("Standardisation: ",standardise, " | Summation order",ifelse(is.na(Hglobal),"",paste0(" (H = ",round(Hglobal,digits = 2),")"))," adjustment: ", Hadj," | Detrending order: ",polyOrder)) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(strip.text = ggplot2::element_text(face="bold"))
+
+
+  if(noTitle){title <- ""} else {title <- "log-log plot"}
+
+  g2 <- plotFA_loglog(outList, title = title, subtitle = paste0("Full range: Slope = ",round(outList$fullRange$sap,digits=2)," | H = ",round(outList$fullRange$H,digits = 2), " | Hasselman's informed FD = ",round(outList$fullRange$FD,digits = 2),"\nExcl large: Slope = ",round(outList$fitRange$sap,digits = 2)," | H = ",round(outList$fitRange$H,digits = 2), " | Hasselman's informed FD = ",round(outList$fitRange$FD,digits = 2)) ,logBase = "2")
 
   if(doPlot){
-
-
-
-    # old<- ifultools::splitplot(2,1,1)
-    # graphics::plot(y,ylab = "Y", main = paste0('Full    sap: ', round(stats::coef(lmfit1)[2],digits=2), ' | H:', round(1+stats::coef(lmfit1)[2],digits=2), ' | FD:',round(sa2fd_sda(stats::coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(stats::coef(lmfit2)[2],digits=2), ' | H:', round(1+stats::coef(lmfit1)[2],digits=2), ' | FD:',round(sa2fd_sda(stats::coef(lmfit2)[2]),digits=2)))
-    # ifultools::splitplot(2,1,2)
-    # graphics::plot(log(out$sd) ~ log(out$scale), xlab="log(Bin Size)", ylab = "log(SD)")
-    # graphics::lines(lmfit1$model$`log(out$scale)`,stats::predict(lmfit1),lwd=3,col="darkred")
-    # graphics::lines(lmfit2$model$`log(out$scale[bins])`, stats::predict(lmfit2),lwd=3,col="darkblue")
-    # graphics::legend("bottomleft",c(paste0("Full (n = ",length(out$scale),")"), paste0("Range (n = ",length(bins),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
-    # graphics::par(old)
+    multi_PLOT(g1,g2)
   }
 
-  return(
-  )
+  if(returnPlot){
+    outList$plots <- list(g1=g1, g2=g2)
+  }
+
+
+  return(outList[c(returnPLAW,TRUE,TRUE,returnInfo,returnPlot)])
 }
 
+#   if(returnInfo){returnPLAW<-TRUE}
+#
+#   if(!silent){
+#     cat("\n~~~o~~o~~casnet~~o~~o~~~\n")
+#     cat(paste("\n",outList$analysis$name,"\n\n",outList$fullRange$method,"\n\n",outList$fitRange$method))
+#     cat("\n\n~~~o~~o~~casnet~~o~~o~~~\n")
+#   }
+#
+#   return(invisible(outList[c(returnPLAW,TRUE,TRUE,returnInfo,returnPlot, TRUE)]))
+#
+# }
 
 
 #' fd_dfa
@@ -4651,7 +4789,7 @@ fd_sev <- function(y, detrend = FALSE, adjustSumOrder = FALSE, doPlot = TRUE, re
 #' @param doPlot Produce a plot of the Allan variance?
 #' @param useSD Use the standarddeviation instead of variance?
 #'
-#' @return A dataframe with the Allan Factor (variance), Alan standard deviation and error due to bin size
+#' @return A dataframe with for each scale \code{tau}, the Allan variance (or Allan factor for poisson processes), Alan standard deviation and error due to bin size
 #' @export
 #'
 fd_allan <- function(y, fs = stats::tsp(stats::hasTsp(y))[3], doPlot = FALSE, useSD=FALSE){
@@ -4683,27 +4821,33 @@ fd_allan <- function(y, fs = stats::tsp(stats::hasTsp(y))[3], doPlot = FALSE, us
   }
 
   df <- data.frame(Tcluster = time, AT = av, ATsd= sqrt(av), error=error)
+
   if(doPlot){
     if(useSD){
 
-      g <-  ggplot(df,ggplot2::aes_(x=~Tcluster,y=~ATsd)) +
-        geom_path() +
-        geom_pointrange(ggplot2::aes_(ymin=~ATsd-(~ATsd*~error),ymax=~ATsd+(~ATsd*~error))) +
-        scale_y_continuous(trans = scales::log10_trans(),
+      if((sum(log10(df$ATsd)<0)/NROW(df))>.5){
+        lims <- c(min(df$ATsd),max(df$ATsd)^2)
+      }
+
+      g <-  ggplot2::ggplot(df,ggplot2::aes_(x=~Tcluster,y=~ATsd)) +
+        ggplot2::geom_path() +
+        ggplot2::geom_pointrange(ggplot2::aes_(ymin=~ATsd-(df$ATsd*df$error),ymax=~ATsd+(df$ATsd*df$error))) +
+        ggplot2::scale_y_continuous(trans = scales::log10_trans(),
                            breaks = scales::trans_breaks("log10", function(x) 10^x),
                            labels = scales::trans_format("log10", scales::math_format())
         ) +
-        scale_x_continuous(trans = scales::log10_trans(),
+        ggplot2::scale_x_continuous(trans = scales::log10_trans(),
                            breaks = scales::trans_breaks("log10", function(x) 10^x),
                            labels = scales::trans_format("log10", scales::math_format())) +
         ggplot2::xlab("Cluster Times (T)") +
-        ggplot2::ylab("Allan Standard Deviation") +
+        ggplot2::ylab("Allan Deviation") +
+        ggplot2::coord_equal() +
         ggplot2::theme_bw()
 
     } else {
       g <-  ggplot2::ggplot(df,ggplot2::aes_(x=~Tcluster,y=~AT)) +
         ggplot2::geom_path() +
-        ggplot2::geom_pointrange(ggplot2::aes_(ymin=~AT-(~AT*~error),ymax=~AT+(~AT*~error))) +
+        ggplot2::geom_pointrange(ggplot2::aes_(ymin=~AT-(df$AT*df$error),ymax=~AT+(df$AT*df$error))) +
         ggplot2::scale_y_continuous(trans = scales::log10_trans(),
                            breaks = scales::trans_breaks("log10", function(x) 10^x),
                            labels = scales::trans_format("log10", scales::math_format())) +
@@ -4711,7 +4855,7 @@ fd_allan <- function(y, fs = stats::tsp(stats::hasTsp(y))[3], doPlot = FALSE, us
                            breaks = scales::trans_breaks("log10", function(x) 10^x),
                            labels = scales::trans_format("log10", scales::math_format())) +
         ggplot2::xlab("Cluster Times (T)") +
-        ggplot2::ylab("Allan Factor")  +
+        ggplot2::ylab("Allan Variance / Factor")  +
         ggplot2::theme_bw()
     }
     graphics::plot(g)
@@ -5101,6 +5245,7 @@ plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], l
 
   if(igraph::ecount(g)>0){
     if(edgeweight%in%"weight"){
+      igraph::E(g)$weight
       igraph::E(g)$width <- elascer(igraph::E(g)$weight,lo = .8, hi = 5)
     } else {
       if(is.numeric(edgeweight)){
@@ -5377,6 +5522,148 @@ plotFA_loglog <- function(fd.OUT,title="log-log regresion",subtitle="",xlabel="B
   return(g)
 }
 
+
+
+#' Plot output from fluctuation analyses based on log-log regression
+#'
+#' @param fd.OUT Output from one of the `fd_` functions that use log-log regression to get scaling exponents.
+#' @param title Plot title
+#' @param subtitle Plot subtitle
+#' @param xlabel x label
+#' @param ylabel y label
+#' @param logBase base of the log used
+#'
+#' @return A ggplot object
+#'
+#' @export
+#'
+plotFD_loglog <- function(fd.OUT, title="", subtitle="", xlabel="Bin size", ylabel="Fluctuation", logBase=NA){
+
+  if(!all(c("PLAW","fullRange","fitRange")%in%names(fd.OUT))){
+    stop("Object fd.OUT should have 3 fields: PLAW, fullRange and fitRange")
+  }
+
+  if(nchar(title)==0){
+    title <- fd.OUT$analysis$name
+  }
+  if(is.na(logBase)){
+    logBase <- fd.OUT$analysis$logBasePlot
+  }
+
+  if(logBase%in%"e"){
+    logFormat <- "log"
+    logBaseNum <- exp(1)
+    yAcc <- .1
+    xAcc <- 1
+  }
+
+  if(logBase%in%"2"){
+    logFormat <- paste0("log",logBase)
+    logBaseNum <- as.numeric(logBase)
+    yAcc <- .1
+    xAcc <- 1
+  }
+
+  if(logBase%in%"10"){
+    logFormat <- paste0("log",logBase)
+    logBaseNum <- as.numeric(logBase)
+    yAcc <- .1
+    xAcc <- .01
+  }
+
+
+  logLabels <- function (expr, format = force)
+  {
+    quoted <- substitute(expr)
+    subs <- function(x) {
+      do.call("substitute", list(quoted, list(.x = as.name(x))))
+    }
+    function(x) {
+      x <- format(x)
+      lapply(x, subs)
+    }
+  }
+
+  if(fd.OUT$analysis$name%in%"2D boxcount of 1D curve"){
+
+    logSlopes <- data.frame(x = c(fd.OUT$PLAW$size[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)],
+                                  fd.OUT$ullRange$fitRange,fd.OUT$fitRange$fitRange),
+                            y = c(fd.OUT$PLAW$bulk[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)],
+                                  fd.OUT$PLAW$bulk[1:NROW(fd.OUT[[3]]$fitlm2$fitted.values)]),
+                            Method = c(rep(fd.OUT[[2]]$method,NROW(fd.OUT[[2]]$fitlm1$fitted.values)),
+                                       rep(fd.OUT[[3]]$method,NROW(fd.OUT[[3]]$fitlm2$fitted.values))))
+  } else {
+
+    logSlopes <- data.frame(x = c(fd.OUT$PLAW$size[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)],
+                                  fd.OUT$PLAW$size[1:NROW(fd.OUT[[3]]$fitlm2$fitted.values)]),
+                            y = c(fd.OUT$PLAW$bulk[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)],
+                                  fd.OUT$PLAW$bulk[1:NROW(fd.OUT[[3]]$fitlm2$fitted.values)]),
+                            Method = c(rep(fd.OUT[[2]]$method,NROW(fd.OUT[[2]]$fitlm1$fitted.values)),
+                                       rep(fd.OUT[[3]]$method,NROW(fd.OUT[[3]]$fitlm2$fitted.values))))
+  }
+
+  g <- ggplot2::ggplot(data.frame(fd.OUT$PLAW), ggplot2::aes_(x=~size,y=~bulk), na.rm=TRUE) +
+    ggplot2::geom_point() +
+    ggplot2::ggtitle(label = title, subtitle = subtitle)
+
+  # if(logBase=="e"){
+  # evalT<-
+  #   paste0('g <- g + ggplot2::geom_smooth(data = logSlopes,  ggplot2::aes_(x=~x,y=~y, colour = ~Method, fill = ~Method), method="lm", alpha = .2) + ggplot2::scale_x_continuous(name = "',paste0(xlabel," (",logFormat,")"),'", breaks = scales::trans_breaks(',logFormat,', function(x) ',logBaseNum,'^x), labels =  scales::trans_format(',logFormat,',scales::math_format(e^.x)), trans = scales::log_trans(base = ',logBaseNum,')) +
+  #     ggplot2::scale_y_continuous(name = "',paste0(ylabel," (",logFormat,")"),'", breaks = scales::trans_breaks(',logFormat,', function(x) ',logBaseNum,'^x), labels =  scales::trans_format(',logFormat,',scales::math_format(e^.x)), trans = scales::log_trans(base = ',logBaseNum,')) + ggplot2::annotation_logticks()')
+  #
+  # eval(parse(text = evalT))
+  # }
+  #
+  # if(logBase=="2"){
+  #   evalT<-
+  #     paste0('g <- g + ggplot2::geom_smooth(data = logSlopes,  ggplot2::aes_(x=~x,y=~y, colour = ~Method, fill = ~Method), method="lm", alpha = .2) + ggplot2::scale_x_continuous(name = "',paste0(xlabel," (",logFormat,")"),'", breaks = scales::trans_breaks(',logFormat,', function(x) ',logBaseNum,'^x), labels =  scales::trans_format(',logFormat,',scales::math_format(2^.x)), trans = scales::log_trans(base = ',logBaseNum,')) +
+  #            ggplot2::scale_y_continuous(name = "',paste0(ylabel," (",logFormat,")"),'", breaks = scales::trans_breaks(',logFormat,', function(x) ',logBaseNum,'^x), labels =  scales::trans_format(',logFormat,',scales::math_format(2^.x)), trans = scales::log_trans(base = ',logBaseNum,')) + ggplot2::annotation_logticks()')
+  #
+  #   eval(parse(text = evalT))
+  # }
+  #
+
+  breaksX <- unique(fd.OUT$PLAW$size[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)])
+  breaksY <- unique(fd.OUT$PLAW$bulk[1:NROW(fd.OUT[[2]]$fitlm1$fitted.values)])
+
+  if(length(breaksX)>10){breaksX <- breaksX[seq.int(1,length(breaksX),length.out = 10)]}
+  if(length(breaksY)>10){breaksY <- breaksY[seq.int(1,length(breaksY),length.out = 10)]}
+
+  if(logBase!="no"){
+    g <- g +
+      ggplot2::geom_smooth(data = logSlopes,  ggplot2::aes_(x=~x,y=~y, colour = ~Method, fill = ~Method), method="lm", alpha = .2) +
+      ggplot2::scale_x_continuous(name = paste0(xlabel," (",logFormat,")"),
+                                  breaks = breaksX,
+                                  labels = scales::number_format(accuracy = xAcc),
+                                  trans = scales::log_trans(base = logBaseNum)) +
+      ggplot2::scale_y_continuous(name = paste0(ylabel," (",logFormat,")"),
+                                  breaks = breaksY,
+                                  labels = scales::number_format(accuracy = yAcc),
+                                  trans = scales::log_trans(base = logBaseNum))
+  } else {
+
+    # if(logBase=="no"){
+
+    g <- g +
+      ggplot2::geom_vline(data = data.frame(x = c(NROW(fd.OUT[[2]]$fitlm1$fitted.values),NROW(fd.OUT[[3]]$fitlm2$fitted.values)),Method = c(fd.OUT[[2]]$method,fd.OUT[[3]]$method)),  ggplot2::aes_(xintercept=~x, colour = ~Method)) +
+      ggplot2::scale_x_continuous(name = xlabel, breaks = breaksX) +
+      ggplot2::scale_y_continuous(name = ylabel, breaks = breaksY)
+  }
+
+  g <- g +
+    ggplot2::scale_color_manual(values = c("red3","steelblue")) +
+    ggplot2::scale_fill_manual(values = c("red3","steelblue")) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid.minor =  ggplot2::element_blank(),
+                   legend.text = ggplot2::element_text(margin = ggplot2::margin(t = 5,b = 5, unit = "pt"), vjust = .5),
+                   plot.margin = ggplot2::margin(t = 5,b = 5, r = 5,l = 5, unit = "pt"))
+
+
+  # graphics::plot.new()
+  graphics::plot(g)
+
+  return(invisible(g))
+}
 
 
 #' Surrogate Test
@@ -7490,93 +7777,63 @@ try_CATCH <- function(expr){
 }
 
 
-#' Rose tinted infix
+#' Numeric factor to numeric vector
 #'
-#'
-#' @param x If \code{x} is any of \code{Inf,-Inf,NA,NaN,NULL,length(x)==0}, it will return \code{y}; otherwise it returns \code{x}.
-#' @param y The value to return in case of catastrophy \code{>00<}
-#'
-#' @export
-#' @author Fred Hasselman
-#' @description When your functions wear these rose tinted glasses, the world will appear to be a nicer, fluffier place.
-#' @seealso purrrr::%||%
-#' @examples
-#' Inf %00% NA
-#'
-#' numeric(0) %00% ''
-#'
-#' NA %00% 0
-#'
-#' NaN %00% NA
-#'
-#' NULL %00% NA
-`%00%` <- function(x,y){
-  if(length(x)==0){
-    x <- y
-  } else{
-
-    for(i in seq_along(x)){
-      l0<-isna<-isnan<-isinf<-isnll<-isTryError<-FALSE
-      if(length(x[i])==0){
-        l0=TRUE
-      } else {
-        if(all(is.na(x[i])))       isna =TRUE
-        if(all(is.nan(x[i])))      isnan=TRUE
-        if(all(is.infinite(x[i]))) isinf=TRUE
-        if(all(is.null(x[i])))     isnll=TRUE
-        if(all(class(x[i])%in%"try-error")) isTryError=TRUE
-      }
-      if(any(l0,isna,isnan,isinf,isnll,isTryError)){x[i]<-y}
-    }
-  }
-  return(x)
-}
-
-
-#' Whole number?
-#'
-#' @param x A number
-#' @param tol The tolerance (\code{default = Machine$double.eps^0.5})
-#'
-#' @return TRUE or FALSE
-#' @export
-#'
-is.wholenumber <- function(x, tol = .Machine$double.eps^0.5){
-  if(is.numeric(x)){
-    return(abs(x - round(x)) < tol)
-  } else {
-    return(FALSE)
-  }
-}
-
-
-#' Convert numeric factor to numeric vector
+#' Converts a factor with numeric levels to a numeric vector, using the values of the levels.
 #'
 #' @param x A factor based on numeric values.
+#' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
 #'
 #' @return A numeric vector with factor levels as names.
 #' @export
 #'
 #' @examples
-as.numeric_factor <- function(x){
-  if(!is.factor(x)){stop("Not a factor, use: `Use as.numeric_character()`")}
-  out <-  as.numeric(levels(x))[x]
-  names(out) <- as.character(x)
+#'
+#' f <- factor(round(runif(10,0,9)))
+#' as.numeric_factor(f)
+#'
+#' # Add NAs
+#' f <- factor(c(round(runif(9,0,9)),NA))
+#' as.numeric_factor(f)
+#' as.numeric_factor(f, keepNA = TRUE)
+#'
+#'
+as.numeric_factor <- function(x, keepNA = FALSE){
+  idNA <- is.na(x)
+  if(!is.factor(x)){stop("Not a factor, use: `as.numeric_character()`")}
+  out <- try(as.numeric(levels(x))[x])
+  if(sum(is.na(out))>sum(idNA)){
+    stop("Factor levels are not numeric!")
+  }
+  if(!keepNA){
+    out <- out[!is.na(out)]
+  }
+  names(out) <- as.character(out)
+  return(out)
 }
 
-#' Convert character vector to a named numeric vector
+
+#' Character vector to named numeric vector
+#'
+#' Converts a character vector to a named numeric vector, with the character elements as names.
 #'
 #' @param x A character vector
-#' @param sort.unique Should the unique character values be sorted? (\code{default = FALSE})
+#' @param sortUnique Should the unique character values be sorted? (default = `FALSE`)
+#' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
 #'
 #' @return A named numeric vector
 #' @export
 #'
-as.numeric_character <- function(x, sort.unique = FALSE){
+#' @examples
+#'
+#' f <- letters
+#' as.numeric_character(f)
+#'
+as.numeric_character <- function(x, sortUnique = FALSE, keepNA = FALSE){
   IDna <- is.na(x)
-  x <- as.character(x[!IDna])
-  labels.char     <- unique(as.character(x))
-  if(sort.unique){labels.char <- sort(labels.char)}
+  xx <- as.character(x[!IDna])
+  labels.char <- unique(as.character(xx))
+  if(sortUnique){labels.char <- sort(labels.char)}
   labels.num <- seq_along(labels.char)
   names(x) <- x
   xx <- x
@@ -7589,90 +7846,159 @@ as.numeric_character <- function(x, sort.unique = FALSE){
 }
 
 
-
-#' Signed increment
+#' Discrete (factor or character) to numeric vector
 #'
-#' Increment an integer counter by an arbitrary (signed) interval.
+#' Converts a factor with numeric levels, or, a character vector with numeric values to a named numeric vector (using [as.numeric_factor], or, [as.numeric_character]). If the character values or factor levels are non-numeric (or mixed), a named numeric vector will be returned, values represent an unordered categorical variable (nominal), the character values are used as names. If an unnamed numeric vector is passed, it will be returned as a named numeric vector, with the values copied as names. If a continuous numeric vector is passed, a named numeric vector of bins will be returned (using [ts_discrete]), with original vaslues as names.
 #'
-#' @param counter If \code{counter} and \code{increment} are both a (signed) integers \code{counter} will change by the value of \code{increment}.
-#' @param increment An integer value \eqn{\neq 0} to add to \code{counter}
+#' @param x A factor, a character, or, numeric vector
+#' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
+#' @param sortUnique In case of character values/character factor levels, should the unique values be sorted before they are assigned a number? (default = `FALSE`)
+#' @param nbins Number of bins to use if the vector is continuous. See [ts_discrete] (default = `ceiling(2*NROW(x)^(1/3))`)
 #'
+#' @return A numeric vector with factor levels / numeric character values as names.
 #' @export
-#' @author Fred Hasselman
+#'
 #' @examples
 #'
-#' # Notice the difference between passing an object and a value for counter
+#' f <- factor(round(runif(10,0,9)))
+#' as.numeric_factor(f)
 #'
-#' # Value
-#' (10 %+-% -5)
-#' (10 %+-% -5)
+#' # Add NAs
+#' f <- factor(c(round(runif(9,0,9)),NA))
+#' as.numeric_factor(f)
+#' as.numeric_factor(f, keepNA = TRUE)
 #'
-#' # Object
-#' i <- 10
-#' (i %+-% -5)
-#' (i %+-% -5)
 #'
-#' # This means we can use the infix in a while ... statement
-#' while(i > -3) i %+-% -5
-#' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
 #'
-`%+-%` <- function(counter, increment){
-  if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment==0){
-    stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
-  } else{
-    result <- counter + increment
-    if(counter>0&result<=0){warning("Positive valued counter changed sign (counter <= 0)!")}
-    if(counter<0&result>=0){warning("Negative valued counter changed sign (counter >= 0)!")}
-    obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
-    if(is.na(obj$value)){
-      eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
-    } else {
-      return(result)
+as.numeric_discrete <- function(x, keepNA = FALSE, sortUnique = FALSE, nbins = ceiling(2*NROW(x)^(1/3))){
+
+  NAs <- sum(is.na(x%00%NA))
+  if(!keepNA&NAs>0){
+    x <- x[!is.na(x)]
+  }
+
+  if(plyr::is.discrete(x)){
+    if(is.factor(x)){
+      if(suppressWarnings(sum(is.na(as.numeric(levels(x))))==NAs)){
+        y <- as.numeric_factor(x, keepNA = keepNA)
+        #all(is.na(as.numeric(levels(x)))))){
+      } else {
+        x <- as.character(x)
+      }
+      }
+    if(is.character(x)){
+      if(suppressWarnings(sum(is.na(as.numeric(x)))==NAs)){
+        x <- as.numeric(x)
+      } else {
+        if(!sortUnique){
+          warning("sortUnique was set to TRUE. Vector contains a mix of letters and numbers.")
+          sortUnique <- TRUE
+        }
+    }
+      y <- as.numeric_character(x, keepNA = keepNA, sortUnique = sortUnique)
     }
   }
+
+  if(is.numeric(x)){
+    if(all(invctr::is.wholenumber(x))){
+      y <- x #as.factor(factor(x, ordered = sortUnique))
+    } else {
+      y <- ts_discrete(x, keepNA = keepNA, nbins = nbins)
+    }
+    if(is.null(names(y))){
+      names(y) <- paste(signif(x,3))
+    }
+  }
+
+  return(y)
 }
 
 
-#' Positive increment
+
 #'
-#' Increment a counter by an arbitrary interval greater than 0.
+#' #' Signed increment
+#' #'
+#' #' Increment an integer counter by an arbitrary (signed) interval.
+#' #'
+#' #' @param counter If \code{counter} and \code{increment} are both a (signed) integers \code{counter} will change by the value of \code{increment}.
+#' #' @param increment An integer value \eqn{\neq 0} to add to \code{counter}
+#' #'
+#' #' @export
+#' #' @author Fred Hasselman
+#' #' @examples
+#' #'
+#' #' # Notice the difference between passing an object and a value for counter
+#' #'
+#' #' # Value
+#' #' (10 %+-% -5)
+#' #' (10 %+-% -5)
+#' #'
+#' #' # Object
+#' #' i <- 10
+#' #' (i %+-% -5)
+#' #' (i %+-% -5)
+#' #'
+#' #' # This means we can use the infix in a while ... statement
+#' #' while(i > -3) i %+-% -5
+#' #' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
+#' #'
+#' `%+-%` <- function(counter, increment){
+#'   if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment==0){
+#'     stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
+#'   } else{
+#'     result <- counter + increment
+#'     if(counter>0&result<=0){warning("Positive valued counter changed sign (counter <= 0)!")}
+#'     if(counter<0&result>=0){warning("Negative valued counter changed sign (counter >= 0)!")}
+#'     obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
+#'     if(is.na(obj$value)){
+#'       eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
+#'     } else {
+#'       return(result)
+#'     }
+#'   }
+#' }
 #'
-#' @param counter If \code{counter} \eqn{\ge 0} and \code{increment} \eqn{> 0} and are both integers, \code{counter} will change by the value of \code{increment}.
-#' @param increment An integer value \eqn{> 0} to add to \code{counter}
 #'
-#' @export
-#' @author Fred Hasselman
-#' @description When your functions wear these rose tinted glasses, the world will appear to be a nicer, fluffier place.
-#' @examples
-#'
-#' # Notice the difference between passing an object and a value for counter
-#'
-#' # Value
-#' (0 %++% 5)
-#' (0 %++% 5)
-#'
-#' # Object
-#' i <- 0
-#' (i %+-% 5)
-#' (i %+-% 5)
-#'
-#' # This means we can use the infix in a while ... statement
-#' while(i < 20) i %+-% 5
-#' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
-#'
-`%++%` <- function(counter,increment){
-  if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment<=0|counter<0){
-    stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
-  } else{
-    result <- counter + increment
-    obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
-    if(is.na(obj$value)){
-      eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
-    } else {
-      return(result)
-    }
-  }
-}
+#' #' Positive increment
+#' #'
+#' #' Increment a counter by an arbitrary interval greater than 0.
+#' #'
+#' #' @param counter If \code{counter} \eqn{\ge 0} and \code{increment} \eqn{> 0} and are both integers, \code{counter} will change by the value of \code{increment}.
+#' #' @param increment An integer value \eqn{> 0} to add to \code{counter}
+#' #'
+#' #' @export
+#' #' @author Fred Hasselman
+#' #' @description When your functions wear these rose tinted glasses, the world will appear to be a nicer, fluffier place.
+#' #' @examples
+#' #'
+#' #' # Notice the difference between passing an object and a value for counter
+#' #'
+#' #' # Value
+#' #' (0 %++% 5)
+#' #' (0 %++% 5)
+#' #'
+#' #' # Object
+#' #' i <- 0
+#' #' (i %+-% 5)
+#' #' (i %+-% 5)
+#' #'
+#' #' # This means we can use the infix in a while ... statement
+#' #' while(i < 20) i %+-% 5
+#' #' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
+#' #'
+#' `%++%` <- function(counter,increment){
+#'   if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment<=0|counter<0){
+#'     stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
+#'   } else{
+#'     result <- counter + increment
+#'     obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
+#'     if(is.na(obj$value)){
+#'       eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
+#'     } else {
+#'       return(result)
+#'     }
+#'   }
+#' }
 
 
 #' Repeat Copies of a Matrix

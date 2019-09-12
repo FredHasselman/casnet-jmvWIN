@@ -1,0 +1,11 @@
+---
+name:  statNet
+title: Static Networks
+jrs:   '1.1'
+
+items:
+    - name:  text
+      title: Static Networks
+      type:  Preformatted
+
+...

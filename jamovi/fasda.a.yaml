@@ -17,6 +17,8 @@ options:
       title: Standardise
       type: List
       options:
+        - name: none
+          title: No standardisation
         - name: meanSD
           title: Mean and SD
         - name: medianMAD
@@ -43,9 +45,43 @@ options:
       type: Integer
       default: 1
 
+    - name: minScale
+      title: "Minimum bin size: 2^"
+      type: List
+      options:
+         - name: autoMin
+           title: "Calculate based on time series length"
+         - name: userMin
+           title: "Enter value"
+      default: autoMin
+
+    - name: userMinScale
+      title: "Minimum bin size: 2^"
+      type: Number
+      default: 2
+
+    - name: maxScale
+      title: "Maximum bin size: 2^"
+      type: List
+      options:
+         - name: autoMax
+           title: "Calculate based on time series length"
+         - name: userMax
+           title: "Enter value"
+      default: autoMax
+
+    - name: userMaxScale
+      title: "Maximum bin size: 2^"
+      type: Number
+      default: 4
+
+    - name: scaleRES
+      title: "Bin sizes between min-max:"
+      type: Number
+      default: 30
+
     - name: scaleExclude
       title: "Estimates based on at least"
       type: Number
       default: 4
-
 ...

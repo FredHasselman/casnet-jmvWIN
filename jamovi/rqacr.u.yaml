@@ -26,11 +26,30 @@ children:
     margin: large
     children:
       - type: Label
-        label: Discretise?
+        label: Adjust time series
         children:
-          - type: CheckBox
-            label: Change to symbolic representation
-            name: discretise
+          - type: RadioButton
+            name: standardise_none
+            optionName: standardise
+            optionPart: none
+          - type: RadioButton
+            name: standardise_meanSD
+            optionName: standardise
+            optionPart: meanSD
+          - type: RadioButton
+            name: standardise_medianMAD
+            optionName: standardise
+            optionPart: medianMAD
+          - type: RadioButton
+            name: standardise_unit
+            optionName: standardise
+            optionPart: unitScale
+          - type: RadioButton
+            name: standardise_symbolic
+            optionName: standardise
+            optionPart: symbolicScale
+
+
   - type: CollapseBox
     label: Phase Space Parameters
     collapsed: false
@@ -39,11 +58,9 @@ children:
         label: Embedding lag
         name: emLag
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         name: emDim
         format: number
-        inputPattern: '[0-9]+'
       - type: LayoutBox
         margin: large
         children:
@@ -56,7 +73,6 @@ children:
                 name: fixRAD
                 label: Radius
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (fixed_RAD)
           - type: RadioButton
             name: fixed_RR
@@ -67,7 +83,6 @@ children:
                 name: fixRR
                 label: RR
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (fixed_RR)
           - type: RadioButton
             name: fixed_NO
@@ -81,37 +96,30 @@ children:
         label: Minimum diagonal line length
         name: DLmin
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Maximum diagonal line length
         name: DLmax
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Minimum vertical line length
         name: VLmin
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Maximum vertical line length
         name: VLmax
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Minimum horizontal line length
         name: HLmin
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Maximum horizontal line length
         name: HLmax
         format: number
-        inputPattern: '[0-9]+'
       - type: TextBox
         label: Theiler window
         name: theiler
         format: number
-        inputPattern: '[0-9]+'
       - type: ComboBox
         label: Distance norm
         name: norm

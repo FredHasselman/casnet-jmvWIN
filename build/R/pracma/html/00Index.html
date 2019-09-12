@@ -11,7 +11,7 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;pracma&rsquo; version 2.1.8</h2>
+</div><h2>Documentation for package &lsquo;pracma&rsquo; version 2.2.5</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../demo">Code demos</a>.  Use <a href="../../utils/help/demo">demo()</a> to run them.</li>
@@ -75,6 +75,8 @@
 <td>Trigonometric Functions in Degrees</td></tr>
 <tr><td style="width: 25%;"><a href="hyperbolic.html">acsch</a></td>
 <td>More Hyperbolic Functions</td></tr>
+<tr><td style="width: 25%;"><a href="linearproj.html">affineproj</a></td>
+<td>Linear Projection onto a Subspace</td></tr>
 <tr><td style="width: 25%;"><a href="agmean.html">agmean</a></td>
 <td>Arithmetic-geometric Mean</td></tr>
 <tr><td style="width: 25%;"><a href="aitken.html">aitken</a></td>
@@ -163,8 +165,6 @@
 <td>Directory Functions (Matlab style)</td></tr>
 <tr><td style="width: 25%;"><a href="ceil.html">ceil</a></td>
 <td>Integer Functions (Matlab Style)</td></tr>
-<tr><td style="width: 25%;"><a href="cgmin.html">cgmin</a></td>
-<td>Conjugate Gradient Minimization</td></tr>
 <tr><td style="width: 25%;"><a href="charpoly.html">charpoly</a></td>
 <td>Characteristic Polynomial</td></tr>
 <tr><td style="width: 25%;"><a href="chebApprox.html">chebApprox</a></td>
@@ -340,6 +340,8 @@
 <td>Find All Roots</td></tr>
 <tr><td style="width: 25%;"><a href="ceil.html">Fix</a></td>
 <td>Integer Functions (Matlab Style)</td></tr>
+<tr><td style="width: 25%;"><a href="fletcherpowell.html">fletcher_powell</a></td>
+<td>Fletcher-Powell Conjugate Gradient Minimization</td></tr>
 <tr><td style="width: 25%;"><a href="flipdim.html">flipdim</a></td>
 <td>Matrix Flipping (Matlab Style)</td></tr>
 <tr><td style="width: 25%;"><a href="flipdim.html">fliplr</a></td>
@@ -348,8 +350,12 @@
 <td>Matrix Flipping (Matlab Style)</td></tr>
 <tr><td style="width: 25%;"><a href="fminbnd.html">fminbnd</a></td>
 <td>Finding Function Minimum</td></tr>
+<tr><td style="width: 25%;"><a href="fmincon.html">fmincon</a></td>
+<td>Minimize Nonlinear Constrained Multivariable Function.</td></tr>
 <tr><td style="width: 25%;"><a href="fminsearch.html">fminsearch</a></td>
-<td>Minimum Finding</td></tr>
+<td>Derivative-free Nonlinear Function Minimization</td></tr>
+<tr><td style="width: 25%;"><a href="fminunc.html">fminunc</a></td>
+<td>Minimize Unconstrained Multivariable Function</td></tr>
 <tr><td style="width: 25%;"><a href="fnorm.html">fnorm</a></td>
 <td>Function Norm</td></tr>
 <tr><td style="width: 25%;"><a href="fornberg.html">fornberg</a></td>
@@ -442,6 +448,8 @@
 <td>Histogram Count (Matlab style)</td></tr>
 <tr><td style="width: 25%;"><a href="histss.html">histss</a></td>
 <td>Histogram Bin-width Optimization</td></tr>
+<tr><td style="width: 25%;"><a href="hookejeeves.html">hooke_jeeves</a></td>
+<td>Hooke-Jeeves Function Minimization Method</td></tr>
 <tr><td style="width: 25%;"><a href="horner.html">horner</a></td>
 <td>Horner's Rule</td></tr>
 <tr><td style="width: 25%;"><a href="horner.html">hornerdefl</a></td>
@@ -544,6 +552,8 @@
 <td>Legendre Functions (Matlab Style)</td></tr>
 <tr><td style="width: 25%;"><a href="expint.html">li</a></td>
 <td>Exponential and Logarithmic Integral</td></tr>
+<tr><td style="width: 25%;"><a href="linearproj.html">linearproj</a></td>
+<td>Linear Projection onto a Subspace</td></tr>
 <tr><td style="width: 25%;"><a href="line_integral.html">line_integral</a></td>
 <td>Line integral (in the complex plane)</td></tr>
 <tr><td style="width: 25%;"><a href="linprog.html">linprog</a></td>
@@ -624,6 +634,8 @@
 <td>Number of Dimensions</td></tr>
 <tr><td style="width: 25%;"><a href="nearest_spd.html">nearest_spd</a></td>
 <td>Nearest Symmetric Positive-definite Matrix</td></tr>
+<tr><td style="width: 25%;"><a href="neldermead.html">nelder_mead</a></td>
+<td>Nelder-Mead Function Minimization Method</td></tr>
 <tr><td style="width: 25%;"><a href="neville.html">neville</a></td>
 <td>Neville's Method</td></tr>
 <tr><td style="width: 25%;"><a href="newmark.html">newmark</a></td>
@@ -647,8 +659,6 @@
 <tr><td style="width: 25%;"><a href="norm.html">Norm</a></td>
 <td>Vector Norm</td></tr>
 <tr><td style="width: 25%;"><a href="normest.html">normest</a></td>
-<td>Estimated Matrix Norm</td></tr>
-<tr><td style="width: 25%;"><a href="normest.html">normest2</a></td>
 <td>Estimated Matrix Norm</td></tr>
 <tr><td style="width: 25%;"><a href="nthroot.html">nthroot</a></td>
 <td>Real nth Root</td></tr>
@@ -777,6 +787,8 @@
 <h2><a name="Q">-- Q --</a></h2>
 
 <table width="100%">
+<tr><td style="width: 25%;"><a href="qpspecial.html">qpsolve</a></td>
+<td>Special Quadratic Programming Solver</td></tr>
 <tr><td style="width: 25%;"><a href="qpspecial.html">qpspecial</a></td>
 <td>Special Quadratic Programming Solver</td></tr>
 <tr><td style="width: 25%;"><a href="qrSolve.html">qrSolve</a></td>

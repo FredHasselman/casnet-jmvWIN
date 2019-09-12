@@ -5,7 +5,9 @@
 \title{Standardised Dispersion Analysis}
 \usage{
 faSDA(data, y1, standardise = "meanSD", sumORDER = FALSE,
-  removeTrend = "nodet", polydet_order = 1, scaleExclude = 4)
+  removeTrend = "nodet", polydet_order = 1, minScale = "autoMin",
+  userMinScale = 2, maxScale = "autoMax", userMaxScale = 4,
+  scaleRES = 30, scaleExclude = 4)
 }
 \arguments{
 \item{data}{.}
@@ -19,6 +21,16 @@ faSDA(data, y1, standardise = "meanSD", sumORDER = FALSE,
 \item{removeTrend}{.}
 
 \item{polydet_order}{.}
+
+\item{minScale}{.}
+
+\item{userMinScale}{.}
+
+\item{maxScale}{.}
+
+\item{userMaxScale}{.}
+
+\item{scaleRES}{.}
 
 \item{scaleExclude}{.}
 }

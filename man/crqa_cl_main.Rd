@@ -2,7 +2,7 @@
 % Please edit documentation in R/casnet_SOURCE_jamovi.R
 \name{crqa_cl_main}
 \alias{crqa_cl_main}
-\title{crqa_cl_main}
+\title{Command line crp}
 \usage{
 crqa_cl_main(data, emDim = 1, emLag = 1, emRad = NA, DLmin = 2,
   VLmin = 2, theiler = 0, win = min(length(y1), ifelse(is.null(y2),
@@ -62,6 +62,6 @@ crqa_cl_main(data, emDim = 1, emLag = 1, emRad = NA, DLmin = 2,
 \item{returnDistance}{y1}
 }
 \description{
-crqa_cl_main
+Command line crp
 }
 \keyword{internal}

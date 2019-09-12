@@ -1,6 +1,73 @@
 
 # This file is a generated template, your changes will not be overwritten
 
+# if(!any(plyr::is.discrete(data[[y1]]))){
+#   if(is.factor(data[[y1]])){
+#     v1_type_ori <- "factor"
+#   } else {
+#     v1_type_ori <- "character"
+#   }
+#   data[[y1]] <- as.numeric_discrete(data[[y1]])  #ts_symbolic(data[[y1]])
+#   v1_type_tra <- "named numeric"
+#
+# } else {
+#
+# if(is.wholenumber(data[[y1]])){
+#   v1_type_ori <- "discrete numeric"
+#   data[[y1]] <- as.factor(factor(data[[y1]], ordered = TRUE))
+#
+#
+# } else {
+#   data[[y1]] <- ts_discrete(data[[y1]])
+#   v1_discretised <- "yes"
+# }
+
+# LABS_v1 <- factor_obs_exp(varname = "data[[y1]]", observed_Ncat = v1_Nlabels_obs, expected_Ncat = v1_Nlabels_usr, observed_labels = v1_labels_obs, expected_labels = v1_labels_usr)
+#
+# # if(grepl("^(c\\(levels\\()",attributes(LABS_v1)$code)){
+# #   eval(parse(text = paste0("levels(data[[y1]]) <- ", attributes(LABS_v1)$code)))
+# # } else {
+# #   eval(parse(text = paste0("data[[y1]] <- ", attributes(LABS_v1)$code)))
+# # }
+#
+# if(LABS_v1!=""){
+#   y1_ready <- TRUE
+# }
+# warningMessage1 <- attributes(LABS_v1)$warningMessage
+# if(warningMessage1==""){
+#   warningMessage1 <- paste("Variable",y1,"has",v1_Nlabels_obs,"unique categories.")
+# }
+#
+# LABS_v2 <- factor_obs_exp(varname = "data[[y2]]", observed_Ncat = v2_Nlabels_obs, expected_Ncat = v2_Nlabels_usr, observed_labels = v2_labels_obs, expected_labels = v2_labels_usr)
+#
+# # if(grepl("^(c\\(levels\\()",attributes(LABS_v2)$code)){
+# #   eval(parse(text = paste0("levels(data[[y2]]) <- ", attributes(LABS_v2)$code)))
+# # } else {
+# #   eval(parse(text = paste0("data[[y2]] <- ", attributes(LABS_v2)$code)))
+# # }
+#
+# if(LABS_v2!=""){
+#   y2_ready <- TRUE
+# }
+# warningMessage2 <- attributes(LABS_v2)$warningMessage
+# if(warningMessage2==""){
+#   warningMessage2 <- paste("Variable",y2,"has",v2_Nlabels_obs,"unique categories.")
+# }
+#
+# if(v1_Nlabels_usr==0 & v1_Nstates_usr>0){
+#   v1_Nlabels_usr <- v1_Nstates_usr
+# }
+# if(v1_Nlabels_usr>0 & v1_Nstates_usr==0){
+#   v1_Nlabels_usr -> v1_Nstates_usr
+# }
+# if(v2_Nlabels_usr==0&v2_Nstates_usr>0){
+#   v2_Nlabels_usr <- v2_Nstates_usr
+# }
+# if(v2_Nlabels_usr>0&v2_Nstates_usr==0){
+#   v2_Nlabels_usr -> v2_Nstates_usr
+# }
+
+
 ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
   "ssgBIClass",
   inherit = ssgBIBase,
@@ -15,153 +82,132 @@ ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       y2_ready <- FALSE
 
       data <- self$data
-      v1_discretised <- v2_discretised <- "no"
+      data <- na.omit(data)
+      # v1_type_ori <- v2_type_ori <- NA
+      # v1_type_tra <- v2_type_tra <- NA
+      # v1_discretised <- v2_discretised <- "no"
 
       # Variable 1 ----
-      y1         <- self$options$y1
-
-      if(!any(plyr::is.discrete(data[[y1]]))){
-        data[[y1]] <- ts_symbolic(data[[y1]])
-        v1_discretised <- "yes"
-      }
-
-      if(is.wholenumber(data[[y1]])){
-        data[[y1]] <- as.factor(factor(data[[y1]],ordered = TRUE))
-      }
-
-      v1_labels  <- self$options$v1_labels
-      v1_numeric <- self$options$v1_Nstates
-
-      # Get number of categories
-      v1_labels_usr  <- strsplit(x = v1_labels,split = "[,]")[[1]]
-      v1_Nlabels_usr <- length(v1_labels_usr)
-      v1_Nstates_usr <- v1_numeric
+      y1 <- self$options$y1
+      v1 <- as.numeric_discrete(data[[y1]])
 
       # Get labels in data (obs, if any)
-      v1_labels_obs  <- unique(as.character(data[[y1]]))
-      v1_Nlabels_obs <- length(v1_labels_obs)
+      v1_labels_obs <- LABS_v1 <- unique(names(v1))
+      v1_Nlabels_obs <- v1_Nstates_usr <- length(v1_labels_obs)
 
-      warningMessage1 <- paste("Variable",y1,"has",v1_Nlabels_obs,"unique categories.")
-
-      if(v1_Nlabels_usr>0&v1_Nstates_usr>0){
-        if(v1_Nlabels_usr!=v1_Nstates_usr){
-          jmvcore::reject(jmvcore::format('Number of user defined states and number of user defined state labels mismatch for {}',y1))
-        }}
+      # Get number of categories
+      if(length(self$options$v1_labels)>0){
+       v1_labels      <- self$options$v1_labels
+       v1_labels_usr  <- strsplit(x = v1_labels,split = "[,]")[[1]]
+       v1_Nlabels_usr <- length(v1_labels_usr)
+      } else {
+        v1_labels_usr <- ""
+        v1_Nlabels_usr <- 0
+      }
+      v1_Nstates_usr <- self$options$v1_Nstates
 
       # Variable 2 ----
-      y2         <- self$options$y2
-
-      if(!any(plyr::is.discrete(data[[y2]]),is.integer(data[[y2]]))){
-        data[[y2]] <- ts_symbolic(data[[y2]])
-        v2_discretised <- "yes"
-      }
-
-      if(is.wholenumber(data[[y2]])){
-        data[[y2]] <- as.factor(factor(data[[y2]],ordered = TRUE))
-      }
-
-      v2_labels  <- self$options$v2_labels
-      v2_numeric <- self$options$v2_Nstates
-
-      # Get number of categories
-      v2_labels_usr  <- strsplit(x = v2_labels,split = "[,]")[[1]]
-      v2_Nlabels_usr <- length(v2_labels_usr)
-      v2_Nstates_usr <- v2_numeric
+      y2 <- self$options$y2
+      v2 <- as.numeric_discrete(data[[y2]])
 
       # Get labels in data (obs, if any)
-      v2_labels_obs  <- unique(as.character(data[[y2]]))
-      v2_Nlabels_obs <- length(v2_labels_obs)
+      v2_labels_obs  <- LABS_v2 <- unique(names(v2))
+      v2_Nlabels_obs <- v2_Nstates_usr <- length(v2_labels_obs)
 
-      if(v2_Nlabels_usr>0&v2_Nstates_usr>0){
-        if(v2_Nlabels_usr!=v2_Nstates_usr){
-          jmvcore::reject(jmvcore::format('Number of user defined states and number of user defined state labels mismatch for {}',y2))
-        }}
+      if(length(self$options$v2_labels)>0){
+      v2_labels      <- self$options$v2_labels
+      v2_labels_usr  <- strsplit(x = v2_labels, split = "[,]")[[1]]
+      v2_Nlabels_usr <- length(v2_labels_usr)
+      } else {
+        v2_labels_usr <- ""
+        v2_Nlabels_usr <- 0
+      }
+      v2_Nstates_usr <- self$options$v2_Nstates
 
-      LABS_v1 <- factor_obs_exp(varname = "data[[y1]]", observed_Ncat = v1_Nlabels_obs, expected_Ncat = v1_Nlabels_usr, observed_labels = v1_labels_obs, expected_labels = v1_labels_usr)
+      # if(v1_Nlabels_usr>0&v1_Nstates_usr>0){
+      #   if(v1_Nlabels_usr!=v1_Nstates_usr){
+      #     jmvcore::reject(jmvcore::format('Number of user defined states and number of user defined state labels mismatch for {}',y1))
+      #   }}
+      #
+      # if(v2_Nlabels_usr>0&v2_Nstates_usr>0){
+      #   if(v2_Nlabels_usr!=v2_Nstates_usr){
+      #     jmvcore::reject(jmvcore::format('Number of user defined states and number of user defined state labels mismatch for {}',y2))
+      #   }}
 
-      # if(grepl("^(c\\(levels\\()",attributes(LABS_v1)$code)){
-      #   eval(parse(text = paste0("levels(data[[y1]]) <- ", attributes(LABS_v1)$code)))
-      # } else {
-      #   eval(parse(text = paste0("data[[y1]] <- ", attributes(LABS_v1)$code)))
-      # }
+      warningMessage1a <- paste("Variable",y1,"contains",v1_Nlabels_obs,"unique states")
+      warningMessage1b <- paste("- if more states were possible, please specify missing categories!")
+      warningMessage2a <- paste("Variable",y2,"contains",v2_Nlabels_obs,"unique states")
+      warningMessage2b <- paste("- if more states were possible, please specify missing categories!")
 
-      if(LABS_v1!=""){
+      NLABS_V1 <- v1_Nlabels_obs + v1_Nlabels_usr
+      if(self$options$v1_Nstates>0){
+        if(v1_Nstates_usr<v1_Nstates_obs){
+          jmvcore::reject(jmvcore::format('Number of user defined states and number of observed states mismatch for {}',y1))
+        }
+        if(v1_Nstates_usr>v1_Nstates_obs){
+          warningMessage1b <- paste("-", v1_Nstates_usr, "were expected, please specify labels for",(v1_Nstates_usr-v1_Nstates_obs),"missing states!")
+        }
+        if(NLABS_V1==v1_Nlabels_obs){
+          warningMessage1b <- paste("-", v1_Nstates_usr, "were expected,",v1_Nlabels_obs,"were provided.")
+          LABS_v1 <- c(v1_labels_obs, v2_labels_usr)
+        }
         y1_ready <- TRUE
       }
-      warningMessage1 <- attributes(LABS_v1)$warningMessage
-      if(warningMessage1==""){
-        warningMessage1 <- paste("Variable",y1,"has",v1_Nlabels_obs,"unique categories.")
-      }
 
-      LABS_v2 <- factor_obs_exp(varname = "data[[y2]]", observed_Ncat = v2_Nlabels_obs, expected_Ncat = v2_Nlabels_usr, observed_labels = v2_labels_obs, expected_labels = v2_labels_usr)
-
-      # if(grepl("^(c\\(levels\\()",attributes(LABS_v2)$code)){
-      #   eval(parse(text = paste0("levels(data[[y2]]) <- ", attributes(LABS_v2)$code)))
-      # } else {
-      #   eval(parse(text = paste0("data[[y2]] <- ", attributes(LABS_v2)$code)))
-      # }
-
-      if(LABS_v2!=""){
+      NLABS_V2 <- v2_Nlabels_obs + v2_Nlabels_usr
+      if(self$options$v2_Nstates>0){
+        if(v2_Nstates_usr<v2_Nstates_obs){
+          jmvcore::reject(jmvcore::format('Number of user defined states and number of observed states mismatch for {}',y2))
+        }
+        if(v2_Nstates_usr>v2_Nstates_obs){
+          warningMessage2b <- paste("-", v2_Nstates_usr, "were expected, please specify labels for",(v2_Nstates_usr-v2_Nstates_obs),"missing states!")
+        }
+        if(NLABS_V2==v2_Nstates_usr){
+          warningMessage2b <- paste("-", v2_Nstates_usr, "were expected,",v2_Nlabels_obs,"were provided.")
+          LABS_v2 <- c(v2_labels_obs, v2_labels_usr)
+        }
         y2_ready <- TRUE
       }
-      warningMessage2 <- attributes(LABS_v2)$warningMessage
-      if(warningMessage2==""){
-        warningMessage2 <- paste("Variable",y2,"has",v2_Nlabels_obs,"unique categories.")
-      }
 
-      if(v1_Nlabels_usr==0 & v1_Nstates_usr>0){
-        v1_Nlabels_usr <- v1_Nstates_usr
-      }
-      if(v1_Nlabels_usr>0 & v1_Nstates_usr==0){
-        v1_Nlabels_usr -> v1_Nstates_usr
-      }
-      if(v2_Nlabels_usr==0&v2_Nstates_usr>0){
-        v2_Nlabels_usr <- v2_Nstates_usr
-      }
-      if(v2_Nlabels_usr>0&v2_Nstates_usr==0){
-        v2_Nlabels_usr -> v2_Nstates_usr
-      }
+      self$results$warnings$setContent(paste(paste(warningMessage1a,warningMessage1b),
+                                             paste(warningMessage2a,warningMessage2b),sep="\n"))
 
 
-      self$results$warnings$setContent(paste(warningMessage1,warningMessage2,sep="\n"))
 
       if(all(y1_ready,y2_ready)){
+      #
 
-        LABS_v1 <- sort(LABS_v1)
-        LABS_v2 <- sort(LABS_v2)
-
+      #
         COORD_v1 <- seq_along(LABS_v1)
         COORD_v2 <- seq_along(LABS_v2)
 
-        y1vec <- data[[y1]]
-        y2vec <- data[[y2]]
 
-        # y1.levels <- sort(unique(paste(y1vec)))
-        # if(length(y1.levels)<length(LABS_v1)){
-        #   y1.levels <- c(y1.levels,LABS_v1[(1+length(y1.levels)):length(LABS_v1)])
-        # }
-        # y1vec <- as.numeric(factor(y1vec,levels = y1.levels, labels = COORD_v1))
-        # data[[y1]] <- factor(y1vec,levels = COORD_v1, labels = LABS_v1)
-        #
-        # y2.levels <- sort(unique(y2vec))
-        # if(length(y2.levels)<length(LABS_v2)){
-        #   y2.levels <- c(y2.levels,LABS_v2[(1+length(y2.levels)):length(LABS_v2)])
-        # }
-        # y2vec <- as.numeric(factor(y2vec,levels = y2.levels, labels = COORD_v2))
-        # data[[y2]] <- factor(y2vec,levels = COORD_v2, labels = LABS_v2)
+        y1.levels <- sort(unique(paste(v1)))
+        if(length(y1.levels)<length(LABS_v1)){
+          y1.levels <- c(y1.levels,LABS_v1[(1+length(y1.levels)):length(LABS_v1)])
+        }
+        y1vec <- as.numeric(factor(v1,levels = y1.levels, labels = COORD_v1))
+        data[[y1]] <- factor(v1,levels = COORD_v1, labels = LABS_v1)
 
-        #  rm(y1vec,y2vec)
+        y2.levels <- sort(unique(v2))
+        if(length(y2.levels)<length(LABS_v2)){
+          y2.levels <- c(y2.levels,LABS_v2[(1+length(y2.levels)):length(LABS_v2)])
+        }
+        y2vec <- as.numeric(factor(v2,levels = y2.levels, labels = COORD_v2))
+        data[[y2]] <- factor(v2,levels = COORD_v2, labels = LABS_v2)
 
+        rm(y1vec,y2vec)
 
-        # data[[y1]] <- factor(data[[y1]],labels=LABS_v1)
-        # data[[y2]] <- factor(data[[y2]],labels=LABS_v2)
+        data[[y1]] <- factor(data[[y1]],labels=LABS_v1)
+        data[[y2]] <- factor(data[[y2]],labels=LABS_v2)
 
-        # SSG
-        # ssg <- matrix(data = 0, nrow = length(LABS_v1),ncol=length(LABS_v2),dimnames = list(LABS_v1,LABS_v2))
-        # dlist <-list(LABS_v1,LABS_v2)
-        # names(dlist) <- c(y1,y2)
-        # ssg_freq <- arrayInd(which(ssg==0),.dim = dim(ssg), .dimnames = dlist,useNames = TRUE)
-        # ssg_freq$combi <- interaction(LABS_v1,LABS_v2)
+         # SSG
+        ssg <- matrix(data = 0, nrow = NLABS_V1,ncol= NLABS_V2, dimnames = list(LABS_v1,LABS_v2))
+        dlist <-list(LABS_v1,LABS_v2)
+        names(dlist) <- c(y1,y2)
+
+        ssg_freq <- arrayInd(which(ssg==0),.dim = dim(ssg), .dimnames = dlist,useNames = TRUE)
+        ssg_freq$combi <- interaction(LABS_v1,LABS_v2)
 
         # Expected Grid ----
         ssg      <- data.frame(expand.grid(y1=LABS_v1,y2=LABS_v2),expand.grid(y1=COORD_v1,y2=COORD_v2))
@@ -557,7 +603,11 @@ ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         flist <- c("0" = "grey80","1" = "grey50")
         clist <- c("Last" = "red3","First" = "steelblue4", "NA" = "orange")
         slist <- c("1"=3, "2" = 6, "3"= 8, "4" = 10)
-        pal <- scales::col_factor(palette="Accent", domain=NULL)(unique(trajectories$Trajectory:trajectories$Wave))
+        if(length(unique(trajectories$Trajectory:trajectories$Wave))>1){
+          pal <- scales::col_factor(palette="Accent", domain=NULL)(unique(trajectories$Trajectory:trajectories$Wave))
+        } else {
+          pal <- "#AAB2A9"
+        }
 
         ssgr <- ggplot2::ggplot(durData, ggplot2::aes_(x=~y1,y=~y2,group=~value)) +
           ggplot2::geom_raster(ggplot2::aes_(fill=~value), alpha =.5, show.legend = FALSE) +
@@ -573,7 +623,7 @@ ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
                               arrow= grid::arrow(angle = 15, length = grid::unit(0.015, units = "npc"), type = "closed"),
                               alpha=1, size=1, arrow.fill = "black") +
           ggplot2::guides(colour = "legend",size="none",fill="none") +
-          ggplot2::scale_color_manual("Trajectory", values = pal) +
+          #ggplot2::scale_color_manual("Trajectory", values = pal) +
           ggplot2::scale_fill_manual(values = flist) +
           ggplot2::scale_size_manual(breaks = 1:4,values = slist) +
           ggplot2::scale_x_discrete(self$options$y1,expand = c(0,0),breaks = LABS_v1,labels = LABS_v1) +

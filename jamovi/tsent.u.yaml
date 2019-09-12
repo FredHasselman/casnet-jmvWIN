@@ -1,6 +1,6 @@
 title: Entropy & Roughness
 name: tsENT
-jus: '2.0'
+jus: '3.0'
 stage: 0
 compilerMode: aggressive
 children:
@@ -21,11 +21,9 @@ children:
       - type: TextBox
         name: Ent_edim
         format: number
-        inputPattern: '[0-9]+'
   - type: LayoutBox
     margin: large
     children:
       - type: TextBox
         name: Ent_r
         format: number
-        inputPattern: '[0-9]+'

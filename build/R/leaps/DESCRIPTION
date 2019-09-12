@@ -11,5 +11,5 @@ NeedsCompilation: yes
 Packaged: 2017-01-09 20:18:20 UTC; tlumley
 Repository: CRAN
 Date/Publication: 2017-01-10 00:04:32
-Built: R 3.4.4; x86_64-w64-mingw32; 2018-11-28 09:15:41 UTC; windows
+Built: R 3.4.4; x86_64-w64-mingw32; 2019-04-25 18:02:24 UTC; windows
 Archs: i386, x64

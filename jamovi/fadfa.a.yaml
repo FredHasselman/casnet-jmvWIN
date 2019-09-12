@@ -89,5 +89,4 @@ options:
       title: "Estimates based on at least"
       type: Number
       default: 4
-
 ...

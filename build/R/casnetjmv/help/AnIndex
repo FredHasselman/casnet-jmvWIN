@@ -43,10 +43,12 @@
 %][%	outsiders
 add_alpha	add_alpha
 as.numeric_character	as.numeric_character
+as.numeric_discrete	as.numeric_discrete
 as.numeric_factor	as.numeric_factor
 bandReplace	bandReplace
 crqa_cl	crqa_cl
 crqa_cl_main	crqa_cl_main
+crqa_diagPofile	crqa_diagPofile
 crqa_parameters	crqa_parameters
 crqa_radius	crqa_radius
 crqa_rp	crqa_rp
@@ -88,6 +90,7 @@ newZ	newZ
 outsiders	outsiders
 pacf_fisherZ	pacf_fisherZ
 padders	padders
+plotFD_loglog	plotFD_loglog
 plotNET_BA	plotNET_BA
 plotNET_groupColour	plotNET_groupColour
 plotNET_groupWeight	plotNET_groupWeight
@@ -96,8 +99,8 @@ plotNET_SW	plotNET_SW
 plotRED_acf	plotRED_acf
 plotRED_mif	plotRED_mif
 plotSUR_hist	plotSUR_hist
+recNet	recNet
 regressors	regressors
-repmat	repmat
 roc_noise	roc_noise
 rp	rp
 rp_checkfix	rp_checkfix
@@ -115,6 +118,7 @@ ssgBI	ssgBI
 ssgUNI	ssgUNI
 ssg_gwf2long	ssg_gwf2long
 ssg_winnowing	ssg_winnowing
+statNet	statNet
 symbolize	symbolize
 transM	transM
 trimmers	trimmers

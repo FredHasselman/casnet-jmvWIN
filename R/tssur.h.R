@@ -143,10 +143,12 @@ tsSUR <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('tsSUR requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- tsSUROptions$new(
         y1 = y1,
@@ -154,9 +156,6 @@ tsSUR <- function(
         numSUR = numSUR,
         Save = Save,
         savePath = savePath)
-
-    results <- tsSURResults$new(
-        options = options)
 
     analysis <- tsSURClass$new(
         options = options,

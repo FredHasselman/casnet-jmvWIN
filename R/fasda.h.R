@@ -11,6 +11,11 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             sumORDER = FALSE,
             removeTrend = "nodet",
             polydet_order = 1,
+            minScale = "autoMin",
+            userMinScale = 2,
+            maxScale = "autoMax",
+            userMaxScale = 4,
+            scaleRES = 30,
             scaleExclude = 4, ...) {
 
             super$initialize(
@@ -26,6 +31,7 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "standardise",
                 standardise,
                 options=list(
+                    "none",
                     "meanSD",
                     "medianMAD"),
                 default="meanSD")
@@ -44,6 +50,32 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "polydet_order",
                 polydet_order,
                 default=1)
+            private$..minScale <- jmvcore::OptionList$new(
+                "minScale",
+                minScale,
+                options=list(
+                    "autoMin",
+                    "userMin"),
+                default="autoMin")
+            private$..userMinScale <- jmvcore::OptionNumber$new(
+                "userMinScale",
+                userMinScale,
+                default=2)
+            private$..maxScale <- jmvcore::OptionList$new(
+                "maxScale",
+                maxScale,
+                options=list(
+                    "autoMax",
+                    "userMax"),
+                default="autoMax")
+            private$..userMaxScale <- jmvcore::OptionNumber$new(
+                "userMaxScale",
+                userMaxScale,
+                default=4)
+            private$..scaleRES <- jmvcore::OptionNumber$new(
+                "scaleRES",
+                scaleRES,
+                default=30)
             private$..scaleExclude <- jmvcore::OptionNumber$new(
                 "scaleExclude",
                 scaleExclude,
@@ -54,6 +86,11 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             self$.addOption(private$..sumORDER)
             self$.addOption(private$..removeTrend)
             self$.addOption(private$..polydet_order)
+            self$.addOption(private$..minScale)
+            self$.addOption(private$..userMinScale)
+            self$.addOption(private$..maxScale)
+            self$.addOption(private$..userMaxScale)
+            self$.addOption(private$..scaleRES)
             self$.addOption(private$..scaleExclude)
         }),
     active = list(
@@ -62,6 +99,11 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         sumORDER = function() private$..sumORDER$value,
         removeTrend = function() private$..removeTrend$value,
         polydet_order = function() private$..polydet_order$value,
+        minScale = function() private$..minScale$value,
+        userMinScale = function() private$..userMinScale$value,
+        maxScale = function() private$..maxScale$value,
+        userMaxScale = function() private$..userMaxScale$value,
+        scaleRES = function() private$..scaleRES$value,
         scaleExclude = function() private$..scaleExclude$value),
     private = list(
         ..y1 = NA,
@@ -69,6 +111,11 @@ faSDAOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         ..sumORDER = NA,
         ..removeTrend = NA,
         ..polydet_order = NA,
+        ..minScale = NA,
+        ..userMinScale = NA,
+        ..maxScale = NA,
+        ..userMaxScale = NA,
+        ..scaleRES = NA,
         ..scaleExclude = NA)
 )
 
@@ -199,6 +246,11 @@ faSDABase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param sumORDER .
 #' @param removeTrend .
 #' @param polydet_order .
+#' @param minScale .
+#' @param userMinScale .
+#' @param maxScale .
+#' @param userMaxScale .
+#' @param scaleRES .
 #' @param scaleExclude .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -222,15 +274,22 @@ faSDA <- function(
     sumORDER = FALSE,
     removeTrend = "nodet",
     polydet_order = 1,
+    minScale = "autoMin",
+    userMinScale = 2,
+    maxScale = "autoMax",
+    userMaxScale = 4,
+    scaleRES = 30,
     scaleExclude = 4) {
 
     if ( ! requireNamespace('jmvcore'))
         stop('faSDA requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- faSDAOptions$new(
         y1 = y1,
@@ -238,10 +297,12 @@ faSDA <- function(
         sumORDER = sumORDER,
         removeTrend = removeTrend,
         polydet_order = polydet_order,
+        minScale = minScale,
+        userMinScale = userMinScale,
+        maxScale = maxScale,
+        userMaxScale = userMaxScale,
+        scaleRES = scaleRES,
         scaleExclude = scaleExclude)
-
-    results <- faSDAResults$new(
-        options = options)
 
     analysis <- faSDAClass$new(
         options = options,

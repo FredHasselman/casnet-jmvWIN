@@ -38,7 +38,6 @@ bvp                     Boundary Value Problems
 cart2sph                Coordinate Transformations
 cd                      Directory Functions (Matlab style)
 ceil                    Integer Functions (Matlab Style)
-cgmin                   Conjugate Gradient Minimization
 charpoly                Characteristic Polynomial
 chebApprox              Chebyshev Approximation
 chebCoeff               Chebyshev Polynomials
@@ -94,9 +93,13 @@ findmins                Find All Minima
 findpeaks               Find Peaks
 finds                   find function (Matlab Style)
 findzeros               Find All Roots
+fletcher_powell         Fletcher-Powell Conjugate Gradient Minimization
 flipdim                 Matrix Flipping (Matlab Style)
 fminbnd                 Finding Function Minimum
-fminsearch              Minimum Finding
+fmincon                 Minimize Nonlinear Constrained Multivariable
+                        Function.
+fminsearch              Derivative-free Nonlinear Function Minimization
+fminunc                 Minimize Unconstrained Multivariable Function
 fnorm                   Function Norm
 fornberg                Fornberg's Finite Difference Approximation
 fprintf                 Formatted Printing (Matlab style)
@@ -132,6 +135,7 @@ hessian                 Hessian Matrix
 hilb                    Hilbert Matrix
 histc                   Histogram Count (Matlab style)
 histss                  Histogram Bin-width Optimization
+hooke_jeeves            Hooke-Jeeves Function Minimization Method
 horner                  Horner's Rule
 householder             Householder Reflections
 humps                   Matlab Test Functions
@@ -159,6 +163,7 @@ laplacian               Laplacian Operator
 lebesgue                Lebesgue Constant
 legendre                Legendre Functions (Matlab Style)
 line_integral           Line integral (in the complex plane)
+linearproj              Linear Projection onto a Subspace
 linprog                 Linear Programming Solver
 linspace                Linearly Spaced Sequences
 logspace                Log-linearly Spaced Sequences
@@ -179,6 +184,7 @@ muller                  Muller's Method
 nchoosek                Binomial Coefficients
 ndims                   Number of Dimensions
 nearest_spd             Nearest Symmetric Positive-definite Matrix
+nelder_mead             Nelder-Mead Function Minimization Method
 neville                 Neville's Method
 newmark                 Newmark Method
 newtonHorner            Newton's Root Finding Method for Polynomials.

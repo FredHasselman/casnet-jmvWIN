@@ -26,7 +26,6 @@ children:
       - type: TextBox
         name: numSUR
         format: number
-        inputPattern: '[0-9]+'
   - type: LayoutBox
     margin: large
     children:

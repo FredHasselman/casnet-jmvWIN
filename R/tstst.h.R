@@ -243,10 +243,12 @@ tsTST <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('tsTST requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- tsTSTOptions$new(
         y1 = y1,
@@ -260,9 +262,6 @@ tsTST <- function(
         csd = csd,
         csu = csu,
         csdu = csdu)
-
-    results <- tsTSTResults$new(
-        options = options)
 
     analysis <- tsTSTClass$new(
         options = options,

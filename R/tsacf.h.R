@@ -244,11 +244,14 @@ tsACF <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('tsACF requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(dv1)) dv1 <- jmvcore::resolveQuo(jmvcore::enquo(dv1))
+    if ( ! missing(dv2)) dv2 <- jmvcore::resolveQuo(jmvcore::enquo(dv2))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(dv1), dv1, NULL),
             `if`( ! missing(dv2), dv2, NULL))
+
 
     options <- tsACFOptions$new(
         dv1 = dv1,
@@ -259,9 +262,6 @@ tsACF <- function(
         hypothesis = hypothesis,
         rtLAG1 = rtLAG1,
         rtLAG2 = rtLAG2)
-
-    results <- tsACFResults$new(
-        options = options)
 
     analysis <- tsACFClass$new(
         options = options,

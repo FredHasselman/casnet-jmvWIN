@@ -238,10 +238,12 @@ faPSD <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('faPSD requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- faPSDOptions$new(
         y1 = y1,
@@ -251,9 +253,6 @@ faPSD <- function(
         fs = fs,
         nfft = nfft,
         userNFFT = userNFFT)
-
-    results <- faPSDResults$new(
-        options = options)
 
     analysis <- faPSDClass$new(
         options = options,

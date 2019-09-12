@@ -48,7 +48,6 @@ children:
                 name: poly_order
                 label: Polynomial order
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (removeTrend_poly)
           - type: RadioButton
             name: removeTrend_adapt
@@ -59,7 +58,6 @@ children:
                 name: max_order
                 label: Maximum order
                 format: number
-                inputPattern: '[0-9]+'
                 enable: (removeTrend_adapt)
   - type: LayoutBox
     margin: large
@@ -81,7 +79,6 @@ children:
               name: userMinScale
               label: "Maximum bin size: 2^"
               format: number
-              inputPattern: '[0-9]+'
               enable: (minScale_userMin)
       - type: Label
         label: "Maximum scale"
@@ -99,7 +96,6 @@ children:
               name: userMaxScale
               label: "Maximum bin size: 2^"
               format: number
-              inputPattern: '[0-9]+'
               enable: (maxScale_userMax)
   - type: LayoutBox
     margin: large
@@ -110,10 +106,8 @@ children:
           - type: TextBox
             name: scaleRES
             format: number
-            inputPattern: '[0-9]+'
           - type: TextBox
             name: scaleExclude
             label: "Estimates based on at least"
             suffix: "data points"
             format: number
-            inputPattern: '[0-9]+'

@@ -294,10 +294,12 @@ faDFA <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('faDFA requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
+
 
     options <- faDFAOptions$new(
         y1 = y1,
@@ -312,9 +314,6 @@ faDFA <- function(
         userMaxScale = userMaxScale,
         scaleRES = scaleRES,
         scaleExclude = scaleExclude)
-
-    results <- faDFAResults$new(
-        options = options)
 
     analysis <- faDFAClass$new(
         options = options,

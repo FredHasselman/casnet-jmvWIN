@@ -135,7 +135,7 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
 
             } else {
               return(FALSE)
-              }
+            }
         }
       },
 

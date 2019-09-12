@@ -8,8 +8,9 @@ fd_sda(y, fs = NULL, standardise = c("mean.sd", "median.mad")[1],
   detrend = FALSE, polyOrder = 1, adjustSumOrder = FALSE,
   scaleMin = 2, scaleMax = floor(log2(NROW(y)/2)),
   scaleResolution = 30, scaleS = NA, overlap = 0, minData = 4,
-  doPlot = TRUE, returnPlot = FALSE, returnPLAW = FALSE,
-  returnInfo = FALSE, silent = TRUE, noTitle = FALSE, tsName = "y")
+  doPlot = FALSE, returnPlot = FALSE, returnPLAW = FALSE,
+  returnInfo = FALSE, silent = FALSE, noTitle = FALSE,
+  tsName = "y")
 }
 \arguments{
 \item{y}{A numeric vector or time series object.}
@@ -22,40 +23,40 @@ fd_sda(y, fs = NULL, standardise = c("mean.sd", "median.mad")[1],
 
 \item{polyOrder}{Order of detrending polynomial}
 
-\item{adjustSumOrder}{Adjust the time series (summation or differencing), based on the global scaling exponent, see e.g. [Ihlen (2012)](https://www.frontiersin.org/files/Articles/23948/fphys-03-00141-r2/image_m/fphys-03-00141-t001.jpg) (default = \code{TRUE})}
+\item{adjustSumOrder}{Adjust the time series (summation or differencing), based on the global scaling exponent, see e.g. <https://www.frontiersin.org/files/Articles/23948/fphys-03-00141-r2/image_m/fphys-03-00141-t001.jpg>{Ihlen (2012)} (default = `FALSE`)}
 
 \item{scaleMin}{Minimium scale to use}
 
 \item{scaleMax}{Maximum scale to use}
 
-\item{scaleResolution}{The scales at which detrended fluctuation will be evaluated will are calculatd as: \code{(scaleMax-scaleMin)/scaleResolution}}
+\item{scaleResolution}{The scales at which the standardised fluctuations are calculated as: `(scaleMax-scaleMin)/scaleResolution`}
 
-\item{scaleS}{If not \code{NA}, it should be a numeric vector listing the scales on which to evaluate the detrended fluctuations. Arguments \code{scaleMax, scaleMin, scaleResolution} will be ignored.}
+\item{scaleS}{If not `NA`, it should be a numeric vector listing the scales on which to evaluate the fluctuations. Arguments `scaleMax, scaleMin, scaleResolution` will be ignored.}
 
-\item{overlap}{Turn SDA into a sliding window analysis. A number in \code{[0 ... 1]} representing the amount of 'bin overlap'. If \code{length(y) = 1024} and overlap is \code{.5}, a scale of \code{4} will be considered a sliding window of size \code{4} with stepsize \code{floor(.5 * 4) = 2} (default = \code{0})}
+\item{overlap}{Turn SDA into a sliding window analysis. A number in `[0 ... 1]` representing the amount of 'bin overlap'. If `length(y) = 1024` and overlap is `.5`, a scale of `4` will be considered a sliding window of size `4` with stepsize `floor(.5 * 4) = 2` (default = `0`)}
 
 \item{minData}{Minimum number of data points in a bin needed to calculate standardised dispersion}
 
-\item{doPlot}{Output the log-log scale versus fluctuation plot with linear fit (default = \code{TRUE}).}
+\item{doPlot}{Output the log-log scale versus fluctuation plot with linear fit by calling function `plotFD_loglog()` (default = `TRUE`)}
 
-\item{returnPlot}{Return ggplot2 objects}
+\item{returnPlot}{Return ggplot2 object (default = `FALSE`)}
 
-\item{returnPLAW}{Return the power law data (default = \code{FALSE})}
+\item{returnPLAW}{Return the power law data (default = `FALSE`)}
 
-\item{returnInfo}{Return all the data used in DFA (default = \code{FALSE})}
+\item{returnInfo}{Return all the data used in SDA (default = `FALSE`)}
 
 \item{silent}{Silent-ish mode}
 
 \item{noTitle}{Do not generate a title (only the subtitle)}
 
-\item{tsName}{Name of y}
+\item{tsName}{Name of y added as a subtitle to the plot}
 }
 \value{
 A list object containing:
 \itemize{
-\item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
-\item Estimate of scaling exponent \code{sap} based on a fit over the standard range (\code{fullRange}), or on a user defined range \code{fitRange}.
-\item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+\item A data matrix `PLAW` with columns `freq.norm`, `size` and `bulk`.
+\item Estimate of scaling exponent `sap` based on a fit over the standard range (`fullRange`), or on a user defined range `fitRange`.
+\item Estimate of the the Fractal Dimension (`FD`) using conversion formula's reported in Hasselman(2013).
 \item Information output by various functions.
 }
 }
@@ -63,9 +64,14 @@ A list object containing:
 fd_sda
 }
 \references{
-Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
+Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. <http://doi.org/10.3389/fphys.2013.00075>
+}
+\seealso{
+Other Fluctuation Analyses: \code{\link{MFDFA}},
+  \code{\link{fd_RR}}, \code{\link{fd_dfa}},
+  \code{\link{fd_psd}}
 }
 \author{
 Fred Hasselman
 }
-\concept{FD estimators}
+\concept{Fluctuation Analyses}

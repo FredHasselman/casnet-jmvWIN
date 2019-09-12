@@ -12,29 +12,100 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
           return(FALSE)
         }
 
-        y1_ready <- FALSE
+        library(invctr)
+        data        <- self$data
+        standardise <- "none"
 
-        data <- self$data
-        v1_discretised <- "no"
-
-        # Variable 1 ----
+        # Variables ----
         y1 <- self$options$y1
 
-        if((!plyr::is.discrete(data[[y1]]))&self$options$discretise){
-          data[[y1]] <- ts_symbolic(data[[y1]])
-          v1_discretised <- "yes"
+        if(!plyr::is.discrete(data[[y1]])){
+          y1vec <- jmvcore::toNumeric(data[[y1]])
+        } else {
+          if(is.factor(data[[y1]])){
+            y1vec <- as.factor(data[[y1]])
+          } else {
+            y1vec <- as.character(data[[y1]])
+          }
+          y1Vlevel <- "Unordered categorical"
         }
 
-        if(is.factor(data[[y1]])|is.character(data[[y1]])){
-          if(is.factor(data[[y1]])&is.ordered(data[[y1]])){
-            y1.vlevel <- "Ordered categorical"
-          } else {
-            y1.vlevel <- "Unordered categorical"
+
+        if(!any(plyr::is.discrete(y1vec),is.numeric(y1vec))){
+          y1vec <- data[[y1]]
+          y1Vlevel <- "Unordered categorical"
+        }
+
+
+        if(self$options$standardise=="none"){
+          standardise <- "none"
+        }
+
+        if(is.numeric(y1vec)){
+
+          y1Vlevel <- ifelse(all(is.wholenumber(y1vec)),"Discrete","Continuous")
+
+          if(self$options$standardise=="meanSD"){
+            standardise <- "mean.sd"
+          }
+          if(self$options$standardise=="medianMAD"){
+            standardise <- "median.mad"
+          }
+
+          if(self$options$standardise=="unitScale"){
+            y1vec <- elascer(y1vec)
+            standardise <- "unit scale"
+            y1Vlevel <- "Continuous"
+          }
+
+          if(self$options$standardise=="symbolicScale"){
+            y1vec <- ts_symbolic(y1vec)
+            y1vec <- y1vec[!is.na(y1vec)]
+
+            standardise <- "symbolic"
+            y1Vlevel <- "Ordered categorical"
+          }
+
+          if(any(standardise%in%c("mean.sd","median.mad"))){
+            y1vec <- ts_standardise(y1vec, type = standardise,  adjustN = FALSE)
+            y1Vlevel <- "Continuous"
           }
         }
-        if(is.numeric(data[[y1]])){
-          y1.vlevel <- typeof(data[[y1]])
+
+        if(plyr::is.discrete(y1vec)&self$options$standardise!="symbolicScale"){
+          y1Vlevel <- "Unordered categorical"
+          if(is.factor(y1vec)){
+            y1vec <- as.numeric_factor(y1vec)
+            allvalues <- sort(unique(y1vec))
+            y1vec <- factor(y1vec,labels = paste0(allvalues), levels = allvalues, ordered = is.ordered(data[[y1]]))
+            if(is.ordered(y1vec)){
+              y1Vlevel <- "Ordered categorical"
+            }
+          }
+          if(is.character(y1vec)){
+            allvalues <- as.numeric_character(sort(unique(c(y1vec))))
+            y1vec <- factor(y1vec,labels = names(allvalues), levels = names(allvalues), ordered = is.ordered(data[[y1]]))
+            if(is.ordered(y1vec)){
+              y1Vlevel <- "Ordered categorical"
+            }
+          }
         }
+#
+#         if((!plyr::is.discrete(data[[y1]]))&self$options$discretise){
+#           data[[y1]] <- ts_symbolic(data[[y1]])
+#           v1_discretised <- "yes"
+#         }
+#
+#         if(is.factor(data[[y1]])|is.character(data[[y1]])){
+#           if(is.factor(data[[y1]])&is.ordered(data[[y1]])){
+#             y1Vlevel <- "Ordered categorical"
+#           } else {
+#             y1Vlevel <- "Unordered categorical"
+#           }
+#         }
+#         if(is.numeric(data[[y1]])){
+#           y1Vlevel <- typeof(data[[y1]])
+#         }
 
         TStable <- self$results$tblTS
 
@@ -42,16 +113,16 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
         TStable$setRow(rowNo=1,
                        values=list(
                          var = y1,
-                         vlevel = y1.vlevel,
+                         vlevel = y1Vlevel,
                          N   = NROW(na.omit(data[[y1]])),
                          na  = sum(is.na(data[[y1]])),
                          uni_obs = length(unique(na.omit(data[[y1]]))),
-                         discretised = v1_discretised)
+                         transformed = standardise)
         )
 
-        tsData <- data.frame(t  = seq_along(data[[y1]]),
-                             y1 = data[[y1]],
-                             label = rep(y1,length(data[[y1]]))
+        tsData <- data.frame(t  = seq_along(y1vec),
+                             y1 = y1vec,
+                             label = rep(y1,length(y1vec))
                              )
         # tsImage <- self$results$tsplot
         # tsImage$setState(tsData)
@@ -155,7 +226,8 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
                           relENT = crqa_out$ENTrel_hl,
                           CoV    = crqa_out$CoV_hl)
                         )
-        dpImage <- self$results$DPplot
+
+          dpImage <- self$results$DPplot
 
         if(self$options$plotDP==FALSE){
           dpImage$setVisible(visible=FALSE)
@@ -187,7 +259,7 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
 
        #   if(plyr::is.discrete(df$y1)){
 
-          rppl <-    rp_plot(rm, plotDimensions = TRUE, xlab = self$options$y1, ylab = self$options$y1, radiusValue = attributes(rm)$emRad, plotRadiusRRbar = RadiusRRbar)
+          rppl <- rp_plot(rm, plotDimensions = TRUE, xlab = self$options$y1, ylab = self$options$y1, radiusValue = attributes(rm)$emRad, plotRadiusRRbar = RadiusRRbar)
 
           print(rppl)
           TRUE

@@ -5,14 +5,19 @@
 
 const options = [{"name":"data","type":"Data"},{"name":"dep","title":"Dependent Variable","type":"Variable"},{"name":"group","title":"Grouping Variable","type":"Variable"},{"name":"alt","title":"Alternative hypothesis","type":"List","options":[{"title":"Not equal","name":"notequal"},{"title":"One greater","name":"onegreater"},{"title":"Two greater","name":"twogreater"}],"default":"notequal"},{"name":"varEq","title":"Assume equal variances","type":"Bool","default":true}];
 
-const view = View.extend({
-    jus: "2.0",
+const view = function() {
+    
+    
 
-    events: [
+    View.extend({
+        jus: "2.0",
+
+        events: [
 
 	]
 
-});
+    }).call(this);
+}
 
 view.layout = ui.extend({
 
@@ -23,15 +28,18 @@ view.layout = ui.extend({
     controls: [
 		{
 			type: DefaultControls.VariableSupplier,
+			typeName: 'VariableSupplier',
 			persistentItems: false,
 			stretchFactor: 1,
 			controls: [
 				{
 					type: DefaultControls.TargetLayoutBox,
+					typeName: 'TargetLayoutBox',
 					label: "Dependent Variable",
 					controls: [
 						{
 							type: DefaultControls.VariablesListBox,
+							typeName: 'VariablesListBox',
 							name: "dep",
 							maxItemCount: 1,
 							isTarget: true
@@ -40,10 +48,12 @@ view.layout = ui.extend({
 				},
 				{
 					type: DefaultControls.TargetLayoutBox,
+					typeName: 'TargetLayoutBox',
 					label: "Grouping Variable",
 					controls: [
 						{
 							type: DefaultControls.VariablesListBox,
+							typeName: 'VariablesListBox',
 							name: "group",
 							maxItemCount: 1,
 							isTarget: true
@@ -54,20 +64,24 @@ view.layout = ui.extend({
 		},
 		{
 			type: DefaultControls.LayoutBox,
+			typeName: 'LayoutBox',
 			margin: "large",
 			controls: [
 				{
 					type: DefaultControls.ComboBox,
+					typeName: 'ComboBox',
 					name: "alt"
 				}
 			]
 		},
 		{
 			type: DefaultControls.LayoutBox,
+			typeName: 'LayoutBox',
 			margin: "large",
 			controls: [
 				{
 					type: DefaultControls.CheckBox,
+					typeName: 'CheckBox',
 					name: "varEq"
 				}
 			]

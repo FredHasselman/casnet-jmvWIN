@@ -7,7 +7,7 @@ rqaAUOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
     public = list(
         initialize = function(
             y1 = NULL,
-            discretise = FALSE,
+            standardise = "none",
             emLag = 1,
             emDim = 1,
             fixRR = 0.05,
@@ -33,10 +33,16 @@ rqaAUOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             private$..y1 <- jmvcore::OptionVariable$new(
                 "y1",
                 y1)
-            private$..discretise <- jmvcore::OptionBool$new(
-                "discretise",
-                discretise,
-                default=FALSE)
+            private$..standardise <- jmvcore::OptionList$new(
+                "standardise",
+                standardise,
+                options=list(
+                    "none",
+                    "meanSD",
+                    "medianMAD",
+                    "unitScale",
+                    "symbolicScale"),
+                default="none")
             private$..emLag <- jmvcore::OptionNumber$new(
                 "emLag",
                 emLag,
@@ -110,7 +116,7 @@ rqaAUOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 default=10)
 
             self$.addOption(private$..y1)
-            self$.addOption(private$..discretise)
+            self$.addOption(private$..standardise)
             self$.addOption(private$..emLag)
             self$.addOption(private$..emDim)
             self$.addOption(private$..fixRR)
@@ -129,7 +135,7 @@ rqaAUOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         }),
     active = list(
         y1 = function() private$..y1$value,
-        discretise = function() private$..discretise$value,
+        standardise = function() private$..standardise$value,
         emLag = function() private$..emLag$value,
         emDim = function() private$..emDim$value,
         fixRR = function() private$..fixRR$value,
@@ -147,7 +153,7 @@ rqaAUOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         diagWin = function() private$..diagWin$value),
     private = list(
         ..y1 = NA,
-        ..discretise = NA,
+        ..standardise = NA,
         ..emLag = NA,
         ..emDim = NA,
         ..fixRR = NA,
@@ -203,8 +209,8 @@ rqaAUResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `type`="integer", 
                         `title`="NA values"),
                     list(
-                        `name`="discretised", 
-                        `title`="discretised?", 
+                        `name`="transformed", 
+                        `title`="transformation", 
                         `type`="text"),
                     list(
                         `name`="uni_obs", 
@@ -216,12 +222,46 @@ rqaAUResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 title="Recurrence Plot",
                 width=600,
                 height=600,
-                renderFun=".rpplot"))
+                renderFun=".rpplot",
+                clearWith=list(
+                    "y1",
+                    "emRad",
+                    "emLag",
+                    "emDim",
+                    "VLmin",
+                    "DLmin",
+                    "HLmin",
+                    "VLmax",
+                    "DLmax",
+                    "HLmax",
+                    "fixRR",
+                    "fixRAD",
+                    "fixed",
+                    "theiler",
+                    "norm",
+                    "standardise")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tblRP",
                 title="Global RQA measures",
                 rows=1,
+                clearWith=list(
+                    "y1",
+                    "emRad",
+                    "emLag",
+                    "emDim",
+                    "VLmin",
+                    "DLmin",
+                    "HLmin",
+                    "VLmax",
+                    "DLmax",
+                    "HLmax",
+                    "fixRR",
+                    "fixRAD",
+                    "fixed",
+                    "theiler",
+                    "norm",
+                    "standardise"),
                 columns=list(
                     list(
                         `name`="RP", 
@@ -256,6 +296,23 @@ rqaAUResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 name="tblRQA",
                 title="RQA measures based on line structures",
                 rows=3,
+                clearWith=list(
+                    "y1",
+                    "emRad",
+                    "emLag",
+                    "emDim",
+                    "VLmin",
+                    "DLmin",
+                    "HLmin",
+                    "VLmax",
+                    "DLmax",
+                    "HLmax",
+                    "fixRR",
+                    "fixRAD",
+                    "fixed",
+                    "theiler",
+                    "norm",
+                    "standardise"),
                 columns=list(
                     list(
                         `name`="LineType", 
@@ -302,7 +359,26 @@ rqaAUResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 width=600,
                 height=600,
                 visible=FALSE,
-                renderFun=".DPplot"))}))
+                renderFun=".DPplot",
+                clearWith=list(
+                    "y1",
+                    "emRad",
+                    "emLag",
+                    "emDim",
+                    "VLmin",
+                    "DLmin",
+                    "HLmin",
+                    "VLmax",
+                    "DLmax",
+                    "HLmax",
+                    "fixRR",
+                    "fixRAD",
+                    "fixed",
+                    "theiler",
+                    "norm",
+                    "plotDP",
+                    "diagWin",
+                    "standardise")))}))
 
 rqaAUBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "rqaAUBase",
@@ -328,7 +404,7 @@ rqaAUBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' 
 #' @param data .
 #' @param y1 .
-#' @param discretise .
+#' @param standardise .
 #' @param emLag .
 #' @param emDim .
 #' @param fixRR .
@@ -363,7 +439,7 @@ rqaAUBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 rqaAU <- function(
     data,
     y1,
-    discretise = FALSE,
+    standardise = "none",
     emLag = 1,
     emDim = 1,
     fixRR = 0.05,
@@ -383,14 +459,16 @@ rqaAU <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('rqaAU requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL))
 
+
     options <- rqaAUOptions$new(
         y1 = y1,
-        discretise = discretise,
+        standardise = standardise,
         emLag = emLag,
         emDim = emDim,
         fixRR = fixRR,
@@ -406,9 +484,6 @@ rqaAU <- function(
         norm = norm,
         plotDP = plotDP,
         diagWin = diagWin)
-
-    results <- rqaAUResults$new(
-        options = options)
 
     analysis <- rqaAUClass$new(
         options = options,

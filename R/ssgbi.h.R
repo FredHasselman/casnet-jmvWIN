@@ -502,14 +502,22 @@ ssgBI <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('ssgBI requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
+    if ( ! missing(y2)) y2 <- jmvcore::resolveQuo(jmvcore::enquo(y2))
+    if ( ! missing(time)) time <- jmvcore::resolveQuo(jmvcore::enquo(time))
+    if ( ! missing(trajectories)) trajectories <- jmvcore::resolveQuo(jmvcore::enquo(trajectories))
+    if ( ! missing(waves)) waves <- jmvcore::resolveQuo(jmvcore::enquo(waves))
     if (missing(data))
-        data <- jmvcore:::marshalData(
+        data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL),
             `if`( ! missing(y2), y2, NULL),
             `if`( ! missing(time), time, NULL),
             `if`( ! missing(trajectories), trajectories, NULL),
             `if`( ! missing(waves), waves, NULL))
+
+    for (v in trajectories) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
+    for (v in waves) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
 
     options <- ssgBIOptions$new(
         y1 = y1,
@@ -528,9 +536,6 @@ ssgBI <- function(
         MinCellDuration = MinCellDuration,
         doWinnowing = doWinnowing,
         screeCut = screeCut)
-
-    results <- ssgBIResults$new(
-        options = options)
 
     analysis <- ssgBIClass$new(
         options = options,

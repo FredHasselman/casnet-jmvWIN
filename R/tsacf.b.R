@@ -8,25 +8,29 @@ tsACFClass <- if (requireNamespace("jmvcore")) {
       .run = function() {
 
         Xcor <- TRUE
-        if(is.null(self$options$dv1)){return(FALSE)}
-        if(is.null(self$options$dv2)){Xcor <- FALSE}
-
-        dv1  <- self$options$dv1
         data <- self$data
 
-        # convert to appropriate data types
-        data[[dv1]] <- jmvcore::toNumeric(data[[dv1]])
-        y1NA        <- is.na(data[[dv1]])
-        data        <- na.omit(data)
-
-        if(Xcor){
+        if(is.null(self$options$dv1)){
+          return(FALSE)
+        } else {
+          dv1  <- self$options$dv1
+          # convert to appropriate data types
+          data[[dv1]] <- jmvcore::toNumeric(data[[dv1]])
+          y1NA        <- is.na(data[[dv1]])
+        }
+        if(is.null(self$options$dv2)){
+          Xcor <- FALSE
+        } else {
           dv2 <- self$options$dv2
           data[[dv2]] <- jmvcore::toNumeric(data[[dv2]])
-          # Time series data ----
+          y2NA        <- is.na(data[[dv2]])
+        }
+        data  <- na.omit(data)
+
+        if(Xcor){
           tsData <- data.frame(t  = seq_along(data[[dv1]]),
                                y1 = as.numeric(data[[dv1]]),
                                y2 = as.numeric(data[[dv2]]))
-          y2NA   <- is.na(data[[dv2]])
         } else {
           tsData <- data.frame(t  = seq_along(data[[dv1]]),
                                y1 = as.numeric(data[[dv1]]))
@@ -77,6 +81,10 @@ tsACFClass <- if (requireNamespace("jmvcore")) {
 
         if(Xcor){
 
+          # No XCorrelation data
+          XcfImage <- self$results$Xcfplot
+          XcfImage$setVisible(visible=TRUE)
+
           # Return data ----
           y01 <- tsData$y1
           y1  <- c(rep(NA,self$options$rtLAG1), y01[1:(NROW(y01)-self$options$rtLAG1)])
@@ -89,23 +97,20 @@ tsACFClass <- if (requireNamespace("jmvcore")) {
                                           rep(paste(self$options$dv2,"| n = ",self$options$rtLAG2),length(y2))),
                                 stringsAsFactors = FALSE)
 
-          # XCorrelation data ----
-          XcfData  <- rbind(tsData)
-          XcfImage <- self$results$Xcfplot
-          XcfImage$setState(XcfData)
+          # Phase diagram
+          # y1 <- tsData$y1
+          # y2 <- tsData$y2
+          phData  <- data.frame(y1 = y01,
+                                y2 = y02, stringsAsFactors = FALSE)
 
           # Phase diagram
-          y1 <- tsData$y1
-          y2 <- tsData$y2
-          phData  <- data.frame(y1 = y1,
-                                y2 = y2, stringsAsFactors = FALSE)
-
           phImage <- self$results$phdiagram
+          phImage$setVisible(visible=TRUE)
           phImage$setState(phData)
 
         } else {
 
-          # XCorrelation data
+          # No XCorrelation data
           XcfImage <- self$results$Xcfplot
           XcfImage$setVisible(visible=FALSE)
 
@@ -121,6 +126,10 @@ tsACFClass <- if (requireNamespace("jmvcore")) {
           phImage$setVisible(visible=FALSE)
 
         }
+
+        # XCorrelation data ----
+        XcfImage <- self$results$Xcfplot
+        XcfImage$setState(rbind(tsData))
 
         # Correlation plot ----
         cfImage <- self$results$cfplot
