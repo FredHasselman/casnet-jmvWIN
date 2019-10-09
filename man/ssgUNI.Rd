@@ -4,9 +4,11 @@
 \alias{ssgUNI}
 \title{Univariate State Space Grid}
 \usage{
-ssgUNI(data, y1 = NULL, time = NULL, v1_labels = "",
-  v1_Nstates = 0, ssgUNIlag = 1, MinReturns = 2, MaxReturnTime = 0,
-  MaxReturnVisits = 0, MinEventDuration = 0, MinCellDuration = 0)
+ssgUNI(data, y1 = NULL, time = NULL, trajectories = NULL,
+  waves = NULL, ssgUNIlag = 1, v1_labels = "", v1_Nstates = 0,
+  MinReturns = 2, MaxReturnTime = 0, MaxReturnVisits = 0,
+  MinEventDuration = 0, MinCellDuration = 0, doWinnowing = FALSE,
+  screeCut = 0.5)
 }
 \arguments{
 \item{data}{.}
@@ -15,11 +17,15 @@ ssgUNI(data, y1 = NULL, time = NULL, v1_labels = "",
 
 \item{time}{A variable indicating time}
 
+\item{trajectories}{A variable indicating groups}
+
+\item{waves}{A variable indicating measurement occasions}
+
+\item{ssgUNIlag}{.}
+
 \item{v1_labels}{.}
 
 \item{v1_Nstates}{.}
-
-\item{ssgUNIlag}{.}
 
 \item{MinReturns}{.}
 
@@ -30,6 +36,10 @@ ssgUNI(data, y1 = NULL, time = NULL, v1_labels = "",
 \item{MinEventDuration}{.}
 
 \item{MinCellDuration}{.}
+
+\item{doWinnowing}{.}
+
+\item{screeCut}{.}
 }
 \value{
 A results object containing:

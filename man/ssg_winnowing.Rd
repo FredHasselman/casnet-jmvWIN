@@ -4,12 +4,14 @@
 \alias{ssg_winnowing}
 \title{ssg_winnowing}
 \usage{
-ssg_winnowing(durations, screeCut)
+ssg_winnowing(durations, screeCut, timeLimit = 120)
 }
 \arguments{
 \item{durations}{durations frame}
 
 \item{screeCut}{cutoff}
+
+\item{timeLimit}{Stop the procedure after this time limit isn seconds (default = `120`)}
 }
 \value{
 attractor frame

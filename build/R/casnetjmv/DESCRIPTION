@@ -18,4 +18,4 @@ Imports: jmvcore, R6, tseries, tidyr, quadprog, zoo, quantmod, xts,
         bindrcpp, bindr, pkgconfig, Matrix, flexclust, modeltools,
         igraph, invctr
 RoxygenNote: 6.1.1
-Built: R 3.4.1; ; 2019-09-12 12:48:02 UTC; windows
+Built: R 3.4.1; ; 2019-10-09 12:55:03 UTC; windows

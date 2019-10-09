@@ -9,27 +9,27 @@ plotNET_groupWeight(g, groups, weigth.within = 100, weight.between = 1,
   doPlot = FALSE, returnOnlyWeights = TRUE)
 }
 \arguments{
-\item{g}{An igraph object whose edges (\code{get.edgelist(g)}) will be re-weighted according to the \code{membership} argument.}
+\item{g}{An igraph object whose edges (`get.edgelist(g)`) will be re-weighted according to the `membership` argument.}
 
-\item{groups}{A named numeric vector with \code{length(V(g))} integers representing each group, or, a named character vector describing each group. If \code{names(groups)==NULL} then the names of the vector will be set as \code{names(groups) == V(g)$name}. If \code{V(g)$name==NULL}, the names of the vector will be set by the Vertex index}
+\item{groups}{A named numeric vector with `length(V(g))` integers representing each group, or, a named character vector describing each group. If `names(groups)==NULL` then the names of the vector will be set as `names(groups) == V(g)$name`. If `V(g)$name==NULL`, the names of the vector will be set by the Vertex index}
 
-\item{weigth.within}{The weight within a group (\code{default = 100})}
+\item{weigth.within}{The weight within a group (`default = 100`)}
 
-\item{weight.between}{The weight within a group (\code{default = 1})}
+\item{weight.between}{The weight within a group (`default = 1`)}
 
-\item{preserve.weight.within}{If \code{E(g)$weights} is not \code{NULL}, try to preserve edge weigths within a group}
+\item{preserve.weight.within}{If `E(g)$weights` is not `NULL`, try to preserve edge weigths within a group}
 
-\item{preserve.weight.between}{If \code{E(g)$weights} is not \code{NULL}, try to preserve edge weigths between a groups}
+\item{preserve.weight.between}{If `E(g)$weights` is not `NULL`, try to preserve edge weigths between a groups}
 
 \item{doPlot}{Plot the igraph object}
 
-\item{returnOnlyWeights}{Do not return the graph, just the weights. If \code{FALSE} this will return the graph object, otherwis it returns \code{E(g)$weights}}
+\item{returnOnlyWeights}{Do not return the graph, just the weights. If `FALSE` this will return the graph object, otherwis it returns `E(g)$weights`}
 }
 \value{
-A numeric vector with \code{length(get.edgelist(g))} edge weights that will cluster groups defined in \code{membership} if a layout is used that can handle edge weights as a parameter (see examples).
+A numeric vector with `length(get.edgelist(g))` edge weights that will cluster groups defined in `membership` if a layout is used that can handle edge weights as a parameter (see examples).
 }
 \description{
-Use a layout which takes a \code{weights}
+Use a layout which takes a `weights`
 }
 \examples{
 # Make a star graph and let the odd numbers cluster together

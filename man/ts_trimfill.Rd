@@ -31,9 +31,10 @@ Fill the shortest vector with padding.
 il_mi
 
 Other Time series operations: \code{\link{ts_center}},
-  \code{\link{ts_detrend}}, \code{\link{ts_embed}},
-  \code{\link{ts_levels}}, \code{\link{ts_peaks}},
-  \code{\link{ts_slice}}, \code{\link{ts_standardise}}
+  \code{\link{ts_detrend}}, \code{\link{ts_duration}},
+  \code{\link{ts_embed}}, \code{\link{ts_levels}},
+  \code{\link{ts_peaks}}, \code{\link{ts_slice}},
+  \code{\link{ts_standardise}}
 }
 \author{
 Fred Hasselman

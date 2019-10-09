@@ -176,4 +176,7 @@ items:
         - diagWin
         - standardise
 
+    - name: warnings
+      type: Preformatted
+      title: "Notes"
 ...

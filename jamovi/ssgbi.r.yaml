@@ -125,6 +125,10 @@ items:
       type: Table
       rows: 0
       columns:
+       - name: TRAJid
+         title: "Trajectory ID"
+       - name: WAVid
+         title: "Wave ID"
        - name: stateName
          title: "State"
        - name: Nvisits

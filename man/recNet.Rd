@@ -4,11 +4,12 @@
 \alias{recNet}
 \title{Recurrence Networks}
 \usage{
-recNet(data, y1, standardise = "none", emLag = 1, emDim = 1, Gweight,
-  Gdirect, Glabels, Glayout, PruneDegree = 0, PruneWeight = 0,
-  nsize = "degree", fixRR = 0.05, fixRAD = 0, fixed = "RAD",
-  DLmin = 2, DLmax = 0, VLmin = 2, VLmax = 0, HLmin = 2,
-  HLmax = 0, theiler = 0, norm = "euclidean")
+recNet(data, y1, standardise = "none", edgeWeight = "none", Glayout,
+  LayoutA = 0, LayoutB = 0, Narcs = 4, Glabels = TRUE,
+  nsize = "degree", PruneDegree = 0, PruneWeight = 0, emLag = 1,
+  emDim = 1, fixRR = 0.05, fixRAD = 0, fixed = "RAD", DLmin = 2,
+  DLmax = 0, VLmin = 2, VLmax = 0, HLmin = 2, HLmax = 0,
+  theiler = 0, norm = "euclidean")
 }
 \arguments{
 \item{data}{.}
@@ -17,23 +18,27 @@ recNet(data, y1, standardise = "none", emLag = 1, emDim = 1, Gweight,
 
 \item{standardise}{.}
 
-\item{emLag}{.}
+\item{edgeWeight}{.}
 
-\item{emDim}{.}
+\item{Glayout}{.}
 
-\item{Gweight}{.}
+\item{LayoutA}{.}
 
-\item{Gdirect}{.}
+\item{LayoutB}{.}
+
+\item{Narcs}{.}
 
 \item{Glabels}{.}
 
-\item{Glayout}{.}
+\item{nsize}{.}
 
 \item{PruneDegree}{.}
 
 \item{PruneWeight}{.}
 
-\item{nsize}{.}
+\item{emLag}{.}
+
+\item{emDim}{.}
 
 \item{fixRR}{.}
 

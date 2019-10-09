@@ -4,20 +4,28 @@
 \alias{elascer}
 \title{Elastic Scaler - A Flexible Rescale Function}
 \usage{
-elascer(x, mn = NA, mx = NA, lo = 0, hi = 1, groupwise = FALSE)
+elascer(x, mn = NA, mx = NA, lo = 0, hi = 1, groupwise = FALSE,
+  keepNA = TRUE, boundaryPrecision = NA,
+  tol = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{x}{Input vector or data frame.}
 
-\item{mn}{Minimum value of original, defaults to \code{min(x, na.rm = TRUE)} if set to \code{NA}.}
+\item{mn}{Minimum value of original, defaults to `min(x, na.rm = TRUE)` if set to `NA`.}
 
-\item{mx}{Maximum value of original, defaults to \code{max(x, na.rm = TRUE)} if set to \code{NA}.}
+\item{mx}{Maximum value of original, defaults to `max(x, na.rm = TRUE)` if set to `NA`.}
 
-\item{lo}{Maximum value to rescale to, defaults to \code{1}.}
+\item{lo}{Minimum value to rescale to, defaults to `0`.}
 
-\item{hi}{Minimum value to rescale to, defaults to \code{0}.}
+\item{hi}{Maximum value to rescale to, defaults to `1`.}
 
-\item{groupwise}{If \code{x} is a data frame with \code{2+} columns, \code{mn = NA} and/or \code{mx = NA} and \code{groupwise = TRUE}, scaling will occur}
+\item{groupwise}{If `x` is a data frame with `2+` columns, `mn = NA` and/or `mx = NA` and `groupwise = TRUE`, scaling will occur}
+
+\item{keepNA}{Keep `NA` values?}
+
+\item{boundaryPrecision}{If set to `NA` the precision of the input will be the same as the precision of the output. This can cause problems when detecting values that lie just outside of, or, exactly on boundaries given by `lo` and `hi`, e.g. after saving the data using a default precision. Setting `boundaryPrecision` to an integer value will ensure that the boundaries of the new scale are given by `round(..., digits = boundaryPrecision)`. Alternatively one could just round all the output after rescaling to a desired precision (default = `NA`)}
+
+\item{tol}{The tolerance for deciding wether a value is on the boundary `lo` or `hi` (default = `.Machine$double.eps^0.5)`)}
 }
 \value{
 scaled inout
@@ -37,15 +45,32 @@ Three uses:
 # Works on numeric objects
 somenumbers <- cbind(c(-5,100,sqrt(2)),c(exp(1),0,-pi))
 
+# Using the defaults:
+# 1. mn and mx are derived globally (groupWise = FALSE)
+# 2. values rescaled to hi and lo are integers, 0 and 1 respectively
 elascer(somenumbers)
-elascer(somenumbers,mn=-100)
-# Values < mn will return < lo (default=0)
-# Values > mx will return > hi (default=1)
-elascer(somenumbers,mn=-1,mx=99)
 
+# If the data contain values < mn they will return as < lo
+elascer(somenumbers,mn=-100)
+# If the data contain values > mx they will return > hi
+elascer(somenumbers,mx=99)
+
+# Effect of setting groupWise
 elascer(somenumbers,lo=-1,hi=1)
 elascer(somenumbers,lo=-1,hi=1, groupwise = TRUE)
 
 elascer(somenumbers,mn=-10,mx=100,lo=-1,hi=4)
 elascer(somenumbers,mn= NA,mx=100,lo=-1,hi=4, groupwise = TRUE)
+
+# Effect of setting boundaryPrecision
+x <- rbind(1/3, 1/7)
+
+re1 <- elascer(x, lo = 0, hi = 1/13, boundaryPrecision = NA)
+max(re1)==0.07692308 # FALSE
+max(re1)==1/13       # TRUE
+
+re2 <- elascer(x, lo = 0, hi = 1/13, boundaryPrecision = 8)
+max(re2)==0.07692308 # TRUE
+max(re2)==1/13       # FALSE
+
 }

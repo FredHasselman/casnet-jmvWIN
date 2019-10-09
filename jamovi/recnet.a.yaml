@@ -29,6 +29,72 @@ options:
           title: "Symbolic representation"
       default: none
 
+    - name: edgeWeight
+      title: "Edges represent:"
+      type: List
+      options:
+       - name: none
+         title: "Connections (no weights)"
+       - name: si
+         title: "Distance in Recurrence Matrix"
+       - name: rt
+         title: "Recurrence Time"
+       - name: rf
+         title: "Recurrence Time Frequency"
+      default: none
+
+    - name: Glayout
+      title: Graph layout
+      type: List
+      options:
+       - name: ar
+         title: "Archimedean"
+       - name: be
+         title: "Bernoulli"
+       - name: fe
+         title: "Fermat"
+       - name: eu
+         title: "Euler"
+    - name: LayoutA
+      title: "Spiral parameter: a (leave 0 for default)"
+      type: Number
+      default: 0
+    - name: LayoutB
+      title: "Spiral parameter: b (leave 0 for default)"
+      type: Number
+      default: 0
+    - name: Narcs
+      title: "Spiral parameter: Number of arcs"
+      type: Number
+      default: 4
+    - name: Glabels
+      title: "Add labels (time)"
+      type: Bool
+      default: true
+
+    - name: nsize
+      title: "Node size"
+      type: List
+      default: degree
+      options:
+       - name: degree
+         title: "Node degree"
+       - name: strength
+         title: "Node strength (weighted network)"
+       - name: hubscore
+         title: "Node hubscore"
+       - name: fixed
+         title: "Same size"
+
+    - name: PruneDegree
+      title: "Prune by node degree"
+      type: Number
+      default: 0
+    - name: PruneWeight
+      title: "Prune by edge weight"
+      type: Number
+      default: 0
+
 
     - name: emLag
       title: "Embedding lag"
@@ -40,56 +106,6 @@ options:
       type: Number
       default: 1
 
-    - name: Gweight
-      title: Weighted
-      type: Bool
-    - name: Gdirect
-      title: Directed
-      type: Bool
-    - name: Glabels
-      title: Add labels (time)
-      type: Bool
-    - name: Glayout
-      title: Graph layout
-      type: List
-      options:
-       - name: ci
-         title: "Circle"
-       - name: st
-         title: "Star"
-       - name: ni
-         title: "Nicely"
-       - name: tr
-         title: "Tree"
-       - name: fr
-         title: "Fruchterman-Reingold"
-       - name: md
-         title: "Multidimensional scaling"
-       - name: cl
-         title: "Cluster by segments of time"
-
-    - name: PruneDegree
-      title: "Prune by node degree"
-      type: Number
-      default: 0
-
-    - name: PruneWeight
-      title: "Prune by edge weight"
-      type: Number
-      default: 0
-
-    - name: nsize
-      title: "Node size"
-      type: List
-      default: degree
-      options:
-       - name: degree
-         title: "Node degree"
-       - name: hubscore
-         title: "Node hubscore"
-       - name: fixed
-         title: "Same size"
-
     - name: fixRR
       title: "RR"
       type: Number
@@ -100,19 +116,17 @@ options:
       type: Number
       default: 0
 
-
     - name: fixed
       title: Fix
       type: List
       default: RAD
       options:
-       - name: RR
+       - name: RAD
          title: "fixed Radius"
        - name: RR
          title: "fixed Recurrence Rate"
        - name: NO
          title: "Unthresholded"
-
 
     - type: Number
       title: "Minimum diagonal line length"
@@ -159,7 +173,5 @@ options:
           - title: "minkowski"
             name: minkowski
       default: euclidean
-
-
 
 ...

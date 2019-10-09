@@ -1668,7 +1668,7 @@ crqa_diagPofile <- function(RM,
   x2<-(which.max(as.numeric(paste(dp$Diagonal))))
 
   B
-  B_long <- B %>% as_tibble() %>% gather(key = "diagonal", value = "rec")
+  B_long <- B %>% tibble::as_tibble() %>% tidyr::gather(key = "diagonal", value = "rec")
 
   dpdense <- density(dp$RR,n = 21)
   round(seq(1,21,length.out=512))
@@ -2361,7 +2361,7 @@ rp <- function(y1, y2 = NULL,
 
 #' Copy Matrix Attributes
 #'
-#' Simple attribute copy used in \code{casnet} to convert between \code{matrix} and \code{Matrix} classes and back.
+#' Simple attribute copy used in `casnet` to convert between `matrix` and `Matrix` classes and back.
 #'
 #' @param source Source matrix
 #' @param target Target matrix
@@ -2441,6 +2441,636 @@ rp_checkfix <- function(RM, checkS4 = TRUE, checkAUTO = TRUE, checkSPARSE = FALS
   RM <- rp_copy_attributes(source = dummy, target = RM, source_remove = c("Dimnames", "i", "class","Dim", "p","x","factors"))
 
   return(RM)
+}
+
+
+
+#' Plot (thresholded) distance matrix as a recurrence plot
+#'
+#' @param RM A distance matrix or recurrence matrix
+#' @param plotDimensions Should the state vectors be plotted if they are available as attributes of RM (default = `TRUE`)
+#' @param plotMeasures Print common (C)RQA measures in the plot if the matrix is binary
+#' @param plotRadiusRRbar The `Radius-RR-bar` is a colour-bar guide plotted with an unthresholded distance matrix indicating a number of `RR` values one would get if a certain distance threshold were chosen (`default = TRUE`)
+#' @param drawGrid Draw a grid on the recurrence plot (`default = FALSE`)
+#' @param markEpochsLOI Pass a factor whose levels indicate different epochs or phases in the time series and use the line of identity to represent the levels by different colours (`default = NULL`)
+#' @param Chromatic If `TRUE` and there are more than two discrete values in `RM`, give recurrent points a distinct colour. If `RM` was returned by `crqa_rp(..., chromatic = TRUE)`, the recurrence plot will colour-code recurrent points according to the category values in `attributes(RM)$chromaticRP` (`default = FALSE`)
+#' @param radiusValue If `plotMeasures = TRUE` and RM is an unthresholded matrix, this value will be used to calculate recurrence measures. If `plotMeasures = TRUE` and RM is already a binary recurence matrix, pass the radius that was used as a threshold to create the matrix for display purposes. If `plotMeasures = TRUE` and `radiusValue = NA`, function `est_radius()` will be called with default settings (find a radius that yields .05 recurrence rate). If `plotMeasures = FALSE` this setting will be ignored.
+#' @param title A title for the plot
+#' @param xlabel An x-axis label
+#' @param ylabel An y-axis label
+#' @param plotSurrogate Should a 2-panel comparison plot based on surrogate time series be added? If `RM` has attributes `y1` and `y2` containing the time series data (i.e. it was created by a call to [rp()]), the following options are available: "RS" (random shuffle), "RP" (randomised phases), "AAFT" (amplitude adjusted fourier transform). If no timeseries data is included, the columns will be shuffled.  NOTE: This is not a surrogate test, just 1 surrogate is created from `y1`.
+#' @param returnOnlyObject Return the ggplot object only, do not draw the plot (default = `TRUE`)
+#'
+#' @return A nice plot of the recurrence matrix.
+#' @export
+#'
+#' @family Distance matrix operations (recurrence plot)
+#'
+rp_plot_jmv <- function(RM,
+                    plotDimensions = FALSE,
+                    plotMeasures   = FALSE,
+                    plotRadiusRRbar = TRUE,
+                    drawGrid = FALSE,
+                    markEpochsLOI = NULL,
+                    Chromatic = NULL,
+                    radiusValue = NA,
+                    title = "", xlabel = "", ylabel="",
+                    plotSurrogate = NA,
+                    returnOnlyObject = FALSE){
+
+  useGtable <- TRUE
+
+  # # check patchwork
+  # if(!length(find.package("patchwork",quiet = TRUE))>0){
+  #   warning("Package patchwork is not installed...\n1. Install Xcode from App Store (MacOS) or rwintools.exe from CRAN (Windows) \n2. Install patchwork: devtools::install_github('thomasp85/patchwork')\n3. Install casnet: devtools::install_github('FredHasselman/casnet')\n....Using gtable instead, with limited options\n")
+  #   useGtable=TRUE
+  # }
+
+  colvec <- c("#FFFFFF","#000000")
+  names(colvec) <- c("0","1")
+
+  # check auto-recurrence and make sure Matrix has sparse triplet representation
+  RM   <- rp_checkfix(RM, checkAUTO = TRUE)
+  AUTO <- attr(RM,"AUTO")
+
+  # prepare data
+  if(attr(RM,"package")%00%""%in%"Matrix"){
+    RM     <- rp_checkfix(RM, checkTSPARSE = TRUE, fixTSPARSE = TRUE)
+    meltRP <- data.frame(Var1 = (RM@i+1), Var2 = (RM@j+1), value = as.numeric(RM@x))
+  } else {
+    meltRP <- reshape2::melt(as.matrix(RM))
+  }
+
+  hasNA <- FALSE
+  if(any(is.na(meltRP$value))){
+    hasNA <- TRUE
+    meltRP$value[is.na(meltRP$value)] <- max(meltRP$value, na.rm = TRUE) + 1
+  }
+
+  # check unthresholded
+  showL <- FALSE
+  if(!all(as.vector(meltRP$value[!is.na(meltRP$value)])==0|as.vector(meltRP$value[!is.na(meltRP$value)])==1)|attr(RM,"weighted")){
+
+    unthresholded <- TRUE
+
+    if(attr(RM,"weighted")){
+      plotRadiusRRbar <- FALSE
+    }
+
+    if(!is.null(markEpochsLOI)){
+      warning("Can't show epochs on an unthresholded Recurrence Plot!")
+    }
+
+  } else {
+
+    unthresholded <- FALSE
+
+    # Check epochs ----
+    if(!is.null(markEpochsLOI)){
+      if(is.factor(markEpochsLOI)&length(markEpochsLOI)==max(c(NROW(RM),NCOL(RM)))){
+        start <- max(meltRP$value, na.rm = TRUE) + 1
+        #cpal <- paletteer::paletteer_d(package = "rcartocolor",palette = "Safe", n = nlevels(markEpochsLOI))
+        cpal <- getColours(Ncols = nlevels(markEpochsLOI))
+        #cpal <- paletteer::paletteer_d(package = "ggthemes",palette = "tableau_colorblind10",n = nlevels(markEpochsLOI),direction = 1)
+
+        if(hasNA){
+          colvec <- c("#FFFFFF","#000000","#FF0000", cpal)
+          names(colvec) <- c("0","1","NA",levels(markEpochsLOI))
+        } else {
+          colvec <- c("#FFFFFF","#000000", cpal) #viridis::viridis_pal()(nlevels(markEpochsLOI)))
+          names(colvec) <- c("0","1",levels(markEpochsLOI))
+        }
+        N <- max(c(NROW(RM),NCOL(RM)))
+        for(i in 1:N){
+          j <- i
+          meltRP$value[meltRP$Var1==i&meltRP$Var2==j] <- start + as.numeric_character(markEpochsLOI)[i]
+        }
+        meltRP$value <- factor(meltRP$value, levels = sort(unique(meltRP$value)), labels = names(colvec))
+        showL <- TRUE
+      } else {
+        warning("Variable passed to 'markEpochsLOI' is not a factor or doesn't have correct length.")
+      }
+    } else {
+      colvec <- c("#FFFFFF","#000000")
+      names(colvec) <- c("0","1")
+      meltRP$value <- factor(meltRP$value, levels = c(0,1), labels = c("0","1"))
+    }
+  }
+
+  if(is.na(radiusValue)){
+    if(!is.null(attr(RM,"emRad"))|!is.na(attr(RM,"emRad"))){
+      radiusValue <- attr(RM,"emRad")
+    } else {
+      if(unthresholded|plotMeasures){
+        radiusValue <- est_radius(RM,silent = TRUE)$Radius
+        attr(RM,"emRad") <- radiusValue
+      }
+    }
+  }
+
+  # Get CRQA measures
+  if(plotMeasures){
+    # if(is.na(radiusValue)){
+    #   if(!is.null(attributes(RM)$emRad)){
+    #     radiusValue <- attr(RM,"emRad")
+    #   } else {
+    #     radiusValue <- est_radius(RM,silent = TRUE)$Radius
+    #   }
+    # }
+    if(unthresholded){
+      rpOUT   <- crqa_rp(RM, emRad = radiusValue, AUTO = AUTO)
+    } else {
+      rpOUT   <- crqa_rp(RM, AUTO = AUTO)
+    }
+  }
+
+  #meltRP$value <- log(meltRP$value+.Machine$double.eps)
+  # main plot ----
+  gRP <-  ggplot2::ggplot(ggplot2::aes_(x=~Var1, y=~Var2, fill = ~value), data= meltRP) +
+    ggplot2::geom_raster(hjust = 0, vjust=0, show.legend = showL) +
+    ggplot2::geom_abline(slope = 1,colour = "grey50", size = 1)
+
+  ## unthresholded ----
+  if(unthresholded){
+
+    # #barValue <- 0.05
+    # if(is.na(radiusValue)){
+    #   barValue <- mean(meltRP$value, na.rm = TRUE)
+    #   } else {
+    #   barValue <- est_radius(RM, targetValue = radiusValue, silent = TRUE, maxIter = 100, radiusOnFail = "percentile")$Radius
+    # }
+
+    if(!is.na(radiusValue)){
+      barValue <- radiusValue
+    } else {
+      barValue <- mean(meltRP$value, na.rm = TRUE)
+    }
+
+    if(attr(RM,"weighted")){
+
+      gRP <- gRP + ggplot2::scale_fill_gradient(low      = "white",
+                                                high     = "red3",
+                                                na.value = scales::muted("slategray4"),
+                                                space    = "Lab",
+                                                name     = "")
+
+
+    } else {
+
+      gRP <- gRP + ggplot2::scale_fill_gradient2(low      = "red3",
+                                                 high     = "steelblue",
+                                                 mid      = "white",
+                                                 na.value = scales::muted("slategray4"),
+                                                 midpoint = barValue*1.1, #mean(meltRP$value, na.rm = TRUE),
+                                                 limit    = c(min(meltRP$value, na.rm = TRUE),max(meltRP$value, na.rm = TRUE)),
+                                                 space    = "Lab",
+                                                 name     = "")
+
+    }
+
+    ## RadiusRRbar ----
+    if(plotRadiusRRbar){
+      # Create a custom legend ---
+      distrange  <- round(seq(0,max(RM,na.rm = TRUE),length.out=7),2)
+      resol      <- sort(unique(round(as.vector(RM),2)))
+      if(length(resol)<7){
+        resol <- distrange
+      }
+      if(length(resol)>100){
+        resol <- round(seq(0,max(RM,na.rm = TRUE),length.out=100),2)
+      }
+      resol <- resol %>% tibble::as_tibble() %>% dplyr::mutate(y= seq(exp(0),exp(1),length.out=NROW(resol)), x=0.5)
+      #resol <- resol[-1,]
+
+      distrange <- plyr::ldply(c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5), function(t){
+        suppressWarnings(est_radius(RM,targetValue = t,silent = TRUE, maxIter = 100, radiusOnFail = "percentile"))
+      })
+      #ldply(distrange[2:6],function(d) cbind(epsilon=d,RR=crqa_rp(RM = RM, emRad = d)$RR))
+
+
+      RecScale <- data.frame(RR=distrange$Measure,epsilon=distrange$Radius)
+      RecScale <- RecScale %>%
+        dplyr::add_row(epsilon=mean(c(0,distrange$Radius[1])),RR=mean(c(0,distrange$Measure[1])),.before = 1) %>%
+        dplyr::add_row(epsilon=max(RM),RR=1)
+
+
+      resol$y <- elascer(x = resol$y,lo = min(log(RecScale$RR),na.rm = TRUE), hi = max(log(RecScale$RR),na.rm = TRUE))
+      #resol$value <- log(resol$value)
+      resol <- resol[-1,]
+
+
+      if(!is.na(radiusValue)){
+        barValue <- round(RecScale$RR[which(round(RecScale$epsilon,4)>=radiusValue)[1]],4)
+        barValue <- resol$value[which(resol$y>=log(barValue))[1]]
+      } else {
+        barValue <- mean(meltRP$value, na.rm = TRUE)
+      }
+
+      gDist <-  ggplot2::ggplot(resol,ggplot2::aes_(x=~x,y=~y,fill=~value)) +
+        ggplot2::geom_tile(show.legend = FALSE) +
+        ggplot2::scale_y_continuous(name = "Recurrence Rate", breaks = log(RecScale$RR), labels = paste(round(RecScale$RR,3)), sec.axis = dup_axis(name=expression(paste("recurrence threshold",~ epsilon)), labels = paste(round(RecScale$epsilon,2)))) +
+        ggplot2::scale_fill_gradient2(low      = "red3",
+                                      high     = "steelblue",
+                                      mid      = "white",
+                                      na.value = scales::muted("slategray4"),
+                                      midpoint =  barValue * 1.1,#mean(meltRP$value, na.rm = TRUE),
+                                      #limit    = c(min(meltRP$value, na.rm = TRUE),max(meltRP$value, na.rm = TRUE)),
+                                      space    = "Lab",
+                                      name     = "") +
+        ggplot2::coord_equal(1, expand = FALSE) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.background = element_blank(),
+                       panel.grid.major  = element_blank(),
+                       panel.grid.minor  = element_blank(),
+                       legend.background = element_blank(),
+                       legend.key = element_blank(),
+                       panel.border = element_blank(),
+                       axis.text.y  =  element_text(size = 8),
+                       # axis.text.y.left  =  element_text(size = 8),
+                       # axis.text.y.right =  element_text(size = 8),
+                       axis.text.x  = element_blank(),
+                       axis.ticks.x = element_blank(),
+                       axis.title.x = element_blank(),
+                       axis.title.y = element_text(hjust = 0, size = 10),
+                       # axis.title.y.left = element_text(hjust = 0, size = 10),
+                       # axis.title.y.right = element_text(hjust = 0, size = 10),
+                       plot.margin = margin(0,5,0,5, unit = "pt"))
+    }
+
+  } else { # unthresholded
+
+
+
+  }
+
+  rptheme <- ggplot2::theme_bw() + ggplot2::theme(panel.background = element_blank(),
+                                                  panel.grid.minor  = element_blank(),
+                                                  panel.border = element_rect("grey50",fill=NA),
+                                                  legend.key = element_rect(colour = "grey90"),
+                                                  axis.ticks = element_blank(),
+                                                  axis.text = element_blank(),
+                                                  plot.margin = margin(0,0,0,0))
+
+  if(drawGrid){
+    rptheme <- rptheme +  theme(panel.grid.major  = element_line("grey70",size = .1),
+                                panel.ontop = TRUE)
+  } else {
+    rptheme <- rptheme +  theme(panel.grid.major  = element_blank(),
+                                panel.ontop = FALSE)
+  }
+
+  if(showL){
+    rptheme <- rptheme +  theme(legend.position = c(1.1,1),
+                                legend.direction = "vertical",
+                                legend.background = element_rect(fill="grey90"),
+                                legend.justification = "top")
+  }
+
+  if(plotDimensions){
+    rptheme <- rptheme + theme(axis.title.y =element_blank(),
+                               axis.title.x =element_blank())
+  }
+
+
+  if(!is.null(markEpochsLOI)){
+    if(!unthresholded){
+      gRP <- gRP +  ggplot2::scale_fill_manual(name  = "Key:",
+                                               values = colvec,
+                                               na.translate = TRUE ,
+                                               na.value = scales::muted("slategray4"),
+                                               guide = "legend",
+                                               limits = levels(meltRP$value))
+    }
+    # theme(panel.ontop = TRUE,
+    #       legend.position = "top",
+    #       legend.background = element_rect(colour =  "grey50"))
+    #geom_line(data = Edata, aes_(x=~x,y=~y,colour = ~value), size = 2, show.legend = TRUE) +
+
+  } else {
+    if(!unthresholded){
+      gRP <- gRP +  ggplot2::scale_fill_manual(name  = "", breaks = c(0,1),
+                                               values = colvec,
+                                               na.translate = TRUE ,
+                                               na.value = scales::muted("slategray4"),
+                                               guide = "none")
+    }
+  }
+
+  # if(!is.null(markEpochsGrid)){
+  #   if(is.list(markEpochsGrid)&length(markEpochsGrid)==2){
+  #
+  #     markEpochsGrid[[1]] <- factor(markEpochsGrid[[1]])
+  #     markEpochsGrid[[2]] <- factor(markEpochsGrid[[2]])
+  #
+  #     cpalV <- paletteer::paletteer_d(package = "rcartocolor",palette = "Safe", n = nlevels(markEpochsGrid[[1]]))
+  #     names(cpalV) <- levels(markEpochsGrid[[1]])
+  #
+  #     dataV <- data.frame(t= as.numeric_character(markEpochsGrid[[1]]), xb=markEpochsGrid[[1]],col=NA)
+  #     for(c in unique(dataV$t)){
+  #       dataV$col[dataV$t%in%c] <- cpalV[c]
+  #     }
+  #
+  #     cpalH <- paletteer::paletteer_d(package = "rcartocolor",palette = "Vivid", n = nlevels(markEpochsGrid[[2]]))
+  #     names(cpalH) <- levels(markEpochsGrid[[2]])
+  #
+  #     dataH <- data.frame(t= as.numeric_character(markEpochsGrid[[2]]), yb=markEpochsGrid[[2]],col=NA)
+  #     for(c in unique(dataV$t)){
+  #       dataH$col[dataH$t%in%c] <- cpalH[c]
+  #     }
+  #
+  #       gRP <- gRP +
+  #         #geom_vline(data = dataV, aes_(xintercept = diff(c((max(~t, na.rm = TRUE)+1),~xb)!=0)), colour = dataV$col) +
+  #         #geom_hline(data = dataH, aes_(yintercept = diff(c((max(~t, na.rm = TRUE)+1),~yb)!=0)), colour = dataH$col) +
+  #         ggplot2::geom_vline(data = dataV, aes(xintercept = diff(c((max(t)+1),t))!=0), colour = dataV$col) +
+  #         ggplot2::geom_hline(data = dataH, aes(yintercept = diff(c((max(t)+1),t))!=0), colour = dataH$col) +
+  #         ggplot2::theme(panel.ontop = TRUE)
+  #
+  #     } else {
+  #       warning("Variable passed to 'markEpochsGrid' is not a list, and/or is not of length 2.")
+  #     }
+  #   }
+
+  if(plyr::is.discrete(meltRP$Var1)){
+    gRP <- gRP + ggplot2::scale_x_discrete(breaks=meltRP$Var1,expand = c(0,0))
+  } else {
+    gRP <- gRP + ggplot2::scale_x_continuous(breaks=meltRP$Var1,expand = c(0,0))
+  }
+  if(plyr::is.discrete(meltRP$Var2)){
+    gRP <- gRP + ggplot2::scale_y_discrete(breaks=meltRP$Var2,expand = c(0,0))
+  } else {
+    gRP <- gRP + ggplot2::scale_y_continuous(breaks=meltRP$Var2,expand = c(0,0))
+  }
+  gRP <- gRP + rptheme + ggplot2::coord_equal(dim(RM)[1]/dim(RM)[2]) #coord_fixed(expand = FALSE)
+
+  gy1 <- gg_plotHolder()
+  gy2 <- gg_plotHolder()
+
+  xdims <- ""
+  ydims <- ""
+
+  if(!is.null(attr(RM,"emDims1.name"))|nchar(xlabel)>0){
+    xdims <- ifelse(nchar(xlabel)>0, xlabel, attr(RM,"emDims1.name"))
+  }
+  if(!is.null(attr(RM,"emDims2.name"))|nchar(ylabel)>0){
+    ydims <- ifelse(nchar(ylabel)>0, ylabel, attr(RM,"emDims2.name"))
+    if(AUTO){
+      ydims <- xdims
+    }
+  }
+
+  if(plotDimensions){
+
+    if(!is.null(attr(RM,"emDims1"))){
+
+      gRP <- gRP + ylab("") + xlab("")
+
+      y1 <- data.frame(t1=attr(RM,"emDims1"))
+      y2 <- data.frame(t2=attr(RM,"emDims2"))
+
+      # Y1
+
+      colnames(y1) <- paste0("X",1:NCOL(y1))
+      y1$tm  <- 1:NROW(y1)
+      y1$tmna <- 0
+      y1$tmna[is.na(y1[,1])] <- y1$tm[is.na(y1[,1])]
+      y1 <- tidyr::gather(y1,key="Dimension",value = "Value", -c("tm","tmna"))
+      y1$Value <-  elascer(y1$Value)
+
+      # Y2
+      colnames(y2) <- paste0("Y",1:NCOL(y2))
+      y2$tm <- 1:NROW(y2)
+      y2$tmna <- 0
+      y2$tmna[is.na(y2[,1])] <- y2$tm[is.na(y2[,1])]
+      y2 <- tidyr::gather(y2,key="Dimension",value = "Value", -c("tm","tmna"))
+      y2$Value <-  elascer(y2$Value)
+
+
+    } else {
+      if(unthresholded){
+        y1 <- data.frame(Value=diag(RM),x=1:length(diag(RM)), Dimension = rep("LOS",length(diag(RM))))
+        y2 <- data.frame(Value=diag(RM),x=1:length(diag(RM)), Dimension = rep("LOS",length(diag(RM))))
+        xdims <- paste("LOS",xdims)
+        ydims <- paste("LOS",ydims)
+      } else {
+        plotDimensions <- FALSE
+      }
+    }
+  } else {
+    gRP <- gRP + ylab(ydims) + xlab(xdims)
+  }
+
+  if(plotDimensions){
+
+    gy1 <- ggplot2::ggplot(y1, ggplot2::aes_(y=~Value, x= ~tm,  group= ~Dimension)) +
+      ggplot2::geom_line(aes_(colour=~Dimension), show.legend = FALSE) +
+      ggplot2::xlab(xdims) + ggplot2::ylab(" ") +
+      ggplot2::geom_vline(ggplot2::aes_(xintercept = ~tmna), colour = scales::muted("slategray4"),alpha=.1, size=.5) +
+      ggplot2::scale_color_grey() +
+      ggplot2::scale_x_continuous(expand = c(0,0)) +
+      ggplot2::scale_y_continuous(expand = c(0,0)) +
+      ggplot2::theme(panel.background = element_blank(),
+                     panel.grid.major  = element_blank(),
+                     panel.grid.minor  = element_blank(),
+                     legend.background = element_blank(),
+                     legend.key = element_blank(),
+                     panel.border = element_blank(),
+                     axis.text = element_blank(),
+                     axis.line = element_blank(),
+                     axis.ticks = element_blank(),
+                     axis.title.x =element_text(colour = "black",angle = 0, vjust = +3),
+                     axis.title.y =element_blank(),
+                     plot.margin = margin(0,0,0,0, unit = "pt")) +
+      ggplot2::coord_cartesian(expand = FALSE)  # +  coord_fixed(1/10)
+
+    gy2 <- ggplot2::ggplot(y2, ggplot2::aes_(y=~Value, x=~tm, group=~Dimension)) +
+      ggplot2::geom_line(ggplot2::aes_(colour=~Dimension), show.legend = FALSE) +
+      ggplot2::ylab(" ") + ggplot2::xlab(ydims) +
+      ggplot2::geom_vline(ggplot2::aes_(xintercept = ~tmna), colour = scales::muted("slategray4"),alpha=.1, size=.5) +
+      ggplot2::scale_color_grey() +
+      ggplot2::scale_x_continuous(expand = c(0,0)) +
+      ggplot2::theme(panel.background = element_blank(),
+                     panel.grid.major  = element_blank(),
+                     panel.grid.minor  = element_blank(),
+                     legend.background = element_blank(),
+                     legend.key = element_blank(),
+                     panel.border = element_blank(),
+                     axis.text = element_blank(),
+                     axis.line = element_blank(),
+                     axis.ticks = element_blank(),
+                     axis.title.x =element_blank(),
+                     axis.title.y =element_text(colour = "black",angle = 90, vjust = -2),
+                     plot.margin = margin(0,0,0,0, unit = "pt")) +
+      ggplot2::coord_flip(expand = FALSE) +
+      ggplot2::scale_y_reverse(expand = c(0,0))
+
+  } # plotdimensions
+
+
+  if(plotMeasures){
+
+    rpOUT    <- round(rpOUT,3)
+    if(is.na(rpOUT$emRad)){
+      rpOUT$Radius <- round(radiusValue,3)
+    } else {
+      rpOUT$Radius <- rpOUT$emRad
+    }
+
+
+    rpOUTdat <- rpOUT %>%
+      dplyr::select(dplyr::one_of(c("Radius","RP_N","RR","DET","MEAN_dl","ENT_dl","LAM_vl","TT_vl","ENT_vl"))) %>%
+      tidyr::gather(key="measure",value="value") %>%
+      dplyr::mutate(x=rep(0,9),y=9:1)
+
+    #rpOUTdat <- cbind(rpOUTdat,rpOUTdat)
+    rpOUTdat$label <-  paste0(rpOUTdat$measure,":\n",rpOUTdat$value)
+
+    gA <-ggplot2::ggplot(rpOUTdat,ggplot2::aes_(x=~x,y=~y)) +
+      ggplot2::geom_text(ggplot2::aes_(label=~label), family="mono", hjust="left", vjust="center", size=3, parse = FALSE) +
+      #scale_x_continuous(limits = c(0,.3)) +
+      ggplot2::theme_void() +
+      ggplot2::theme(plot.margin = margin(0,5,0,5, unit = "pt"))
+
+    #geom="text", label = paste("Radius:",rpOUT$Radius,"\nRec points:",rpOUT$RT,"\nRR",rpOUT$RR,"\nDET:",rpOUT$DET,"\nMEAN_dl:",rpOUT$MEAN_dl,"\nENT_dl:",rpOUT$ENT_dl,"\nLAM_vl:",rpOUT$LAM_vl, "\nTT_vl:",rpOUT$TT_vl,"\nENTR_vl:",rpOUT$ENT_vl)) + theme_minimal() + theme(text = element_text(family = "mono"))
+    # ,"\nLAM_hl:",rpOUT$LAM_vl, "| TT_hl:",rpOUT$TT_vl,"| ENTR_hl:",rpOUT$ENT_hl))
+  }
+
+  if(useGtable){
+
+    #gRP <- gRP #+ theme(panel.background = element_rect(colour="white"))
+
+    g <- ggplot2::ggplotGrob(gRP)
+
+    if(plotDimensions){
+      gry2<-ggplot2::ggplotGrob(gy2)
+      gry1<-ggplot2::ggplotGrob(gy1)
+    }
+
+    if(unthresholded&plotRadiusRRbar){
+      grDist <- ggplot2::ggplotGrob(gDist)
+    }
+
+    if(plotMeasures){
+      grA <- ggplot2::ggplotGrob(gA)
+    }
+
+
+    if(plotDimensions&!plotMeasures&unthresholded&plotRadiusRRbar){
+      mat <- matrix(list(gry2, grid::nullGrob(),g, gry1, grDist, grid::nullGrob()),nrow = 2)
+      gt  <- gtable::gtable_matrix("di_rp_dim", mat, widths = unit(c(.25, 1,.5), "null"), heights =  unit(c(1,.25), "null"),respect = TRUE)
+    }
+
+    if(plotDimensions&!plotMeasures&unthresholded&!plotRadiusRRbar){
+      mat <- matrix(list(gry2, grid::nullGrob(),g, gry1),nrow = 2)
+      gt  <- gtable::gtable_matrix("di_rp_dim", mat, widths = unit(c(.25, 1), "null"), heights =  unit(c(1,.25), "null"),respect = TRUE)
+    }
+
+    if(plotDimensions&!plotMeasures&!unthresholded){
+      mat <- matrix(list(gry2, grid::nullGrob(),g, gry1),nrow = 2)
+      gt  <- gtable::gtable_matrix("bi_rp_dim", mat, widths = unit(c(.25, 1), "null"), heights =  unit(c(1, .25), "null"),respect = TRUE)
+    }
+
+    if(plotDimensions&plotMeasures&unthresholded&plotRadiusRRbar){
+      mat <- matrix(list(grA, grid::nullGrob(), gry2, grid::nullGrob(),g, gry1, grDist, grid::nullGrob()),nrow = 2)
+      gt  <- gtable::gtable_matrix("di_rp_dim_meas", mat, widths = unit(c(.35,.25, 1,.5), "null"), heights =  unit(c(1,.25), "null"),respect = TRUE)
+    }
+
+    if(plotDimensions&plotMeasures&unthresholded&!plotRadiusRRbar){
+      mat <- matrix(list(grA, grid::nullGrob(), gry2, grid::nullGrob(),g, gry1),nrow = 2)
+      gt  <- gtable::gtable_matrix("di_rp_dim_meas", mat, widths = unit(c(.35,.25, 1), "null"), heights =  unit(c(1,.25), "null"),respect = TRUE)
+    }
+
+    if(plotDimensions&plotMeasures&!unthresholded){
+      mat <- matrix(list(grA, grid::nullGrob(), gry2, grid::nullGrob(),g, gry1),nrow = 2)
+      gt  <- gtable::gtable_matrix("bi_rp_dim_meas", mat, widths = unit(c(.35,.25, 1), "null"), heights =  unit(c(1,.25), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&plotMeasures&unthresholded&plotRadiusRRbar){
+      mat <- matrix(list(grA, g, grDist),nrow = 1)
+      gt  <- gtable::gtable_matrix("di_rp_meas", mat, widths = unit(c(.35, 1,.5), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&plotMeasures&unthresholded&!plotRadiusRRbar){
+      mat <- matrix(list(grA, g),nrow = 1)
+      gt  <- gtable::gtable_matrix("di_rp_meas", mat, widths = unit(c(.35, 1), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&plotMeasures&!unthresholded){
+      mat <- matrix(list(grA, g),nrow = 1)
+      gt  <- gtable::gtable_matrix("bi_rp_meas", mat, widths = unit(c(.35, 1), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&!plotMeasures&unthresholded&plotRadiusRRbar){
+      mat <- matrix(list(g, grDist),nrow = 1)
+      gt  <- gtable::gtable_matrix("di_rp", mat, widths = unit(c(1,.5), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&!plotMeasures&unthresholded&!plotRadiusRRbar){
+      mat <- matrix(list(g),nrow = 1)
+      gt  <- gtable::gtable_matrix("di_rp", mat, widths = unit(c(1), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    if(!plotDimensions&!plotMeasures&!unthresholded){
+      mat <- matrix(list(g),nrow = 1)
+      gt  <- gtable::gtable_matrix("bi_rp", mat, widths = unit(c(1), "null"), heights =  unit(c(1), "null"),respect = TRUE)
+    }
+
+    # gindex <- subset(g$layout, name == "layout")
+    # g <- gtable::gtable_add_cols(g, grid::unit(.5, "grobwidth", data = g),0)
+    # g <- gtable::gtable_add_grob(g, ggplot2::ggplotGrob(gA), t=gindex$t, l=1, b=gindex$b, r=gindex$l)
+    #rm(gindex)
+    #}
+
+    if(nchar(title)>0){
+      grT <- ggplot2::ggplot(data.frame(x=1,y=1)) +
+        ggplot2::geom_text(ggplot2::aes_(x=~x,y=~y), label=title) +
+        theme_void() +
+        theme(plot.margin = margin(0,0,0,0, unit = "pt"))
+      gt  <- gtable::gtable_add_rows(x = gt, heights =  unit(c(.1),"null"), pos=0)
+      l <- sum(c(plotDimensions,plotMeasures))+1
+      gt  <- gtable::gtable_add_grob(x = gt, grobs = ggplot2::ggplotGrob(grT), name = "Title", t=1, l=l)
+    }
+
+    #  gt <- gtable::gtable_add_col_space(gt,)
+
+    g <- gtable::gtable_add_padding(gt, unit(5, "pt"))
+
+  }
+
+
+  # else {
+  #
+  #   if(plotDimensions){
+  #
+  #     if(unthresholded){
+  #       g <- (gy2 + gRP + gDist + gg_plotHolder() + gy1 + gg_plotHolder() +
+  #               patchwork::plot_layout(nrow = 2, ncol = 3, widths = c(1,10,1), heights = c(10,1)) + patchwork::plot_annotation(title = title, caption = ifelse(AUTO,"Auto-recurrence plot","Cross-recurrence plot")))
+  #
+  #     } else {
+  #
+  #       if(plotMeasures){
+  #         g <- (gy2 + gRP + gA + gg_plotHolder() + gy1 + gg_plotHolder() +
+  #                 patchwork::plot_layout(nrow = 2, ncol = 3, widths = c(1,9,2), heights = c(10,1)) + patchwork::plot_annotation(title = title, caption = ifelse(AUTO,"Auto-recurrence plot","Cross-recurrence plot")))
+  #       } else {
+  #         g <- (gy2 + gRP + gg_plotHolder() + gg_plotHolder() + gy1 + gg_plotHolder() +
+  #                 patchwork::plot_layout(nrow = 2, ncol = 3, widths = c(1,9,2), heights = c(10,1)) + patchwork::plot_annotation(title = title, caption = ifelse(AUTO,"Auto-recurrence plot","Cross-recurrence plot")))
+  #       }
+  #     }
+  #
+  #   } else {
+  #     g <- gRP
+  #   }
+  # } # use gtable
+
+  if(!returnOnlyObject){
+    if(useGtable){
+      grid::grid.newpage()
+      grid::grid.draw(g)
+    } else {
+      # graphics::plot.new()
+      graphics::plot(g)
+    }
+  }
+  return(invisible(g))
 }
 
 
@@ -2562,7 +3192,7 @@ rp_plot <- function(RM, plotDimensions= FALSE, plotMeasures = FALSE, plotRadiusR
       if(length(resol)>100){
         resol <- round(seq(0,max(RM,na.rm = TRUE),length.out=100),2)
       }
-      resol <- resol %>% tibble::as.tibble() %>% dplyr::mutate(y= seq(exp(0),exp(1),length.out=NROW(resol)), x=0.5)
+      resol <- resol %>% tibble::as_tibble() %>% dplyr::mutate(y= seq(exp(0),exp(1),length.out=NROW(resol)), x=0.5)
       #resol <- resol[-1,]
 
       distrange <- plyr::ldply(c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5), function(t){
@@ -3526,20 +4156,456 @@ crqa_rp_prep <- function(RP,
 # }
 
 
+
 # Networks ----
+
+#' Create a Recurrence Network Matrix
+#'
+#' This function serves as a wrapper for function `rp()`, it will add some attributes to the matrix related to network representation. These attributes will be used to decide which network type to generate (e.g. undirected, directed, weighted, etc.)
+#'
+#' @inheritParams rp
+#' @param directed Should the matrix be considered to represent a directed network? (default = `FALSE`)
+#' @param weighted Should the matrix be considered to represent a weighted network? (default = `FALSE`)
+#' @param weightedBy After setting values smaller than `emRad` to `0`, what should the recurrent values represent? The default is to use the state space similarity (distance/proximity) values as weights (`"si"`). Other option are `"rt"` for *recurrence time* and `"rf"` for *recurrence time frequency*, Because vertices represent time points in \eqn{\epsilon}-thresholded recurrence networks, a difference of two vertex-indices represents duration. If an edge `e1` connects `v1` and `v10` then the *recurrence time* will be the difference of the vertex indices, `9`, and the *recurrence time frequency* will be `1/9`.
+#' @param rescaleWeights If set to `TRUE` and `weighted = TRUE`, all weight values will be rescaled to `[0,1]`, where `0` means no recurrence relation and `1` the maximum weight value.
+#' @param fs Sample frequency: A numeric value interpreted as the `number of observed samples per unit of time`. If the weights represent recurrence times (`"rt"`), they will be divided by the value in `fs`. If the weights represent recurrence time frequencies (`"rf"`), they will be multiplied by the value of `fs` (default = `NA`)
+#' @param includeDiagonal Should the diagonal of the matrix be included when creating the network (default = `FALSE`)
+#' @param returnGraph Return an [igraph::igraph()] object (default = `FALSE`)
+#' @param ... Any paramters to pass to [rn_plot()] if `doPlot = TRUE`
+#'
+#' @return A (Coss-) Recurrence matrix that can be interpreted as an adjacency (or incidence) matrix.
+#'
+#' @export
+#'
+#' @family Distance matrix operations (recurrence network)
+#'
+#'
+rn <- function(y1, y2 = NULL,
+               emDim = 1,
+               emLag = 1,
+               emRad = NULL,
+               directed = FALSE,
+               weighted = FALSE,
+               weightedBy = c("si","rt","rf")[1],
+               rescaleWeights = FALSE,
+               fs = NA,
+               includeDiagonal = FALSE,
+               to.ts = NULL,
+               order.by = NULL,
+               to.sparse = FALSE,
+               method = "Euclidean",
+               targetValue = .05,
+               returnGraph = FALSE,
+               doPlot = FALSE,
+               silent = TRUE,
+               ...){
+
+  dmat <- rp(y1 = y1, y2 = y2,
+             emDim = emDim, emLag = emLag, emRad = emRad,
+             to.ts = to.ts, order.by = order.by, to.sparse = to.sparse,
+             weighted = weighted,targetValue = targetValue,
+             method = method, doPlot = FALSE, silent = silent)
+
+
+  if(to.sparse){
+    attributes(dmat)$directed <- directed
+    attributes(dmat)$includeDiagonal <- includeDiagonal
+    #attributes(dmat)$weighted <- weighted
+  } else {
+    attr(dmat,"directed") <- directed
+    attr(dmat,"includeDiagonal") <- includeDiagonal
+    #attr(dmat,"weighted") <- weighted
+  }
+
+  if(attr(dmat,"AUTO")){
+    mode <- "upper"
+  } else {
+    mode <- "directed"
+  }
+
+  if(weighted){
+    if(!weightedBy%in%c("si","rt","rf")){stop("Invalid string in argument weightedBy!")}
+    if(weightedBy%in%c("rt","rf")){
+      grW <- igraph::graph_from_adjacency_matrix(dmat, weighted = TRUE, mode = mode, diag = TRUE) #includeDiagonal)
+      edgeFrame         <- igraph::as_data_frame(grW,"edges")
+      edgeFrame$rectime <- edgeFrame$to-edgeFrame$from
+      if(weightedBy=="rf"){
+        edgeFrame$rectime <- 1/(edgeFrame$rectime+1) #.Machine$double.eps)
+      }
+      if(is.numeric(fs)){
+        if(weightedBy=="rf"){edgeFrame$rectime <- edgeFrame$rectime * fs}
+        if(weightedBy=="rt"){edgeFrame$rectime <- edgeFrame$rectime / fs}
+      }
+      igraph::E(grW)$weight <- edgeFrame$rectime
+      # for(r in 1:NROW(edgeFrame)){
+      #   dmat[edgeFrame$from[r],edgeFrame$to[r]] <- 1/edgeFrame$rectime[r]
+      #   if(attr(dmat,"AUTO")){
+      #     dmat[edgeFrame$to[r],edgeFrame$from[r]] <- 1/edgeFrame$rectime[r]
+      #     }
+      #   }
+      tmp <- igraph::as_adjacency_matrix(grW, type = "both", sparse = to.sparse, attr = "weight")
+      #tmp <- bandReplace(tmp,0,0,0)
+      dmat <- rp_copy_attributes(source = dmat, target = tmp)
+      rm(tmp)
+    }
+
+    if(rescaleWeights==TRUE){
+      dmat <- dmat/max(dmat, na.rm = TRUE)
+    }
+  }
+
+  if(doPlot){
+
+    if(doPlot){
+      dotArgs  <- formals(rn_plot)
+      nameOk   <- rep(TRUE,length(dotArgs))
+      if(...length()>0){
+        dotArgs <- list(...)
+        nameOK  <- names(dotArgs)%in%methods::formalArgs(rn_plot)
+        # Plot with defaults
+        if(!all(nameOK)){
+          dotArgs    <- formals(rn_plot)
+          nameOk <- rep(TRUE,length(dotArgs))
+        }
+      }
+      dotArgs$RM <- dmat
+      do.call(rn_plot, dotArgs[nameOk])
+    }
+
+    # dotArgs <- list(...)
+    #
+    # if(is.null(dotArgs)){
+    #   dotArgs<- formals(rn_plot)
+    #   }
+    #
+    # nameOk  <- names(dotArgs)%in%methods::formalArgs(rn_plot)
+    # # Plot with defaults
+    # if(!all(nameOk)){
+    #   dotArgs <- formals(rn_plot)
+    #   nameOk  <- rep(TRUE,length(dotArgs))
+    # }
+    #
+    # dotArgs$RN <- dmat
+    #
+    # do.call(rn_plot, dotArgs[nameOk])
+  }
+
+  if(returnGraph){
+    return(list(RN = dmat,
+                g  = igraph::graph_from_adjacency_matrix(dmat, weighted = weighted, mode = mode, diag = includeDiagonal))
+    )
+  } else {
+    return(dmat)
+  }
+}
+
+
+#' Plot (thresholded) distance matrix as a network
+#'
+#' @param RN A distance matrix or recurrence matrix
+#' @inheritParams rp_plot
+#'
+#' @return A nice plot of the recurrence network
+#' @export
+#'
+#' @family Distance matrix operations (recurrence network)
+#'
+rn_plot <- function(RN,
+                    plotDimensions = FALSE,
+                    plotMeasures   = FALSE,
+                    drawGrid = FALSE,
+                    markEpochsLOI = NULL,
+                    Chromatic = NULL,
+                    radiusValue = NA,
+                    title = "", xlab = "", ylab="",
+                    plotSurrogate = NA,
+                    returnOnlyObject = FALSE){
+
+  # JAMOVI VERSION
+  rp_plot(RM = RN,
+          plotDimensions  = plotDimensions,
+          plotMeasures    = plotMeasures,
+          markEpochsLOI = markEpochsLOI,
+          radiusValue = radiusValue,
+          title = title, xlab = xlab, ylab = ylab,
+          plotSurrogate = plotSurrogate,
+          returnOnlyObject = returnOnlyObject)
+
+}
+
+
+#' Recurrence Time Spectrum
+#'
+#' Get the recurrence time distribution from a recurrence network.
+#'
+#' @param RN A thresholded recurrence matrix generated by function `rn()`
+#' @param fitRange If `NULL` the entire range will be used for log-log slope. If a 2-element vector of integers, this will represent the range of recurrence times to use for fitting the log=log slope (e.g. `c(1,50)` would fit the first 50 recurrence times).
+#' @param fs Sample rate (default = `1`)
+#' @param doPlot Should a plot of the recurrence time spectrum be produced?
+#' @param returnPlot Return ggplot2 object (default = `FALSE`)
+#' @param returnPLAW Return the power law data (default = `FALSE`)
+#' @param returnInfo Return all the data used in SDA (default = `FALSE`)
+#' @param silent Silent-ish mode
+#' @param noTitle Do not generate a title (only the subtitle)
+#' @param tsName Name of y added as a subtitle to the plot
+#'
+#' @return A vector of frequencies of recurrence times and a plot (if requested)
+#'
+#' @export
+#'
+#' @family Distance matrix operations (recurrence network)
+#'
+rn_recSpec <- function(RN,
+                       fitRange = NULL,
+                       fs = 1,
+                       doPlot = TRUE,
+                       returnPlot = FALSE,
+                       returnPLAW = FALSE,
+                       returnInfo = FALSE,
+                       silent = TRUE,
+                       noTitle = FALSE,
+                       tsName="y"){
+
+  if(is.null(attributes(RN)$weighted)){
+    stop("Wrong RN format: Create a thresholded recurrence matrix using function rn()")
+  }
+
+  diagonal <- attributes(RN)$includeDiagonal
+  weighted <- NULL
+  if(attributes(RN)$weighted){weighted <- TRUE}
+
+  g1 <- igraph::graph_from_adjacency_matrix(RN, mode="upper", diag = diagonal, weighted = weighted)
+
+  edgeFrame <- igraph::as_data_frame(g1,"edges")
+  edgeFrame$rectime <- edgeFrame$to-edgeFrame$from
+
+  #d <- density(edgeFrame$rectime, kernel = "cosine")
+  #plot(d)
+  #d <- table(edgeFrame$rectime)
+
+  RT <- edgeFrame$rectime
+  f1 = seq(0,1, by = 1/(1000*fs))
+  P1 = graphics::hist(x = 1/(RT+1), breaks = f1)
+
+  # f = seq(1,2*max(RT))
+  # P = graphics::hist(RT, f)
+  # f2 = fs/(P$mids+.5)
+
+
+  yl <- c(smooth(P1$counts)+1)
+  xl <- c(fs*P1$mids)
+  #lreg <- stats::lm(log2(yl[yl>0] ~ xl[yl>0])
+  #pred <- predict(object = lreg)
+
+  # d <- graphics::hist(edgeFrame$rectime,breaks = (0:NROW(RN))+0.5, plot = FALSE)$count
+  # names(d) <- paste(1:NROW(RN))
+  # d <- d[d>0]
+
+  ddata <- data.frame(size = xl, bulk = as.numeric(yl))
+  ddata <- dplyr::arrange(ddata,size)
+  rownames(ddata) <- paste(1:NROW(ddata))
+
+  if(is.null(fitRange)){
+    nr <- 1:round(NROW(ddata)/4)
+  } else {
+    if(length(fitRange)==2&is.numeric(fitRange)){
+      if(fitRange[1]<0){fitRange[1] <- 1}
+      if(fitRange[2]>NROW(ddata)){fitRange[2] <- NROW(ddata)}
+      nr <- fitRange[1]:fitRange[2]
+    } else {
+      stop("Wrong fitRange format: Either NULL or a 2-integer vector.")
+    }
+  }
+
+  nr <- which(nr%in%rownames(ddata))
+
+  lmfit1  <- stats::lm(log(ddata$bulk) ~ log(ddata$size))
+  alpha1 <- stats::coef(lmfit1)[2]
+
+  lmfit2  <- stats::lm(log(ddata$bulk[nr]) ~ log(ddata$size[nr]))
+  alpha2 <- stats::coef(lmfit2)[2]
+
+  outList <- list(
+    PLAW  =  ddata,
+    fullRange = list(sap = alpha1,
+                     # H = 1+stats::coef(lmfit1)[2] + Hadj,
+                     # FD = sa2fd_sda(stats::coef(lmfit1)[2]),
+                     fitlm1 = lmfit1,
+                     method = paste0("Full range (n = ",length(ddata$size),")\nSlope = ",round(stats::coef(lmfit1)[2],2))), #" | FD = ",round(sa2fd_sda(stats::coef(lmfit1)[2]),2))),
+    fitRange  = list(sap = stats::coef(lmfit2)[2],
+                     # H = 1+stats::coef(lmfit2)[2] + Hadj,
+                     # FD = sa2fd_sda(stats::coef(lmfit2)[2]),
+                     fitlm2 = lmfit2,
+                     method = paste0("Fit range (n = ",length(ddata$size[nr]),")\nSlope = ",round(stats::coef(lmfit2)[2],2))), # | FD = ",round(sa2fd_sda(stats::coef(lmfit2)[2]),2))),
+    info = list(edgelist=edgeFrame,fitdata=ddata),
+    plot = NA,
+    analysis = list(
+      name = "Recurrence Time Spectrum",
+      logBaseFit = "log2",
+      logBasePlot = 2))
+
+  if(doPlot|returnPlot){
+    if(noTitle){
+      title <- ""
+    } else {
+      title <- "log-log regression (Recurrence Time Spectrum)"
+    }
+    g <- plotFD_loglog(fd.OUT = outList, title = title, subtitle = tsName, logBase = "2", xlabel = "Frequency", ylabel = "Power")
+    if(doPlot){
+      grid::grid.newpage()
+      grid::grid.draw(g)
+    }
+    if(returnPlot){
+      outList$plot <- invisible(g)
+    }
+  }
+
+  if(returnInfo){returnPLAW<-TRUE}
+
+  return(outList[c(returnPLAW,TRUE,TRUE,returnInfo,returnPlot)])
+
+
+  #if(doPlot){
+  #
+  #   breaks_x <- scales::log_breaks(n=abs(diff(range(round(log2(ddata$x)))+c(-1,1))),base=2)(ddata$x)
+  #   labels_x <- eval(quote(scales::trans_format("log2", scales::math_format(2^.x,format=scales::number_format(accuracy = .1)))(breaks_x)))
+  #
+  #   breaks_y <- scales::log_breaks(n=abs(diff(range(round(log2(ddata$y)))+c(-1,1))),base=2)(ddata$y)
+  #   labels_y <- eval(quote(scales::trans_format("log2", scales::math_format(2^.x,format=scales::number_format(accuracy = .1)))(breaks_y)))
+  #
+  #   g <- ggplot2::ggplot(ddata, ggplot2::aes_(x=~x_l,y=~y_l)) +
+  #     scale_x_continuous(breaks = log2(breaks_x),
+  #                        labels = labels_x,  expand = c(0,0)) + # limits = lims_x) +
+  #     scale_y_continuous(breaks = log2(breaks_y),
+  #                        labels = labels_y, expand = c(0,0)) + # limits = lims_y) +
+  #     geom_point() +
+  #     geom_line(ggplot2::aes_(x=~x_p,y=~y_p), colour = "red3") +
+  #     ylab("Recurrence Times (log2)")+xlab("Frequency of Occurrence (log2)") +
+  #     #geom_label(aes(x=ddata$x_l[25],y=ddata$y_l[25],label=round(alpha,2))) +
+  #     annotation_logticks() +
+  #     theme_bw()
+
+  #   grid::grid.newpage()
+  #   grid::grid.draw(g)
+  # }
+  #
+  # if(returnOnlyObject){
+  #   return(invisible(g))
+  # }
+  #
+  #   if(returnPowerLaw){
+  #     return(ddata)
+  #   }
+
+}
+
+
+#' Recurrence Time Scaleogram
+#'
+#' Display a recurrence network in a space representing Time (x-axis) x Scale (y-axis). The scale axis will be determined by the latency between the occurence of a value in the (embedded) time series vector and its recurrences in the future (i.e. only the upper triangle of the recurrence matrix will be displayed, excluding the diagonal).
+#'
+#' @param RN A thresholded recurrence matrix generated by function `rn()`
+#' @param returnOnlyObject Return the `ggplot` / `ggraph` object only, do not draw the plot (default = `FALSE`)
+#'
+#' @return A `ggraph` graph object
+#' @export
+#'
+#' @family Distance matrix operations (recurrence network)
+#'
+rn_scaleoGram <- function(RN, returnOnlyObject = FALSE){
+
+  if(is.null(attributes(RN)$emRad)){
+    stop("Wrong RN format: Create a thresholded recurrence matrix using function rn()")
+  }
+
+  g1 <- igraph::graph_from_adjacency_matrix(RN, mode="upper", diag = FALSE, weighted = NULL)
+
+  edgeFrame <- igraph::as_data_frame(g1,"edges")
+  edgeFrame$rectime <- edgeFrame$to-edgeFrame$from
+  edgeFrame$rectime_bin <- cut(x = edgeFrame$rectime, ordered_result = TRUE, breaks = round(seq.int(1, max(edgeFrame$rectime), length.out = 11)), dig.lab = 3, include.lowest = TRUE, labels = FALSE)
+
+  #edgeFrame$rectime_bin <- as.numeric_character(edgeFrame$rectime_bin)
+  # table(edgeFrame$rectime_bin)
+  # range(edgeFrame$rectime[edgeFrame$rectime_bin==1])
+  #
+  # edgeFrame$vcol <- "#000000"
+  # edgeFrame <- arrange(edgeFrame,edgeFrame$from,edgeFrame$rectime)
+  #edgeFrame$scale.vertex <- interaction(edgeFrame$rectime,edgeFrame$from)
+
+  timepoints <- data.frame(name = as.numeric(igraph::V(g1)), degree =  igraph::degree(g1))
+  vertexFrame <- dplyr::left_join(x = expand.grid(name=timepoints$name, rt_scale = c(0,sort(unique(edgeFrame$rectime)))), y = timepoints, by = "name")
+
+  #Change Names
+  vertexFrame$name <- paste0(vertexFrame$name,".",vertexFrame$rt_scale)
+  edgeFrame$from <- paste0(edgeFrame$from,".0")
+  edgeFrame$to   <- paste0(edgeFrame$to,".",edgeFrame$rectime)
+
+  colvec <- paletteer::paletteer_c(package = "scico",palette = "vik",n = length(unique(edgeFrame$rectime)))
+  names(colvec) <- sort(unique(edgeFrame$rectime))
+  edgeFrame$colour <- NA
+  for(c in names(colvec)){
+    edgeFrame$colour[edgeFrame$rectime%in%c] <- colvec[names(colvec)%in%c]
+  }
+
+  g2 <- igraph::graph_from_data_frame(edgeFrame, directed = FALSE, vertices = vertexFrame)
+  igraph::E(g2)$color <- edgeFrame$colour
+
+  scaleogram <- ggraph::create_layout(g2, layout = "linear")
+  scaleogram$x <- as.numeric(plyr::laply(as.character(scaleogram$name),function(s) strsplit(s,"[.]")[[1]][1]))
+  scaleogram$y <- as.numeric(plyr::laply(as.character(scaleogram$name),function(s) strsplit(s,"[.]")[[1]][2]))
+  #scaleogram$rt_scale <- factor(scaleogram$y)
+  #attributes(scaleogram)
+
+  y1 <- data.frame(t1=attr(RN,"emDims1"))
+
+  # Y1
+  colnames(y1) <- paste0("X",1:NCOL(y1))
+  y1$tm  <- 1:NROW(y1)
+  y1$tmna <- 0
+  y1$tmna[is.na(y1[,1])] <- y1$tm[is.na(y1[,1])]
+  y1 <- tidyr::gather(y1,key="Dimension",value = "Value", -c("tm","tmna"))
+  y1$Value <-  elascer(y1$Value,lo = -round(max(igraph::E(g2)$rectime)/8),hi = 0)
+
+  g <- ggraph::ggraph(scaleogram) +
+    #geom_node_point(colour = "grey60", size=.1, alpha = .3) +
+    ggraph::geom_edge_diagonal(aes_(edge_colour = ~rectime, group = ~rectime), edge_alpha=.1,lineend = "round", linejoin = "round") +
+    ggplot2::geom_line(data = y1, ggplot2::aes_(y=~Value, x= ~tm, colour = ~Dimension, group = ~Dimension), show.legend = FALSE, size = .1) +
+    ggplot2::scale_color_grey() +
+    ggplot2::geom_hline(yintercept = 0, colour = "grey70") +
+    ggraph::scale_edge_color_gradient2("Recurrence Time", low = paste(colvec[1]), mid = paste(colvec[round(length(colvec)/2)]), high = paste(colvec[length(colvec)]), midpoint = round(length(colvec)/2)) +
+    ggplot2::scale_x_continuous("Time", expand = c(0,0),
+                                breaks = round(seq.int(1,max(igraph::V(g1)),length.out = 10)),
+                                limits = c(0,max(as.numeric(igraph::V(g1))))) +
+    ggplot2::scale_y_continuous("Recurrence Time", expand = c(0,0),
+                                breaks = c(-round(max(igraph::E(g2)$rectime)/8),sort(unique(igraph::E(g2)$rectime))[round(seq.int(1,length(unique(igraph::E(g2)$rectime)), length.out = 10))]),
+                                labels = c("", paste(sort(unique(igraph::E(g2)$rectime))[round(seq.int(1,length(unique(igraph::E(g2)$rectime)), length.out = 10))])),
+                                limits = c(-round(max(igraph::E(g2)$rectime)/8),max(igraph::E(g2)$rectime))) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
+
+  if(!returnOnlyObject){
+    #grid::grid.newpage()
+    grid::grid.draw(g)
+  }
+  return(invisible(g))
+}
+
 
 #' Mutual Information Function
 #'
 #'  Calculate the lagged mutual information fucntion within (auto-mif) or between (cross-mif) time series, or, conditional on another time series (conditional-cross-mif). Alternatively, calculate the total information of a multivariate dataset for different lags.
 #'
-#' @param y A \code{Nx1} matrix for auto-mif, a \code{Nx2} matrix or data frame for cross-mif, a \code{Nx3} matrix or data frame for mif between col 1 and 2 conditional on col 3; or a \code{NxM} matrix or data frame for the multi-information function. Mutual information for each lag will be calculated using functions in package \code{\link[infotheo]{infotheo}} for \code{lags} lagged versions of the time series.
+#' @param y A `Nx1` matrix for auto-mif, a `Nx2` matrix or data frame for cross-mif, a `Nx3` matrix or data frame for mif between col 1 and 2 conditional on col 3; or a `NxM` matrix or data frame for the multi-information function. Mutual information for each lag will be calculated using functions in package [infotheo::infotheo()] for `lags` lagged versions of the time series.
 #' @param lags The lags to evaluate mutual information.
-#' @param nbins The number of bins passed to \code{\link[infotheo]{discretize}} if y is a matrix or \code{\link[casnet]{ts_discrete}}
-#' @param doPlot Produce a plot of the symbolic time series (default = \code{FALSE})
-#' @param surTest Either \code{FALSE} or an alpha level for conducting a test of significance using simple surrogates, e.g. \code{surTes = .05}. The surrogates will be created from the transition probabilities of the discretised time series, i.e. the probability of observing bin \code{j} when the current value is in bin \code{j} .
+#' @param nbins The number of bins passed to [infotheo::discretize()] if y is a matrix or [casnet::ts_discrete()]
+#' @param doPlot Produce a plot of the symbolic time series by calling [plotRED_mif()] (default = `FALSE`)
+#' @param surTest If `TRUE`, a surrogate will be conducted using simple surrogates. The surrogates will be created from the transition probabilities of the discretised time series, i.e. the probability of observing bin `j` when the current value is in bin `j`. The number of surrogates needed will be computed based on the value of the `alpha` parameter, conceived as a one-sided test: `mi > 0`.
+#' @param alpha The alpha level for the surrogate test (default = `0.05`)
 #'
 #' @return The auto- or cross-mi function
 #' @export
+#'
+#' @family Redundancy measures (mutual information)
 #'
 #' @examples
 #'
@@ -3566,7 +4632,11 @@ crqa_rp_prep <- function(RP,
 #' (mif(y,lags = lags))
 #'
 #'
-mif <- function(y, lags=-10:10, nbins = ceiling(2*NROW(y)^(1/3)), doPlot = FALSE, surTest = FALSE){
+mif <- function(y, lags=-10:10, nbins = ceiling(2*NROW(y)^(1/3)), doPlot = FALSE, surTest = FALSE, alpha = 0.05){
+
+  if(is.null(dim(y))){
+    y <- as.matrix(y,ncol=1)
+  }
 
   cnt <- 0
   N <- NROW(y)
@@ -3575,6 +4645,7 @@ mif <- function(y, lags=-10:10, nbins = ceiling(2*NROW(y)^(1/3)), doPlot = FALSE
     cnt <- cnt + 1
     # shift y2 to left for neg lags
     if(i < 0) {
+
       ID2 <- -i:N
       ID1 <- 1:(N-abs(i)+1)
     }
@@ -3597,19 +4668,25 @@ mif <- function(y, lags=-10:10, nbins = ceiling(2*NROW(y)^(1/3)), doPlot = FALSE
   if(NCOL(y)> 3){miType <- "I(X;Y;Z;...;N)"}
   attr(mif_out,"miType") <- miType
 
+  if(doPlot){
+    plotRED_mif(mif.OUT = mif_out, lags = lags, nbins = nbins)
+  }
+
   return(mif_out)
 }
 
 
 #' Mutual Information variations
 #'
-#' @param y Matrix
+#' @param y A matrix with time series in columns
 #' @param ID1 ids
 #' @param ID2 ids
 #' @param discreteBins Number of bins to use when discretizing the time series
 #'
 #' @return mi in nats
 #' @export
+#'
+#' @family Redundancy measures (mutual information)
 #'
 mi_mat <- function(y, ID1, ID2, discreteBins = ceiling(2*NROW(ID1)^(1/3))){
   Nc <- NCOL(y)
@@ -3678,21 +4755,35 @@ mi_ts <- function(y1,y2=NULL, nbins=NA){
 #'
 #' @param g0 An igraph object representing a layer in a multiplex graph
 #' @param g1 An igraph object representing a layer in a multiplex graph
-#' @param probTable Option to return the table with marginal and joint degree distribution probabilities (default = \code{TRUE})
+#' @param probTable Option to return the table with marginal and joint degree distribution probabilities (default = `TRUE`)
 #'
-#' @return The inter-layer mutual information between \code{g1} and \code{g2}. If \code{probTable=TRUE}, a list object with two fields, the inter-layer mutual information and the table with marginal and joint degree distributions
+#' @return The inter-layer mutual information between `g1` and `g2`. If `probTable=TRUE`, a list object with two fields, the inter-layer mutual information and the table with marginal and joint degree distributions
 #' @export
 #'
-#' @family Multiplex Networks
+#' @note If the networks are weighted the strength distribution will be used instead of the the degree distribution.
 #'
-mif_interlayer <- function(g0,g1, probTable=FALSE){
-  d0    <- igraph::degree_distribution(g0)
-  d1    <- igraph::degree_distribution(g1)
+#' @family Redundancy measures (mutual information)
+#' @family Multiplex Recurrence Networks
+#'
+mi_interlayer <- function(g0,g1, probTable=FALSE){
 
-  equal <- data.frame(ts_trimfill(d0,d1))
-
-  p01 <- graphics::hist(x = igraph::degree(g0),breaks = seq(-.5,(NROW(equal)-.5)),plot=FALSE)$counts
-  p10 <- graphics::hist(x = igraph::degree(g1),breaks = seq(-.5,(NROW(equal)-.5)),plot=FALSE)$counts
+  if(igraph::is.weighted(g0)&igraph::is.weighted(g1)){
+    s0  <- strength(g0)
+    s0m <- max(s0, na.rm = TRUE)
+    d0  <- hist(s0,seq(0,(ceiling(s0m)+1)), include.lowest = TRUE, plot = FALSE)$density
+    s1  <- strength(g1)
+    s1m <- max(s1, na.rm = TRUE)
+    d1  <- hist(s1,seq(0,(ceiling(s1m)+1)), include.lowest = TRUE, plot = FALSE)$density
+    equal <- data.frame(ts_trimfill(d0,d1))
+    p01 <- graphics::hist(x = igraph::strength(g0),breaks = seq(-.5,((NROW(equal))-.5)),plot=FALSE)$counts
+    p10 <- graphics::hist(x = igraph::strength(g1),breaks = seq(-.5,((NROW(equal))-.5)),plot=FALSE)$counts
+  } else {
+    d0    <- igraph::degree_distribution(g0)
+    d1    <- igraph::degree_distribution(g1)
+    equal <- data.frame(ts_trimfill(d0,d1))
+    p01 <- graphics::hist(x = igraph::degree(g0),breaks = seq(-.5,((NROW(equal))-.5)),plot=FALSE)$counts
+    p10 <- graphics::hist(x = igraph::degree(g1),breaks = seq(-.5,((NROW(equal))-.5)),plot=FALSE)$counts
+  }
 
   equal$joint <-  (p01+p10) / sum(p01,p10,na.rm = TRUE)
   equal$degree <- seq_along(equal[,1])-1
@@ -3714,14 +4805,15 @@ mif_interlayer <- function(g0,g1, probTable=FALSE){
 #'
 #' @param distmat Distance matrix
 #' @param emRad The radius or threshold value
-#' @param theiler = Use a theiler window around the line of identity / synchronisation to remove high auto-correlation at short time-lags (default = \code{0})
-#' @param convMat Should the matrix be converted from a \code{distmat} obkect of class \code{\link[Matrix]{Matrix}} to \code{\link[base]{matrix}} (or vice versa)
+#' @param theiler = Use a theiler window around the line of identity / synchronisation to remove high auto-correlation at short time-lags (default = `0`)
+#' @param convMat Should the matrix be converted from a `distmat` obkect of class [Matrix::Matrix()] to [base::matrix()] (or vice versa)
 #'
 #' @return A (sparse) matrix with only 0s and 1s
 #'
 #' @export
 #'
-#' @family Distance matrix operations
+#' @family Distance matrix operations (recurrence plot)
+#' @family Distance matrix operations (recurrence network)
 #'
 di2bi <- function(distmat, emRad, theiler = 0, convMat = FALSE){
 
@@ -3753,9 +4845,8 @@ di2bi <- function(distmat, emRad, theiler = 0, convMat = FALSE){
 
   if(convMat&matPack){RP <- Matrix::as.matrix(RP)}
 
-  suppressWarnings(RP <- rp_copy_attributes(source = distmat,  target = RP))
-  attributes(RP)$emRad    <- emRad
-  attributes(RP)$weighted <- FALSE
+  suppressMessages(RP <- rp_copy_attributes(source = distmat,  target = RP))
+  attributes(RP)$emRad <- emRad
 
   return(RP)
 }
@@ -3767,13 +4858,14 @@ di2bi <- function(distmat, emRad, theiler = 0, convMat = FALSE){
 #'
 #' @param distmat Distance matrix
 #' @param emRad The radius or threshold value
-#' @param convMat convMat Should the matrix be converted from a \code{distmat} obkect of class \code{\link[Matrix]{Matrix}} to \code{\link[base]{matrix}} (or vice versa)
+#' @param convMat convMat Should the matrix be converted from a `distmat` obkect of class [Matrix::Matrix()] to [base::matrix()] (or vice versa)
 #'
-#' @return A matrix with 0s and leaves the values < threshold distance value
+#' @return A matrix with 0s and values < threshold distance value
 #'
 #' @export
 #'
-#' @family Distance matrix operations
+#' @family Distance matrix operations (recurrence plot)
+#' @family Distance matrix operations (recurrence network)
 #'
 di2we <- function(distmat, emRad, convMat = FALSE){
 
@@ -3810,8 +4902,7 @@ di2we <- function(distmat, emRad, convMat = FALSE){
   if(convMat&matPack){RP <- Matrix::as.matrix(RP)}
 
   RP <- rp_copy_attributes(source = distmat,  target = RP)
-  attributes(RP)$emRad    <- emRad
-  attributes(RP)$weighted <- TRUE
+  attributes(RP)$emRad <- emRad
 
   return(RP)
 }
@@ -3844,6 +4935,14 @@ SWtest0 <- function(g){
 #  return(list(cp=igraph::transitivity(g,type="global"),cpR=igraph::transitivity(igraph::rewire(g,mode=c("simple"),niter=N),type="global"),lp=igraph::average.path.length(g), lpR=igraph::average.path.length(igraph::rewire(g,mode=c("simple"),niter=N))))
 # }
 
+#' Small World test
+#'
+#' @param g An igraph object
+#' @param p p
+#' @param N N
+#'
+#' @export
+#'
 SWtestE <- function(g,p=1,N=20){
   values <- matrix(nrow=N,ncol=6,dimnames=list(c(1:N),c("cp","cpR","cp0","lp","lpR","lp0")))
 
@@ -3858,28 +4957,591 @@ SWtestE <- function(g,p=1,N=20){
   return(list(valuesAV=valuesAV,valuesSD=valuesSD,valuesSE=valuesSD/sqrt(N)))
 }
 
-# PLFsmall <- function(g){
+
+
+#' Layout a graph on a spiral
+#'
+#' @param g An igraph object. If (`rev = FALSE`) the vertex with the lowest index will be placed in the centre of the spiral, the highest index will be most outer vertex,
+#' @param type Spiral type, one of `"Archimedean"`,`"Bernoulli"`,`"Fermat"`, or, `"Euler"` (default = `"Archimedean"`)
+#' @param arcs The number of arcs (half circles/ovals) that make up the spiral (default = `10`)
+#' @param a Parameter controlling the distance between spiral arms, however, the effect will vary for different spiral types (default = `0.5`)
+#' @param b Parameter controlling where the spiral originates. A value of 1 will generally place the origin in the center. The default `NULL` will choose a value based on the different spiral types (default = `NULL`)
+#' @param rev If `TRUE` the vertex with the highest index will be placed in the centre of the spiral (default = `FALSE`)
+#'
+#' @return An igraph layout
+#'
+#' @export
+#'
+#' @examples
+#'
+#'library(igraph)
+#'
+#' g  <- igraph::sample_gnp(100, 1/100)
+#'
+#' # Equiangular spiral: Any line from the origin cuts at the same angle.
+#' plot(g, layout = layout_as_spiral(g, type = "Bernoulli", arcs = 5))
+#'
+#' # The arms of Fermat's spiral diverge quadratically.
+#' plot(g, layout = layout_as_spiral(g, type = "Fermat", arcs = 5))
+#'
+#' # Equidistance of intersection points along a line through the origin.
+#' plot(g, layout = layout_as_spiral(g, type = "Archimedean", arcs = 5))
+#'
+layout_as_spiral <- function(g,
+                             type = c("Archimedean","Bernoulli","Fermat","Euler"),
+                             arcs = 6,
+                             a = 1,
+                             b = NULL,
+                             rev= FALSE){
+  if(length(which(type%in%c("Archimedean","Bernoulli","Fermat","Euler")))==0){
+    stop("Type must be one of: Archimedean, Bernoulli, Fermat, Euler")
+  }
+
+  N <- igraph::vcount(g)
+  if(length(unique(igraph::V(g)$size))>1){
+    res <- round(max(igraph::V(g)$size)*N)
+  } else {
+    res <- N*2
+  }
+
+  theta <- seq(0,arcs*pi,length.out = res)
+
+  if(type=="Archimedean"){
+    if(is.null(b)){
+      b <- 1
+    }
+    r  <- a + b*theta
+    df <- matrix(cbind(r*cos(theta),r*sin(theta)),ncol = 2)
+  }
+  if(type=="Bernoulli"){
+    if(is.null(b)){
+      b <- 0.1
+    }
+    r  <- a + exp(b*theta)
+    df <- matrix(cbind(r*cos(theta),r*sin(theta)),ncol = 2)
+  }
+  if(type=="Fermat"){
+    if(is.null(b)){
+      b <- 1
+    }
+    r  <- a + b*(theta*theta)
+    df <- matrix(cbind(r*cos(theta),r*sin(theta)),ncol = 2)
+  }
+  if(type=="Euler"){
+    if(is.null(b)){
+      b = .5
+    }
+    res1  <- ceiling(res/2)
+    res2  <- floor(res/2)
+    theta <- seq(0,pi/2,length.out = res1)
+    df1   <- data.frame(t=theta,x=NA,y=NA)
+    df1$x[1] <-0
+    df1$y[1] <-0
+
+    dt <- arcs/res1
+
+    for(i in 2:res1){
+      df1$x[i] <- df1$x[i-1] + cos(df1$t[i-1]^(b+1)/(b+1)) * dt #*df1$t[i-1]) * dt
+      df1$y[i] <- df1$y[i-1] + sin(df1$t[i-1]^(b+1)/(b+1)) * dt #*df1$t[i-1]) * dt
+      df1$t[i] <- df1$t[i-1]+dt
+    }
+    df <- matrix(cbind(c(-rev(df1$x[1:res2]),df1$x),c(-rev(df1$y[1:res2]),df1$y)),ncol = 2)
+  }
+
+  df     <- df[seq(1, res, length.out = N),]
+  df[,1] <- elascer(df[,1],lo = 0.1, hi = 0.9,boundaryPrecision = NA)
+  df[,2] <- elascer(df[,2],lo = 0.1, hi = 0.9,boundaryPrecision = NA)
+
+  if(rev){
+    df[,1] <- rev(df[,1])
+    df[,2] <- rev(df[,2])
+  }
+  return(df)
+}
+
+#' Make Spiral Graph
+#'
+#' Turn an [igraph] object into a spiral graph returning a [ggplot2] object.
+#'
+#' @note To keep the igraph object, use the layout function [layout_as_spiral(g)] when plotting the graph.
+#'
+#' @inheritParams layout_as_spiral
+#' @param markTimeBy Include a vector that indicates time. The time will be displayed on the plot. Pass `TRUE` to generate auto labels (experimental)
+#' @param curvature The `curvature` parameter for edges see [geom_curve()] (default = `-0.7`)
+#' @param angle The `angle` parameter for edges see [geom_curve()] (default = `90`)
+#' @param title A title for the plot
+#' @param subtitle A subtitle for the plot
+#' @param showEpochLegend Should a legend be shown for the epoch colours? (default = `TRUE`)
+#' @param markEpochsBy A vector of length `vcount(g)` indicating epochs or groups (default = `NULL`)
+#' @param epochColours A vector of length `vcount(g)` with colour codes (default = `NULL`)
+#' @param epochLabel A title for the epoch legend (default = `"Epoch"`)
+#' @param showSizeLegend Should a legend be shown for the size of the nodes? (default = `FALSE`)
+#' @param sizeLabel Use to indicate if `V(g)$size` represents some measure, e.g. [igraph::degree()], or, [igraph::hubscore()] (default = `"Size"`)
+#' @param scaleVertexSize Scale the size of the vertices by setting a range for [ggplot2::scale_size()]. This will not affect the numbers on the size legend (default = `c(1,6)`)
+#' @param vertexBorderColour Draw a border around the vertices. Pass `NULL` to use the same colour as the fill colour (default = `"black"`)
+#' @param edgeColourLabel Use to indicate if `E(g)$color` represents color coding based on some property. (default = `"Weight"`)
+#' @param scaleEdgeSize Scale the size of the edges by a constant: `E(g)$width * scaleEdgeSize` (default = `1/5`)
+#' @param showEdgeColourLegend Should a legend be shown for the colour of the edges? (default = `FALSE`)
+#' @param edgeColourByEpoch Should edges that connect to the same epoch be assigned the epoch colour? This will ignore edge colour info in `E(g)$color`. (default = `TRUE`)
+#' @param defaultEdgeColour Colour of edges that do not connect to the same epoch (default = `"grey70"`)
+#' @param doPlot Produce a plot? (default = `TRUE`)
+#'
+#' @return A ggplot object.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' library(igraph)
+#'
+#' g  <- igraph::sample_gnp(200, 1/20)
+#' V(g)$size <- degree(g)
+#' make_spiral_graph(g, markTimeBy = TRUE, showSizeLegend = TRUE, sizeLabel = "Node degree")
+#'
+make_spiral_graph <- function(g,
+                              type = "Archimedean",
+                              arcs = 6,
+                              a = 1,
+                              b = NULL,
+                              rev= FALSE,
+                              curvature = -0.6,
+                              angle = 90,
+                              markTimeBy = NULL,
+                              alphaV = 1,
+                              alphaE = .6,
+                              title = "",
+                              subtitle = "",
+                              showEpochLegend = TRUE,
+                              markEpochsBy = NULL,
+                              epochColours = NULL,
+                              epochLabel = "Epoch",
+                              showSizeLegend = FALSE,
+                              sizeLabel = "Size",
+                              scaleVertexSize = c(1,6),
+                              vertexBorderColour = "black",
+                              scaleEdgeSize = 1/5,
+                              edgeColourLabel = "Weight",
+                              showEdgeColourLegend = FALSE,
+                              edgeColourByEpoch = TRUE,
+                              defaultEdgeColour = "grey70",
+                              doPlot = TRUE){
+
+  g$layout <- layout_as_spiral(g, type = type, arcs = arcs, a = a, b = b, rev = rev)
+
 #
-#   if(length(igraph::V(g))>100){stop("Vertices > 100, no need to use PLFsmall, use a binning procedure")}
-#
-#   d <- igraph::degree(g)
-#
-#   y <- graphics::hist(d,breaks=0.5:(max(d)+0.5),plot=FALSE)$counts
-#   if(length(y)<2){
-#     warning("Less than 2 points in Log-Log regression... alpha=0")
-#     alpha <- 0
-#   } else {
-#     if(length(y)==2){
-#       warning("Caution... Log-Log slope is a bridge (2 points)")
-#       chop <- 0
-#     } else {
-#       chop <- 1
-#     }
-#     alpha <- stats::coef(stats::lm(rev(log1p(y)[1:(length(y)-chop)]) ~ log1p(1:(length(y)-chop))))[2]
-#   }
-#
-#   return(alpha)
-# }
+#   tbreaks <- c(1,igraph::vcount(g))
+#   tlabels <- paste0(tbreaks)
+  if(is.null(markTimeBy)){
+    if(!is.null(markEpochsBy)){
+      grIDs <- ts_changeindex(markEpochsBy)
+      tbreaks <- unique(sort(c(grIDs$xmax,grIDs$xmax)))
+      tlabels <- ceiling(tbreaks)
+      markTimeBy <- TRUE
+    } else {
+      x <- 1:igraph::vcount(g)
+      v <- seq(1,igraph::vcount(g),by=igraph::vcount(g)/arcs)
+      tbreaks <- c(1,which(diff(findInterval(x, v))!=0),igraph::vcount(g))
+      #tbreaks <- which(diff(c(g$layout[1,1],g$layout[,2],g$layout[1,2])>=g$layout[1,2])!=0)
+      if(max(tbreaks)!=igraph::vcount(g)){
+        tbreaks[which.max(tbreaks)]<-igraph::vcount(g)
+        tlabels <- paste(tbreaks)
+      }
+      if(min(tbreaks)>1){
+        tbreaks<- c(1,tbreaks)
+        tlabels <- paste(tbreaks)
+      }
+    }
+  } else {
+    if(is.numeric(markTimeBy)){
+      if(all(markTimeBy%in%1:igraph::vcount(g))){
+        tbreaks <- unique(markTimeBy)
+        if(!is.null(names(markTimeBy))){
+          tlabels <- names(unique(markTimeBy))
+        } else {
+          tlabels <- paste(tbreaks)
+        }
+      }
+    }
+    if(markTimeBy){
+      if(type == "Euler"){
+        tbreaks <- which(diff(as.numeric(cut(g$layout[,2], breaks = arcs,include.lowest = TRUE)))!=0)
+        tbreaks[1] <- 1
+        tbreaks[which.max(tbreaks)] <- igraph::vcount(g)
+      } else {
+        tbreaks <- which(diff(c(g$layout[1,1],g$layout[,2],g$layout[1,2])>=g$layout[1,2])!=0)
+      }
+      if(max(tbreaks)>igraph::vcount(g)){tbreaks[which.max(tbreaks)]<-igraph::vcount(g)}
+      if(max(tbreaks)<igraph::vcount(g)){tbreaks<- c(tbreaks,igraph::vcount(g))}
+      if(min(tbreaks)>1){tbreaks<- c(1,tbreaks)}
+      tlabels <- paste(tbreaks)
+    }
+  }
+
+  if(max(tbreaks)!=igraph::vcount(g)){
+    tbreaks[which.max(tbreaks)]<-igraph::vcount(g)
+    tlabels <- paste(tbreaks)
+  }
+
+  if(min(tbreaks)>1){
+    tbreaks<- c(1,tbreaks)
+    tlabels <- paste(tbreaks)
+  }
+
+  if(length(which(diff(tbreaks)==1))>0){
+    tbreaks <- tbreaks[-(which(diff(tbreaks)==1)+1)]
+    tlabels <- paste(tbreaks)
+  }
+
+
+  if(is.null(markEpochsBy)){
+    markEpochsBy <- character(igraph::vcount(g))
+    for(i in 1:(length(tbreaks)-1)){
+      markEpochsBy[tbreaks[i]:tbreaks[i+1]] <- rep(paste0(tbreaks[i],"-",tbreaks[i+1]),length(tbreaks[i]:tbreaks[i+1]))
+    }
+    if(!is.null(epochColours)){
+      if(length(unique(markEpochsBy))>length(unique(epochColours))){
+        warning("Number of unique epochs is unequal to number of unique colours!\nUsing default colour scheme.")
+        epochColours <- NULL
+      }
+    }
+  }
+
+  g <- plotNET_groupColour(g,
+                           groups = markEpochsBy,
+                           colourV = TRUE,
+                           colourE = edgeColourByEpoch,
+                           # alphaV = alphaV,
+                           # aplhaE = alphaE,
+                           groupColours = epochColours,
+                           defaultEdgeColour = defaultEdgeColour,
+                           doPlot = FALSE)
+
+  size <- 1
+  if(!is.null(igraph::V(g)$size)){
+    size <- igraph::V(g)$size
+  }
+  gNodes        <- as.data.frame(g$layout)
+  gNodes$ID     <- as.numeric(igraph::V(g))
+  gNodes$colour <- igraph::V(g)$colour
+  gNodes$labels <- factor(igraph::V(g)$groupnum, levels = unique(igraph::V(g)$groupnum), labels = unique(igraph::V(g)$group))
+  gNodes$size   <- size
+  gNodes$alpha  <- igraph::V(g)$alpha
+
+  width <- 1
+  if(!is.null(igraph::E(g)$width)){
+    width <- igraph::E(g)$width
+  }
+  gEdges        <- igraph::get.data.frame(g)
+  gEdges$from.x <- gNodes$V1[match(gEdges$from, gNodes$ID)]
+  gEdges$from.y <- gNodes$V2[match(gEdges$from, gNodes$ID)]
+  gEdges$to.x   <- gNodes$V1[match(gEdges$to, gNodes$ID)]
+  gEdges$to.y   <- gNodes$V2[match(gEdges$to, gNodes$ID)]
+  gEdges$width  <- width
+  gEdges$colorVar <- as.numeric_discrete(gEdges$color)
+
+  if(is.null(vertexBorderColour))(
+    vBc <- gNodes$colour
+  ) else {
+    if(length(vertexBorderColour)==1|length(vertexBorderColour)==NROW(gNodes)){
+      vBc <- vertexBorderColour
+    } else {
+      warning("Invalid value(s) for vertexBorderColour, using default.")
+      vertexBorderColour <- "black"
+    }
+  }
+
+  # Fix same coords
+  sameID <- which(gEdges$from.x==gEdges$to.x)
+  if(length(sameID)>0){
+    gNodes$V2[gEdges$from[sameID]] <- gNodes$V2[gEdges$from[sameID]]+mean(diff(gNodes$V2))/2
+    gEdges$to.x[sameID] <- gEdges$to.x[sameID]+mean(diff(gEdges$to.x))/2
+    gEdges$to.y[sameID] <- gEdges$to.y[sameID]+mean(diff(gEdges$to.y))/2
+  }
+
+
+  gg <- ggplot(gNodes,aes(x=V1,y=V2)) +
+    geom_curve(data=gEdges, aes(x = from.x,
+                                xend = to.x,
+                                y = from.y,
+                                yend = to.y,
+                                colour = colorVar),
+               curvature = curvature,
+               angle = angle,
+               size = gEdges$width * scaleEdgeSize,
+               alpha = alphaE) +
+    geom_point(aes(fill = labels, size = size), pch=21, colour = vBc, alpha = alphaV) +
+    ggtitle(label = title, subtitle = subtitle) +
+    scale_fill_manual(epochLabel, values = unique(gNodes$colour)) +
+    scale_size(sizeLabel, range = scaleVertexSize) +
+    scale_color_gradientn(edgeColourLabel, colours = unique(gEdges$color))
+
+  if(showEpochLegend){
+    gg <- gg + guides(fill = guide_legend(title.position = "top",
+                                          byrow = TRUE,
+                                          override.aes = list(size=5, order = 0)))
+  } else {
+    gg <- gg + guides(fill = "none")
+  }
+
+  if(showSizeLegend){
+    gg <- gg + guides(size = guide_legend(title.position = "top",
+                                          byrow = TRUE,
+                                          override.aes = list(legend.key.size = unit(1.2,"lines"), order = 1)))
+  } else {
+    gg <- gg + guides(size = "none")
+  }
+
+  if(showEdgeColourLegend){
+    gg <- gg + guides(colour = guide_legend(title.position = "top",
+                                            byrow = TRUE,
+                                            override.aes = list(size=5, order = 3)))
+  } else {
+    gg <- gg + guides(colour = "none")
+  }
+
+  if(!is.null(markTimeBy)){
+    gg <- gg + annotate("label", x=gNodes$V1[tbreaks], y=gNodes$V2[tbreaks], label = tlabels)
+  }
+
+  gg <- gg +
+    coord_fixed() +
+    theme_void() +
+    theme(legend.title = element_text(face="bold"),
+          legend.position =  "top",
+          legend.margin = margin(t = 0,r = 1,l = 1,0))
+
+  if(doPlot){
+    print(gg)
+  }
+
+  return(invisible(gg))
+}
+
+
+#' Spiral Graph with Epoch Focus
+#'
+#' Turn an [igraph] object into a spiral graph returning a [ggplot2] object.
+#'
+#' @note To keep the igraph object, use the layout function [layout_as_spiral(g)] when plotting the graph.
+#'
+#' @inheritParams make_spiral_graph
+#'
+#' @return A ggplot object.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' library(igraph)
+#' g  <- sample_gnp(200, 1/20)
+#' V(g)$size <- degree(g)
+#' make_spiral_graph(g, markTimeBy = TRUE, showSizeLegend = TRUE, sizeLabel = "Node degree")
+#'
+make_spiral_focus <- function(g,
+                              arcs = 6,
+                              a = 1,
+                              b = NULL,
+                              rev= FALSE,
+                              curvature = -0.6,
+                              angle = 90,
+                              markTimeBy = NULL,
+                              alphaV = 1,
+                              alphaE = .6,
+                              title = "",
+                              subtitle = "",
+                              showEpochLegend = TRUE,
+                              markEpochsBy = NULL,
+                              epochColours = NULL,
+                              epochLabel = "Epoch",
+                              showSizeLegend = FALSE,
+                              sizeLabel = "Size",
+                              scaleVertexSize = c(1,6),
+                              vertexBorderColour = "black",
+                              scaleEdgeSize = 1/5,
+                              defaultEdgeColour = "grey70",
+                              doPlot = TRUE){
+
+  type   <- "Archimedean"
+  g_left <- g_right <- g
+
+  theta <- seq(0,arcs*pi,length.out = res)
+
+  if(type=="Archimedean"){
+    if(is.null(b)){
+      b <- 1
+    }
+    r  <- a + b*theta
+    g_right$layout <- matrix(cbind(r*cos(theta),r*sin(theta)),ncol = 2)
+    g_left$layout  <- matrix(cbind(r*cos(theta),r*sin(theta)),ncol = 2)
+    g_left
+
+  }
+
+  # g_right$layout <- layout_as_spiral(g, type = type, arcs = arcs, a = a, b = b, rev = rev)
+  # g_left$layout  <- -1*g_right$layout
+
+  g <- g_left + g_right
+
+  plot(g_left)
+  # g$layout <- layout_as_spiral(g, type = type, arcs = arcs, a = a, b = b, rev = rev)
+
+  if(is.null(markTimeBy)){
+    if(!is.null(markEpochsBy)){
+      grIDs <- ts_changeindex(markEpochsBy)
+      tbreaks <- unique(sort(c(grIDs$xmax,grIDs$xmax)))
+      tlabels <- ceiling(tbreaks)
+    } else {
+      x <- 1:igraph::vcount(g)
+      v <- seq(1,igraph::vcount(g),by=igraph::vcount(g)/arcs)
+      tbreaks <- c(1,which(diff(findInterval(x, v))!=0),igraph::vcount(g))
+      #tbreaks <- which(diff(c(g$layout[1,1],g$layout[,2],g$layout[1,2])>=g$layout[1,2])!=0)
+      if(max(tbreaks)!=igraph::vcount(g)){
+        tbreaks[which.max(tbreaks)]<-igraph::vcount(g)
+        tlabels <- paste(tbreaks)
+      }
+      if(min(tbreaks)>1){
+        tbreaks<- c(1,tbreaks)
+        tlabels <- paste(tbreaks)
+      }
+    }
+  } else {
+    if(is.numeric(markTimeBy)){
+      if(all(markTimeBy%in%1:igraph::vcount(g))){
+        tbreaks <- unique(markTimeBy)
+        if(!is.null(names(markTimeBy))){
+          tlabels <- names(unique(markTimeBy))
+        } else {
+          tlabels <- paste(tbreaks)
+        }
+      }
+    }
+    if(markTimeBy){
+      tbreaks <- which(diff(c(g$layout[1,1],g$layout[,2],g$layout[1,2])>=g$layout[1,2])!=0)
+      if(max(tbreaks)>igraph::vcount(g)){tbreaks[which.max(tbreaks)]<-igraph::vcount(g)}
+      if(min(tbreaks)>1){tbreaks<- c(1,tbreaks)}
+      tlabels <- paste(tbreaks)
+    }
+  }
+
+  if(max(tbreaks)!=igraph::vcount(g)){
+    tbreaks[which.max(tbreaks)]<-igraph::vcount(g)
+    tlabels <- paste(tbreaks)
+  }
+  if(min(tbreaks)>1){
+    tbreaks<- c(1,tbreaks)
+    tlabels <- paste(tbreaks)
+  }
+
+  if(is.null(markEpochsBy)){
+    markEpochsBy <- character(igraph::vcount(g))
+    for(i in 1:(length(tbreaks)-1)){
+      markEpochsBy[tbreaks[i]:tbreaks[i+1]] <- rep(paste0(tbreaks[i],"-",tbreaks[i+1]),length(tbreaks[i]:tbreaks[i+1]))
+    }
+    if(!is.null(epochColours)){
+      if(length(unique(markEpochsBy))>length(unique(epochColours))){
+        warning("Number of unique epochs is unequal to number of unique colours!\nUsing default colour scheme.")
+        epochColours <- NULL
+      }
+    }
+  }
+
+  g <- plotNET_groupColour(g,
+                           groups = markEpochsBy,
+                           colourV = TRUE,
+                           colourE = TRUE,
+                           groupColours = epochColours,
+                           defaultEdgeColour = defaultEdgeColour,
+                           doPlot = FALSE)
+
+  size <- 1
+  if(!is.null(igraph::V(g)$size)){
+    size <- igraph::V(g)$size
+  }
+  gNodes        <- as.data.frame(g$layout)
+  gNodes$ID     <- as.numeric(igraph::V(g))
+  gNodes$colour <- igraph::V(g)$colour
+  gNodes$labels <- factor(igraph::V(g)$groupnum, levels = unique(igraph::V(g)$groupnum), labels = unique(igraph::V(g)$group))
+  gNodes$size   <- size
+  gNodes$alpha  <- igraph::V(g)$alpha
+
+  width <- 1
+  if(!is.null(igraph::E(g)$width)){
+    width <- igraph::E(g)$width
+  }
+  gEdges        <- igraph::get.data.frame(g)
+  gEdges$from.x <- gNodes$V1[match(gEdges$from, gNodes$ID)]
+  gEdges$from.y <- gNodes$V2[match(gEdges$from, gNodes$ID)]
+  gEdges$to.x   <- gNodes$V1[match(gEdges$to, gNodes$ID)]
+  gEdges$to.y   <- gNodes$V2[match(gEdges$to, gNodes$ID)]
+  gEdges$width  <- width
+
+  if(is.null(vertexBorderColour))(
+    vBc <- gNodes$colour
+  ) else {
+    if(length(vertexBorderColour)==1|length(vertexBorderColour)==NROW(gNodes)){
+      vBc <- vertexBorderColour
+    } else {
+      warning("Invalid value(s) for vertexBorderColour, using default.")
+      vertexBorderColour <- "black"
+    }
+  }
+
+  # Fix same coords
+  sameID <- which(gEdges$from.x==gEdges$to.x)
+  if(length(sameID)>0){
+    gNodes$V2[gEdges$from[sameID]] <- gNodes$V2[gEdges$from[sameID]]+mean(diff(gNodes$V2))/2
+    gEdges$to.x[sameID] <- gEdges$to.x[sameID]+mean(diff(gEdges$to.x))/2
+    gEdges$to.y[sameID] <- gEdges$to.y[sameID]+mean(diff(gEdges$to.y))/2
+  }
+
+
+  gg <- ggplot(gNodes,aes(x=V1,y=V2)) +
+    geom_curve(data=gEdges, aes(x = from.x, xend = to.x, y = from.y, yend = to.y),
+               curvature = curvature,
+               angle = angle,
+               size = gEdges$width * scaleEdgeSize,
+               colour= gEdges$color,
+               alpha = alphaE) +
+    geom_point(aes(fill = labels, size = size), pch=21, colour = vBc, alpha = alphaV) +
+    ggtitle(label = title, subtitle = subtitle) +
+    scale_fill_manual(epochLabel, values = unique(gNodes$colour)) +
+    scale_size(sizeLabel, range = scaleVertexSize)
+
+  if(showEpochLegend){
+    gg <- gg + guides(fill = guide_legend(title.position = "top",
+                                          byrow = TRUE,
+                                          override.aes = list(size=5, order = 0)))
+  } else {
+    gg <- gg + guides(fill = "none")
+  }
+
+  if(showSizeLegend){
+    gg <- gg + guides(size = guide_legend(title.position = "top",
+                                          byrow = TRUE,
+                                          override.aes = list(legend.key.size = unit(1.2,"lines"), order = 1)))
+  } else {
+    gg <- gg + guides(size = "none")
+  }
+
+  if(!is.null(markTimeBy)){
+    gg <- gg + annotate("label", x=gNodes$V1[tbreaks], y=gNodes$V2[tbreaks], label = tlabels)
+  }
+
+  gg <- gg +
+    coord_fixed() +
+    theme_void() +
+    theme(legend.title = element_text(face="bold"),
+          legend.position =  "top",
+          legend.margin = margin(t = 0,r = 1,l = 1,0))
+
+  if(doPlot){
+    print(gg)
+  }
+
+  return(invisible(gg))
+}
+
+
 
 # State Space Grids ------
 
@@ -3905,7 +5567,7 @@ ssg_gwf2long <- function(gwf_name, delta_t = 0.01,returnOnlyData = TRUE, saveLon
   var_list <- as.list(gwf_lines[var_list_b:var_list_e])
   varinfo <-   plyr::ldply(var_list, function(li){
     tmp <- strsplit(li,"\t")[[1]]
-    dat<- tibble::as.tibble(data.frame(var.name = tmp[3],
+    dat<- tibble::as_tibble(data.frame(var.name = tmp[3],
                                        var.role = tmp[1],
                                        var.type = tmp[2]))
     if(dat$var.type%in%"integer"|dat$var.role%in%"state"){
@@ -3922,13 +5584,13 @@ ssg_gwf2long <- function(gwf_name, delta_t = 0.01,returnOnlyData = TRUE, saveLon
     }
     Evals <- length(tmp)-Bvals
     Nvals <- length(tmp[Bvals:(Bvals+Evals)])
-    dat2 <- tibble::as.tibble(matrix(NA,ncol=MaxCols-NCOL(dat), dimnames = list(NULL,paste0("value",1:(MaxCols-NCOL(dat))))))
+    dat2 <- tibble::as_tibble(matrix(NA,ncol=MaxCols-NCOL(dat), dimnames = list(NULL,paste0("value",1:(MaxCols-NCOL(dat))))))
     if(length(tmp)>3){
       dat2[1,1:Nvals] <- tmp[Bvals:(Bvals+Evals)]
     }
     return(cbind.data.frame(dat,dat2))
   })
-  varinfo <- tibble::as.tibble(varinfo)
+  varinfo <- tibble::as_tibble(varinfo)
 
   conf_list_b <- which(grepl("MinReturns", gwf_lines, fixed = TRUE))
   conf_list_e <- which(grepl("</Config>", gwf_lines, fixed = TRUE))-1
@@ -3973,11 +5635,12 @@ ssg_gwf2long <- function(gwf_name, delta_t = 0.01,returnOnlyData = TRUE, saveLon
 #'
 #' @param durations durations frame
 #' @param screeCut cutoff
+#' @param timeLimit Stop the procedure after this time limit isn seconds (default = `120`)
 #'
 #' @return attractor frame
 #' @export
 #'
-ssg_winnowing <- function(durations, screeCut){
+ssg_winnowing <- function(durations, screeCut, timeLimit = 120){
 
   durations$duration.time[is.na(durations$duration.time)] <- 0
   winnowing <- durations %>% dplyr::filter(duration.time>0)
@@ -3991,6 +5654,7 @@ ssg_winnowing <- function(durations, screeCut){
   scree[[run]] <- 1
   removed <- Ncells - NROW(winnowing)
   winnowingList[[run]] <- winnowing
+
   while(removed!=(Ncells-1)){
     run <- run +1
 
@@ -5127,20 +6791,21 @@ gg_plotHolder <- function(){
 }
 
 
+
 #' Set Edge weights by group
 #'
-#'  Use a layout which takes a \code{weights}
+#'  Use a layout which takes a `weights`
 #'
-#' @param g  An igraph object whose edges (\code{get.edgelist(g)}) will be re-weighted according to the \code{membership} argument.
-#' @param groups A named numeric vector with \code{length(V(g))} integers representing each group, or, a named character vector describing each group. If \code{names(groups)==NULL} then the names of the vector will be set as \code{names(groups) == V(g)$name}. If \code{V(g)$name==NULL}, the names of the vector will be set by the Vertex index
-#' @param weigth.within The weight within a group (\code{default = 100})
-#' @param weight.between The weight within a group (\code{default = 1})
-#' @param preserve.weight.within If \code{E(g)$weights} is not \code{NULL}, try to preserve edge weigths within a group
-#' @param preserve.weight.between If \code{E(g)$weights} is not \code{NULL}, try to preserve edge weigths between a groups
+#' @param g  An igraph object whose edges (`get.edgelist(g)`) will be re-weighted according to the `membership` argument.
+#' @param groups A named numeric vector with `length(V(g))` integers representing each group, or, a named character vector describing each group. If `names(groups)==NULL` then the names of the vector will be set as `names(groups) == V(g)$name`. If `V(g)$name==NULL`, the names of the vector will be set by the Vertex index
+#' @param weigth.within The weight within a group (`default = 100`)
+#' @param weight.between The weight within a group (`default = 1`)
+#' @param preserve.weight.within If `E(g)$weights` is not `NULL`, try to preserve edge weigths within a group
+#' @param preserve.weight.between If `E(g)$weights` is not `NULL`, try to preserve edge weigths between a groups
 #' @param doPlot Plot the igraph object
-#' @param returnOnlyWeights Do not return the graph, just the weights. If \code{FALSE} this will return the graph object, otherwis it returns \code{E(g)$weights}
+#' @param returnOnlyWeights Do not return the graph, just the weights. If `FALSE` this will return the graph object, otherwis it returns `E(g)$weights`
 #'
-#' @return A numeric vector with \code{length(get.edgelist(g))} edge weights that will cluster groups defined in \code{membership} if a layout is used that can handle edge weights as a parameter (see examples).
+#' @return A numeric vector with `length(get.edgelist(g))` edge weights that will cluster groups defined in `membership` if a layout is used that can handle edge weights as a parameter (see examples).
 #'
 #' @export
 #'
@@ -5181,7 +6846,7 @@ plotNET_groupWeight <- function(g, groups, weigth.within=100, weight.between=1, 
     }
   }
   if(doPlot){
-    graphics::plot.new()
+    # graphics::plot.new()
     graphics::plot(g)
   }
   if(returnOnlyWeights){
@@ -5196,9 +6861,11 @@ plotNET_groupWeight <- function(g, groups, weigth.within=100, weight.between=1, 
 #'
 #' @param g An igraph object
 #' @param labels Vertex labels
-#' @param nodesize Set nodesizes by \code{degree(g, normalised = TRUE)} (default) or \code{hubscore(g)$vector}. If a numeric value is passed all vertex sizes will be set to that value.
-#' @param labelsize Set labelsize: "asnodesize" sets the \code{cex} for the labels to coincide with nodesize (with min of .4 and max of 1.1). A single numeric value sets the \code{cex} of all labels to that value. A numeric vector of length two, \code{c(min,max)} wil scale the node sizes to \code{min} and \code{max} which
-#' @param edgeweight Set size of edges to \code{"E(g)$weight"} by passing "weight". If a single numeric value is provided all edges will be set to that value.
+#' @param nodesize Set nodesizes by `degree(g, normalised = TRUE)` (default), `hubscore(g)$vector`, or, `strength(g)`, `eccentricity(g)`, `coreness(g)`. If a numeric value is passed all vertex sizes will be set to that value.
+#' @param labelsize Set labelsize: "asnodesize" sets the `cex` for the labels to coincide with nodesize (with min of .4 and max of 1.1). A single numeric value sets the `cex` of all labels to that value. A numeric vector of length two, `c(min,max)` wil scale the node sizes to `min` and `max` which
+#' @param edgeweight Set size of edges to `"E(g)$weight"` by passing "weight". If a single numeric value is provided all edges will be set to that value.
+#' @param removeZeroDegree Remove vertices with `degree(g) == 0` (default = `TRUE`)
+#' @param removeSelfLoops Calls `simplify(g)` (default = `TRUE`)
 #' @param doPlot Plot the igraph object.
 #'
 #' @return an igraph object
@@ -5206,13 +6873,33 @@ plotNET_groupWeight <- function(g, groups, weigth.within=100, weight.between=1, 
 #'
 #' @family tools for plotting networks
 #'
-plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], labelsize = "asnodesize", edgeweight = "weight", doPlot = TRUE){
+plotNET_prep <- function(g,
+                         labels     = NA,
+                         nodesize   = c("degree","hubscore","strength","eccentricity","coreness")[1],
+                         labelsize  = "asnodesize",
+                         edgeweight = "weight",
+                         removeZeroDegree = TRUE,
+                         removeSelfLoops  = TRUE,
+                         doPlot     = TRUE){
+
+  if(removeSelfLoops){
+    g <- igraph::simplify(g)
+  }
+  if(removeZeroDegree){
+    g <- igraph::delete.vertices(g,igraph::degree(g)==0)
+  }
 
   rev <- NA
   if(is.character(nodesize)){
     switch(nodesize,
-           degree   = rev <- elascer(log1p(igraph::degree(g,normalized = TRUE))),
-           hubscore = rev <- elascer(log1p(igraph::hub_score(g)$vector))
+           # degree   = rev <- elascer(log1p(igraph::degree(g,normalized = TRUE))),
+           # hubscore = rev <- elascer(log1p(igraph::hub_score(g)$vector))
+           # strength = rev <- elascer(log1p(igraph::strength(g)$vector)))
+           degree   = rev <- igraph::degree(g),
+           hubscore = rev <- igraph::hub_score(g)$vector,
+           strength = rev <- igraph::strength(g),
+           eccentricity = rev <- igraph::eccentricity(g),
+           coreness = rev <- igraph::coreness(g),
     )
   } else {
     rev <- rep(as.numeric(nodesize),length(igraph::V(g)))
@@ -5221,12 +6908,14 @@ plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], l
   # set colors and sizes for vertices
   #rev<-elascer(log1p(igraph::V(g)$degree))
 
+  igraph::V(g)$size        <- rev
+
+  rev <- rev/max(rev, na.rm = TRUE)
   rev[rev<=0.2]<-0.2
   rev[rev>=0.9]<-0.9
   igraph::V(g)$rev <- rev
 
   igraph::V(g)$color       <- grDevices::rgb(igraph::V(g)$rev, 1-igraph::V(g)$rev,  0, 1)
-  igraph::V(g)$size        <- 25*igraph::V(g)$rev
 
   # set vertex labels and their colors and sizes
   if(all(is.na(labels))){
@@ -5245,8 +6934,9 @@ plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], l
 
   if(igraph::ecount(g)>0){
     if(edgeweight%in%"weight"){
-      igraph::E(g)$weight
-      igraph::E(g)$width <- elascer(igraph::E(g)$weight,lo = .8, hi = 5)
+      if(igraph::is_weighted(g)){
+        igraph::E(g)$width <- elascer(igraph::E(g)$weight,lo = .8, hi = 5)
+      }
     } else {
       if(is.numeric(edgeweight)){
         igraph::E(g)$width <- as.numeric(edgeweight)
@@ -5256,21 +6946,23 @@ plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], l
     }
     igraph::E(g)$color <- grDevices::rgb(0.5, 0.5, 0.5, 1)
   }
+
   if(doPlot){
-    graphics::plot.new()
+    # graphics::plot.new()
     graphics::plot(g)
   }
+
   return(invisible(g))
 }
 
 
 #' Example of Strogatz-Watts small-world network
 #'
-#' A wrapper around \code{\link[igraph]{sample_smallworld}} with \code{dim=1}
+#' A wrapper around [igraph::sample_smallworld()] with `dim=1`
 #'
 #' @param n Size of the lattice (integer)
 #' @param k Neighbourhood size (integer)
-#' @param p Rewiring probability (between \code{0} and \code{1})
+#' @param p Rewiring probability (between `0` and `1`)
 #' @param doPlot PLot the igraph object
 #'
 #' @return A Strogatz-Watts small-world igraph object
@@ -5279,12 +6971,12 @@ plotNET_prep <- function(g, labels = NA, nodesize = c("degree","hubscore")[1], l
 #'
 #' @family tools for plotting networks
 #'
-#' @seealso \code{\link[igraph]{sample_smallworld}}
+#' @seealso [igraph::sample_smallworld()]
 #'
 plotNET_SW <- function(n=100,k=5,p=0.05, doPlot = TRUE){
 
   g <- igraph::sample_smallworld(1, n, k, p)
-  g <- plotNET_prep(g)
+  g <- plotNET_prep(g,doPlot = FALSE)
 
   # igraph::V(g)$degree <- igraph::degree(g)
   #
@@ -5303,7 +6995,7 @@ plotNET_SW <- function(n=100,k=5,p=0.05, doPlot = TRUE){
   # igraph::E(g)$color <- grDevices::rgb(0.5, 0.5, 0.5, 1)
 
   if(doPlot){
-    graphics::plot.new()
+    # graphics::plot.new()
     graphics::plot(g)
   }
   return(invisible(g))
@@ -5311,7 +7003,7 @@ plotNET_SW <- function(n=100,k=5,p=0.05, doPlot = TRUE){
 
 #' Example of Barabasi scale-free network
 #'
-#' A wrapper around \code{\link[igraph]{sample_pa}}
+#' A wrapper around [igraph::sample_pa()]
 #'
 #' @param n Number of vertices
 #' @param pwr Power of preferential attachment
@@ -5323,56 +7015,63 @@ plotNET_SW <- function(n=100,k=5,p=0.05, doPlot = TRUE){
 #'
 #' @family tools for plotting networks
 #'
-#' @seealso \code{\link[igraph]{sample_pa}}
+#' @seealso [igraph::sample_pa()]
 #'
 plotNET_BA <- function(n=100, pwr=1, out.dist=NULL, doPlot = TRUE){
 
   g <- igraph::sample_pa(n, power = pwr, out.dist=out.dist, directed=FALSE)
-  igraph::V(g)$degree <- igraph::degree(g)
+  g <- plotNET_prep(g,doPlot = FALSE)
 
-  # set colors and sizes for vertices
-  rev<-elascer(log1p(igraph::V(g)$degree))
-  rev[rev<=0.2] <- 0.2
-  rev[rev>=0.9] <- 0.9
-  igraph::V(g)$rev <- rev$x
 
-  igraph::V(g)$color    <- grDevices::rgb(igraph::V(g)$rev, 1-igraph::V(g)$rev,  0, 1)
-  igraph::V(g)$size     <- 25*igraph::V(g)$rev
-  # igraph::V(g)$frame.color <- grDevices::rgb(.5, .5,  0, .4)
+  # igraph::V(g)$degree <- igraph::degree(g)
 
-  # set vertex labels and their colors and sizes
-  igraph::V(g)$label <- ""
-  igraph::E(g)$width <- 1
-  igraph::E(g)$color <- grDevices::rgb(0.5, 0.5, 0.5, 1)
+  # # set colors and sizes for vertices
+  # rev<-elascer(log1p(igraph::V(g)$degree))
+  # rev[rev<=0.2] <- 0.2
+  # rev[rev>=0.9] <- 0.9
+  # igraph::V(g)$rev <- rev$x
+  #
+  # igraph::V(g)$color    <- grDevices::rgb(igraph::V(g)$rev, 1-igraph::V(g)$rev,  0, 1)
+  # igraph::V(g)$size     <- 25*igraph::V(g)$rev
+  # # igraph::V(g)$frame.color <- grDevices::rgb(.5, .5,  0, .4)
+  #
+  # # set vertex labels and their colors and sizes
+  # igraph::V(g)$label <- ""
+  # igraph::E(g)$width <- 1
+  # igraph::E(g)$color <- grDevices::rgb(0.5, 0.5, 0.5, 1)
 
   if(doPlot){
-    graphics::plot.new()
+    # graphics::plot.new()
     graphics::plot(g)
   }
   return(invisible(g))
 }
 
 
-#' Vertex Group Colours
+#' Vertex and Edge Group Colours
 #'
 #' Identify Vertex and/or Edge groups by colour.
 #'
 #' @param g An igraph object
-#' @param groups A named numeric vector with \code{length(V(g))} integers representing each group, or, a named character vector describing each group. If \code{names(groups)==NULL} then the names of the vector will be set as \code{names(groups) == V(g)$name}. If \code{V(g)$name==NULL}, the names of the vector will be set by the Vertex index
-#' @param colourV Colour Vertices based on \code{groups} (default = \code{TRUE})
-#' @param alphaV Set transparency for Vertices (default = \code{1})
-#' @param colourE Colour Edges based on \code{groups} (default = \code{FALSE})
-#' @param alphaE Set transparency for Edges (default = \code{0.8})
-#' @param groupColours A list of length \code{groups} with valid colour codes
+#' @param groups A named numeric vector with `length(V(g))` integers representing each group, or, a named character vector describing each group. If `names(groups)==NULL` then the names of the vector will be set as `names(groups) == V(g)$name`. If `V(g)$name==NULL`, the names of the vector will be set by the Vertex index
+#' @param colourV Colour Vertices based on `groups` (default = `TRUE`)
+#' @param alphaV Set transparency for Vertices (default = `1`)
+#' @param colourE Colour Edges based on `groups`. Edges connecting to vertices of the same group will be coloured as the group (default = `FALSE`)
+#' @param alphaE Set transparency for Edges. A single numeric, or a vector of length `ecount(g)` (default = `0.8`)
+#' @param groupColours A list of length `groups` with valid colour codes
+#' @param defaultEdgeColour Default edge colour
 #' @param doPlot Plot the igraph object
 #'
-#' @return An igraph object with vertices and/or edges coloured by groups listed in \code{groups}
+#' @return An igraph object with vertices and/or edges coloured by groups listed in `groups`
 #'
 #' @export
 #'
 #' @family tools for plotting networks
 #'
-plotNET_groupColour <- function(g, groups, colourV=TRUE, alphaV=FALSE, colourE=FALSE, alphaE=FALSE, groupColours=NULL, doPlot = TRUE){
+plotNET_groupColour <- function(g, groups, colourV=TRUE, alphaV=1, colourE=FALSE, alphaE=.8, groupColours=NULL, defaultEdgeColour = "grey70", doPlot = TRUE){
+
+  unicolours <- unique(groupColours)
+  unigroups  <- unique(groups)
 
   if(length(groups)==igraph::gorder(g)){
     if(is.null(names(groups))){
@@ -5382,74 +7081,109 @@ plotNET_groupColour <- function(g, groups, colourV=TRUE, alphaV=FALSE, colourE=F
         names(groups) <- paste0(1:igraph::gorder(g))
       }
     }
-    unigroups <- unique(groups)
   } else {
-    stop("length(groups) must be equal to number of Vertices: gorder(g)")
+    if(length(unique(groups))>length(unique(groupColours))){
+      stop("length(groups) must be equal to number of Vertices: gorder(g)")
+    }
   }
 
   if(is.null(groupColours)){
-    if(length(unigroups)<=11){
-      groupColours <-  scales::brewer_pal(palette="RdYlBu")(length(unigroups))
+    if(length(unigroups)<=12){
+      groupColours <-  scales::brewer_pal(palette="Paired")(length(unigroups))
     } else {
-      groupColours <- scales::gradient_n_pal(scales::brewer_pal(palette="RdYlBu")(11))(seq(0, 1, length.out = length(unigroups)))
+      groupColours <- scales::gradient_n_pal(scales::brewer_pal(palette="Paired")(12))(seq(0, 1, length.out = length(unigroups)))
+    }
+    unicolours <- groupColours
+  } else {
+    if(length(groups)==length(groupColours)){
+      if(length(unique(groupColours))<=length(unigroups)){
+        unicolours <- unique(groupColours)
+      } else {
+        stop("Number of groups does not match number of colours!")
+      }
+    } else {
+      if(length(unique(groups))>length(unique(groupColours))){
+        stop("Length of groups vector does not match length of groupColour vector!")
+      }
     }
   }
 
-  # Add alpha .08 to edges by default
-  igraph::E(g)$alpha <- .8
-  if(alphaE){
-    if(all(is.null(igraph::E(g)$weight))){
-      warning("If you want to set Edge transparency, provide weight values in E(g)$weight...")
+  # Add alpha to edges
+  if(all(alphaE%[]%c(0,1))){
+    if(length(alphaE)==1|length(alphaE)==igraph::ecount(g)){
+      igraph::E(g)$alpha <- alphaE
     } else {
-      igraph::E(g)$alpha <- elascer(igraph::E(g)$weight)
+      stop("Length of vector alphaE is not equal to 1 or ecount(g)")
     }
+  } else {
+    stop("All alphaE must be in [0,1]")
   }
 
-  # Add a default colour and alphac
-  igraph::E(g)$color <- add_alpha("#D9D9D9",alpha = igraph::E(g)$alpha)
-
-  if(alphaV){
-    igraph::V(g)$alpha <- elascer(igraph::degree(g))
+  if(all(alphaV%[]%c(0,1))){
+    if(length(alphaV)==1|length(alphaV)==igraph::vcount(g)){
+      igraph::V(g)$alpha <- alphaV
+    } else {
+      stop("Length of vector alphaV is not equal to 1 or vcount(g)")
+    }
+  } else {
+    stop("All alphaV must be in [0,1]")
   }
 
-  for(c in unigroups){
-    if(length(groups==unigroups[c])>0){
+  if(colourE){
+    #init
+    igraph::E(g)$color  <- defaultEdgeColour
+  }
 
-      igraph::V(g)[groups==c]$group      <- c
-      igraph::V(g)[groups==c]$groupnum   <- c
+  if(length(igraph::E(g)$color)>0){
+    igraph::E(g)$colour <- igraph::E(g)$color
+  }
+
+
+  for(c in seq_along(unigroups)){
+    Vid <- groups==unigroups[c]
+    if(sum(Vid)>0){
+
+      igraph::V(g)[Vid]$group      <- unigroups[c]
+      igraph::V(g)[Vid]$groupnum   <- c
 
       if(colourV){
-        igraph::V(g)[groups==c]$color      <- groupColours[c]
-        igraph::V(g)[groups==c]$colour     <- igraph::V(g)[groups==c]$color
+        igraph::V(g)[Vid]$color  <- add_alpha(unicolours[c], alpha = igraph::V(g)[Vid]$alpha)
+        igraph::V(g)[Vid]$colour <- igraph::V(g)[Vid]$color
       }
 
-      if(alphaV){
-        igraph::V(g)[groups==c]$color <- add_alpha(igraph::V(g)[groups==c]$color, alpha = igraph::V(g)[groups==c]$alpha)
-        igraph::V(g)[groups==c]$colour <- igraph::V(g)[groups==c]$color
-      }
+      # if(alphaV){
+      #   igraph::V(g)[Vid]$color <- add_alpha(igraph::V(g)[Vid]$color, alpha = igraph::V(g)[Vid]$alpha)
+      #   igraph::V(g)[Vid]$colour <- igraph::V(g)[Vid]$color
+      # }
 
       # Get ids for the edges that connect this group
-      id <- which(igraph::E(g)%in%igraph::E(g)[igraph::V(g)[groups==c]%--%igraph::V(g)[groups==c]])
+      Eid <- which(igraph::E(g)%in%igraph::E(g)[igraph::V(g)[Vid]%--%igraph::V(g)[Vid]])
 
 
-      if(length(id)>0){
+      if(length(Eid)>0){
 
-        igraph::E(g)[id]$group             <- c
-        igraph::E(g)[id]$groupnum          <- c
+        igraph::E(g)[Eid]$group             <- unigroups[c]
+        igraph::E(g)[Eid]$groupnum          <- c
 
         if(colourE){
-          igraph::E(g)[id]$color  <- add_alpha(groupColours[c], alpha = igraph::E(g)[id]$alpha)
+          igraph::E(g)[Eid]$color   <- add_alpha(unicolours[c], alpha = igraph::E(g)[Eid]$alpha)
+          igraph::E(g)[Eid]$colour  <- igraph::E(g)[Eid]$color
         }
-        if(alphaE){
-          igraph::E(g)[id]$color <- add_alpha(groupColours[c], alpha = igraph::E(g)[id]$alpha)
+        else {
+          #  # Add a default colour and alphac
+          igraph::E(g)[Eid]$color  <- add_alpha(igraph::E(g)[Eid]$color, alpha = igraph::E(g)[Eid]$alpha)
+          #  igraph::E(g)[Eid]$colour <- igraph::E(g)[Eid]$color
         }
+        # if(alphaE){
+        #   igraph::E(g)[Eid]$color <- add_alpha(groupColours[c], alpha = igraph::E(g)[Eid]$alpha)
+        # }
 
       } # edge IDs > 0
     } # group IDs > 0
   } # group loop
 
   if(doPlot){
-    graphics::plot.new()
+    # graphics::plot.new()
     graphics::plot(g)
   }
   return(invisible(g))
@@ -6397,7 +8131,7 @@ ts_changeindex <- function(y, returnRectdata=TRUE, groupVar = NULL, labelVar = N
 #' @param y Time series
 #' @param emDim Embedding dimension
 #' @param emLag Embedding lag
-#' @param returnOnlyIndices Return only the index of y for each surrogate dimension, not the values (default = \code{FALSE})
+#' @param returnOnlyIndices Return only the index of y for each surrogate dimension, not the values (default = `FALSE`)
 #' @param silent Silent-ish mode
 #'
 #' @return The lag embedded time series
@@ -6406,6 +8140,8 @@ ts_changeindex <- function(y, returnRectdata=TRUE, groupVar = NULL, labelVar = N
 #' @author Fred Hasselman
 #'
 #' @export
+#'
+#' @family Time series operations
 #'
 ts_embed <- function (y, emDim, emLag, returnOnlyIndices = FALSE, silent = TRUE){
 
@@ -6518,14 +8254,15 @@ ts_discrete <- function(y, nbins=ceiling(2*NROW(y)^(1/3)), keepNA = TRUE){
 #' @export
 #'
 #' @examples
-ts_duration <- function(y, timeVec = stats::time(y),fs = stats::frequency(y), tolerance = 0){
+ts_durationJMV <- function(y, timeVec = stats::time(y),fs = stats::frequency(y), tolerance = 0){
   tID <- seq_along(y)[-1]
 
   same <- list()
   same[[1]] <- data.frame(y=y[1],
                           ind.start = 1,
                           ind.end   = 1,
-                          t.start = timeVec[1], t.end = timeVec[1],
+                          t.start = timeVec[1],
+                          t.end = timeVec[1],
                           duration.time = 0,
                           duration.samples = 1,
                           duration.fs = fs,
@@ -6561,6 +8298,121 @@ ts_duration <- function(y, timeVec = stats::time(y),fs = stats::frequency(y), to
   same.out$duration.time = timeVec[same.out$ind.end+1] - timeVec[same.out$ind.start] #laply(seq_along(same.out$ind.start) function(i){(same.out$t.end[same.out$ind.end] - same.out$t.start[same.out$ind.start])}
   row.names(same.out) <- paste(seq_along(same.out$t.start))
   same.out$trajectory.id <- seq_along(same.out$t.start)
+  return(same.out)
+}
+
+
+
+#' Time series to Duration series
+#'
+#' @param y A time series, numeric vector, or categorical variable.
+#' @param timeVec A vector, same length as `y` containing timestamps, or, sample indices.
+#' @param fs Optional sampling frequency if timeVec represents sample indices. An extra column `duration.fs` will be added which represents `1/fs * duration in samples`
+#' @param tolerance A number `tol` indicating a range `[y-tol,y+tol]` to consider the same value. Useful when `y` is continuous (`default = 0`)
+#'
+#' @return A data frame
+#' @export
+#'
+#' @family Time series operations
+#'
+#' @examples
+#' library(invctr)
+#' # Create data with events and their timecodes
+#' coder <- data.frame(beh=c("stare","stare","coffee","type","type","stare"),t=c(0,5,10,15,20,25))
+#'
+#' ts_duration(y = coder$beh, timeVec = coder$t)
+#'
+ts_duration <- function(y, timeVec = stats::time(y), fs = stats::frequency(y), tolerance = 0){
+
+
+  if(plyr::is.discrete(y)){
+    y.n <- as.numeric_discrete(y,sortUnique = TRUE)
+  } else {
+    y.n <- as.numeric(y)
+    names(y.n) <- paste(y.n)
+    if(all(is.na(y.n))){
+      stop("Conversion to numeric failed for all elements of y.")
+    }
+  }
+
+  y <- y.n
+  tID <- seq_along(y)[-1]
+  y[NROW(y)+1]             <- max(y, na.rm = TRUE) + tolerance + 1
+  timeVec[NROW(timeVec)+1] <- max(timeVec, na.rm = TRUE)
+
+  same <- list()
+  same[[1]] <- data.frame(y = y[1],
+                          y.name  = names(y)[1],
+                          ind.start = 1,
+                          ind.end   = 1,
+                          t.start = timeVec[1],
+                          t.end   = timeVec[1],
+                          duration.time    = 0,
+                          duration.samples = 1,
+                          duration.fs      = fs,
+                          keep = TRUE)
+
+  for(i in tID){
+    # Same as previous?
+    if(y[i]%[]%c((y[i-1]-tolerance),(y[i-1]+tolerance))){
+      same[[i]] <- data.frame(y = y[i],
+                              y.name  = names(y[i]),
+                              ind.start = same[[i-1]]$ind.start,
+                              ind.end   = i,
+                              t.start = same[[i-1]]$t.start,
+                              t.end   = timeVec[i],
+                              duration.time    = 0,
+                              duration.samples = (same[[i-1]]$duration.samples+1),
+                              duration.fs      = fs,
+                              keep = TRUE)
+      same[[i-1]]$keep <- FALSE
+    } else {
+      same[[i-1]]$t.end <- timeVec[i]
+      # Same as upcoming?
+      if((y[i]%[]%c((y[i+1]-tolerance),(y[i+1]+tolerance)))){
+        same[[i]] <- data.frame(y = y[i],
+                                y.name  = names(y[i]),
+                                ind.start = i,
+                                ind.end   = (i+1),
+                                t.start = timeVec[i],
+                                t.end   = timeVec[i+1],
+                                duration.time    = 0,
+                                duration.samples = 1,
+                                duration.fs = fs,
+                                keep = FALSE)
+      }
+
+      if(i == max(tID)){
+        same[[i]] <- data.frame(y = y[i],
+                                y.name  = names(y[i]),
+                                ind.start = i,
+                                ind.end   = i,
+                                t.start = timeVec[i],
+                                t.end   = timeVec[i],
+                                duration.time    = 0,
+                                duration.samples = 1,
+                                duration.fs = fs,
+                                keep = TRUE)
+      } else {
+
+        same[[i]] <- data.frame(y = y[i],
+                                y.name  = names(y[i]),
+                                ind.start = i,
+                                ind.end   = (i+1),
+                                t.start = timeVec[i],
+                                t.end   = timeVec[i+1],
+                                duration.time    = 0,
+                                duration.samples = 1,
+                                duration.fs = fs,
+                                keep = TRUE)
+      }
+    }
+  }
+  same.out <- plyr::ldply(same)
+  same.out <- same.out[same.out$keep,1:8]
+  if(!is.null(fs)){same.out$duration.fs = (1/fs)*same.out$duration.samples}
+  same.out$duration.time = (same.out$t.end - same.out$t.start)
+  row.names(same.out) <- paste(seq_along(same.out$t.start))
   return(same.out)
 }
 
@@ -7612,16 +9464,20 @@ fltrIT <- function(TS,f){
 
 
 
+
 #' Elastic Scaler - A Flexible Rescale Function
 #'
 #' @description The 'elastic scaler'will rescale numeric vectors (1D, or columns in a matrix or data.frame) to a user defined minimum and maximum, either based on the extrema in the data, or, a minimum and maximum defined by the user.
 #'
 #' @param x   Input vector or data frame.
-#' @param mn  Minimum value of original, defaults to \code{min(x, na.rm = TRUE)} if set to \code{NA}.
-#' @param mx  Maximum value of original, defaults to \code{max(x, na.rm = TRUE)} if set to \code{NA}.
-#' @param hi  Minimum value to rescale to, defaults to \code{0}.
-#' @param lo  Maximum value to rescale to, defaults to \code{1}.
-#' @param groupwise If \code{x} is a data frame with \code{2+} columns, \code{mn = NA} and/or \code{mx = NA} and \code{groupwise = TRUE}, scaling will occur
+#' @param mn  Minimum value of original, defaults to `min(x, na.rm = TRUE)` if set to `NA`.
+#' @param mx  Maximum value of original, defaults to `max(x, na.rm = TRUE)` if set to `NA`.
+#' @param lo  Minimum value to rescale to, defaults to `0`.
+#' @param hi  Maximum value to rescale to, defaults to `1`.
+#' @param groupwise If `x` is a data frame with `2+` columns, `mn = NA` and/or `mx = NA` and `groupwise = TRUE`, scaling will occur
+#' @param keepNA Keep `NA` values?
+#' @param boundaryPrecision If set to `NA` the precision of the input will be the same as the precision of the output. This can cause problems when detecting values that lie just outside of, or, exactly on boundaries given by `lo` and `hi`, e.g. after saving the data using a default precision. Setting `boundaryPrecision` to an integer value will ensure that the boundaries of the new scale are given by `round(..., digits = boundaryPrecision)`. Alternatively one could just round all the output after rescaling to a desired precision (default = `NA`)
+#' @param tol The tolerance for deciding wether a value is on the boundary `lo` or `hi` (default = `.Machine$double.eps^0.5)`)
 #'
 #' @details Three uses:
 #' \enumerate{
@@ -7637,18 +9493,36 @@ fltrIT <- function(TS,f){
 #' # Works on numeric objects
 #' somenumbers <- cbind(c(-5,100,sqrt(2)),c(exp(1),0,-pi))
 #'
+#' # Using the defaults:
+#' # 1. mn and mx are derived globally (groupWise = FALSE)
+#' # 2. values rescaled to hi and lo are integers, 0 and 1 respectively
 #' elascer(somenumbers)
-#' elascer(somenumbers,mn=-100)
-#' # Values < mn will return < lo (default=0)
-#' # Values > mx will return > hi (default=1)
-#' elascer(somenumbers,mn=-1,mx=99)
 #'
+#' # If the data contain values < mn they will return as < lo
+#' elascer(somenumbers,mn=-100)
+#' # If the data contain values > mx they will return > hi
+#' elascer(somenumbers,mx=99)
+#'
+#' # Effect of setting groupWise
 #' elascer(somenumbers,lo=-1,hi=1)
 #' elascer(somenumbers,lo=-1,hi=1, groupwise = TRUE)
 #'
 #' elascer(somenumbers,mn=-10,mx=100,lo=-1,hi=4)
 #' elascer(somenumbers,mn= NA,mx=100,lo=-1,hi=4, groupwise = TRUE)
-elascer <- function(x,mn=NA,mx=NA,lo=0,hi=1,groupwise = FALSE){
+#'
+#' # Effect of setting boundaryPrecision
+#' x <- rbind(1/3, 1/7)
+#'
+#' re1 <- elascer(x, lo = 0, hi = 1/13, boundaryPrecision = NA)
+#' max(re1)==0.07692308 # FALSE
+#' max(re1)==1/13       # TRUE
+#'
+#' re2 <- elascer(x, lo = 0, hi = 1/13, boundaryPrecision = 8)
+#' max(re2)==0.07692308 # TRUE
+#' max(re2)==1/13       # FALSE
+#'
+elascer <- function(x,mn=NA,mx=NA,lo=0,hi=1,groupwise = FALSE, keepNA = TRUE, boundaryPrecision = NA, tol= .Machine$double.eps^0.5){
+
   doGroupwise <- FALSE
   mnNA <- FALSE
   mxNA <- FALSE
@@ -7666,6 +9540,7 @@ elascer <- function(x,mn=NA,mx=NA,lo=0,hi=1,groupwise = FALSE){
     }
   }
   x <- as.data.frame(x)
+  isNA <- plyr::colwise(is.na)(x)
   u <- x
   for(i in 1:NCOL(x)){
     if(doGroupwise){
@@ -7678,8 +9553,17 @@ elascer <- function(x,mn=NA,mx=NA,lo=0,hi=1,groupwise = FALSE){
       u[,i]<-rep(mx,length(x[,i]))
     } else {
       u[,i]<-(((x[,i]-mn)*(hi-lo))/((mx-mn))+lo)
-      id<-stats::complete.cases(u[,i])
-      u[!id,i]<-0
+      if(!keepNA){
+        id<-stats::complete.cases(u[,i])
+        u[!id,i]<-mn
+      }
+    }
+    if(!is.na(boundaryPrecision)){
+      # Make sure the end points of the scale are the same as passed in the argument
+      idLo <- u[,i]%[]%c(lo-tol,lo+tol)
+      u[idLo,i] <- round(u[idLo,i], digits = boundaryPrecision)
+      idHi <- u[,i]%[]%c(hi-tol,hi+tol)
+      u[idHi,i] <- round(u[idHi,i], digits = boundaryPrecision)
     }
   }
   if(UNLIST){
@@ -7782,6 +9666,7 @@ try_CATCH <- function(expr){
 #' Converts a factor with numeric levels to a numeric vector, using the values of the levels.
 #'
 #' @param x A factor based on numeric values.
+#' @param sortUnique Should the unique character values be sorted? (default = `FALSE`)
 #' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
 #'
 #' @return A numeric vector with factor levels as names.
@@ -7798,7 +9683,7 @@ try_CATCH <- function(expr){
 #' as.numeric_factor(f, keepNA = TRUE)
 #'
 #'
-as.numeric_factor <- function(x, keepNA = FALSE){
+as.numeric_factor <- function(x, keepNA = FALSE, sortUnique = FALSE){
   idNA <- is.na(x)
   if(!is.factor(x)){stop("Not a factor, use: `as.numeric_character()`")}
   out <- try(as.numeric(levels(x))[x])
@@ -7811,6 +9696,7 @@ as.numeric_factor <- function(x, keepNA = FALSE){
   names(out) <- as.character(out)
   return(out)
 }
+
 
 
 #' Character vector to named numeric vector
@@ -7846,159 +9732,144 @@ as.numeric_character <- function(x, sortUnique = FALSE, keepNA = FALSE){
 }
 
 
+
 #' Discrete (factor or character) to numeric vector
 #'
-#' Converts a factor with numeric levels, or, a character vector with numeric values to a named numeric vector (using [as.numeric_factor], or, [as.numeric_character]). If the character values or factor levels are non-numeric (or mixed), a named numeric vector will be returned, values represent an unordered categorical variable (nominal), the character values are used as names. If an unnamed numeric vector is passed, it will be returned as a named numeric vector, with the values copied as names. If a continuous numeric vector is passed, a named numeric vector of bins will be returned (using [ts_discrete]), with original vaslues as names.
+#' Converts a factor with numeric levels, or, a character vector with numeric values to a numeric vector using [as.numeric_factor], or, [as.numeric_character] respectively. If an unnamed numeric vector is passed, it will be returned as a named numeric vector.
 #'
-#' @param x A factor, a character, or, numeric vector
+#' @param x A factor with levels that are numeric, or, a character vector representing numbers.
 #' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
-#' @param sortUnique In case of character values/character factor levels, should the unique values be sorted before they are assigned a number? (default = `FALSE`)
-#' @param nbins Number of bins to use if the vector is continuous. See [ts_discrete] (default = `ceiling(2*NROW(x)^(1/3))`)
+#' @param sortUnique Should the unique character/factor level values be sorted? (default = `FALSE`)
 #'
 #' @return A numeric vector with factor levels / numeric character values as names.
 #' @export
 #'
 #' @examples
 #'
-#' f <- factor(round(runif(10,0,9)))
-#' as.numeric_factor(f)
+#' # Continuous
+#' i <- runif(10,0,9)
+#' as.numeric_discrete(i)
 #'
-#' # Add NAs
+#' # Integer
+#' as.numeric_discrete(round(i))
+#'
+#' # Factor with NAs
 #' f <- factor(c(round(runif(9,0,9)),NA))
-#' as.numeric_factor(f)
-#' as.numeric_factor(f, keepNA = TRUE)
+#' as.numeric_discrete(f)
+#' as.numeric_discrete(f, keepNA = FALSE)
+#'
+#' # Character vector
+#' c <- c("Thank","you", "for", "the flowers")
+#' as.numeric_discrete(c)
+#' as.numeric_discrete(c, sortUnique = TRUE)
+#'
+#' c <- c("Thank","you", "for", "the", "flowers")
+#' as.numeric_discrete(c)
+#' as.numeric_discrete(c, sortUnique = TRUE)
 #'
 #'
-#'
-as.numeric_discrete <- function(x, keepNA = FALSE, sortUnique = FALSE, nbins = ceiling(2*NROW(x)^(1/3))){
-
-  NAs <- sum(is.na(x%00%NA))
-  if(!keepNA&NAs>0){
-    x <- x[!is.na(x)]
-  }
+as.numeric_discrete <- function(x, keepNA = FALSE, sortUnique = FALSE){
 
   if(plyr::is.discrete(x)){
     if(is.factor(x)){
-      if(suppressWarnings(sum(is.na(as.numeric(levels(x))))==NAs)){
-        y <- as.numeric_factor(x, keepNA = keepNA)
-        #all(is.na(as.numeric(levels(x)))))){
-      } else {
+      if(suppressWarnings(all(is.na(as.numeric(levels(x)))))){
         x <- as.character(x)
-      }
-      }
-    if(is.character(x)){
-      if(suppressWarnings(sum(is.na(as.numeric(x)))==NAs)){
-        x <- as.numeric(x)
       } else {
-        if(!sortUnique){
-          warning("sortUnique was set to TRUE. Vector contains a mix of letters and numbers.")
-          sortUnique <- TRUE
-        }
+        y <- as.numeric_factor(x, keepNA = keepNA, sortUnique = sortUnique)
+      }
     }
+    if(is.character(x)){
       y <- as.numeric_character(x, keepNA = keepNA, sortUnique = sortUnique)
     }
-  }
-
-  if(is.numeric(x)){
-    if(all(invctr::is.wholenumber(x))){
-      y <- x #as.factor(factor(x, ordered = sortUnique))
-    } else {
-      y <- ts_discrete(x, keepNA = keepNA, nbins = nbins)
+  } else {
+    if(is.numeric(x)){
+      if(!all(is.wholenumber(x))){
+        y <- ts_discrete(x)
+        if(is.null(names(y))){
+          names(y) <- paste(signif(x,4))
+        }
+      } else { # wholenumber
+        y <- x
+        if(is.null(names(y))){
+          names(y) <- paste(x)
+        }
+      }
+    } else { # numeric
+      stop("Variable is not a factor, character vector, or, unnamed numeric vector.")
     }
-    if(is.null(names(y))){
-      names(y) <- paste(signif(x,3))
-    }
-  }
-
+  } # discrete
   return(y)
 }
 
-
-
-#'
-#' #' Signed increment
-#' #'
-#' #' Increment an integer counter by an arbitrary (signed) interval.
-#' #'
-#' #' @param counter If \code{counter} and \code{increment} are both a (signed) integers \code{counter} will change by the value of \code{increment}.
-#' #' @param increment An integer value \eqn{\neq 0} to add to \code{counter}
-#' #'
-#' #' @export
-#' #' @author Fred Hasselman
-#' #' @examples
-#' #'
-#' #' # Notice the difference between passing an object and a value for counter
-#' #'
-#' #' # Value
-#' #' (10 %+-% -5)
-#' #' (10 %+-% -5)
-#' #'
-#' #' # Object
-#' #' i <- 10
-#' #' (i %+-% -5)
-#' #' (i %+-% -5)
-#' #'
-#' #' # This means we can use the infix in a while ... statement
-#' #' while(i > -3) i %+-% -5
-#' #' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
-#' #'
-#' `%+-%` <- function(counter, increment){
-#'   if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment==0){
-#'     stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
-#'   } else{
-#'     result <- counter + increment
-#'     if(counter>0&result<=0){warning("Positive valued counter changed sign (counter <= 0)!")}
-#'     if(counter<0&result>=0){warning("Negative valued counter changed sign (counter >= 0)!")}
-#'     obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
-#'     if(is.na(obj$value)){
-#'       eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
-#'     } else {
-#'       return(result)
-#'     }
-#'   }
-#' }
-#'
-#'
-#' #' Positive increment
-#' #'
-#' #' Increment a counter by an arbitrary interval greater than 0.
-#' #'
-#' #' @param counter If \code{counter} \eqn{\ge 0} and \code{increment} \eqn{> 0} and are both integers, \code{counter} will change by the value of \code{increment}.
-#' #' @param increment An integer value \eqn{> 0} to add to \code{counter}
-#' #'
-#' #' @export
-#' #' @author Fred Hasselman
-#' #' @description When your functions wear these rose tinted glasses, the world will appear to be a nicer, fluffier place.
-#' #' @examples
-#' #'
-#' #' # Notice the difference between passing an object and a value for counter
-#' #'
-#' #' # Value
-#' #' (0 %++% 5)
-#' #' (0 %++% 5)
-#' #'
-#' #' # Object
-#' #' i <- 0
-#' #' (i %+-% 5)
-#' #' (i %+-% 5)
-#' #'
-#' #' # This means we can use the infix in a while ... statement
-#' #' while(i < 20) i %+-% 5
-#' #' # WARNING: As is the case for any while ... statement, be careful not to create an infinite loop!
-#' #'
-#' `%++%` <- function(counter,increment){
-#'   if(is.na(counter%00%NA)|is.na(increment%00%NA)|!is.wholenumber(counter)|!is.wholenumber(increment)|increment<=0|counter<0){
-#'     stop("Don't know how to work with counter and/or increment argument.\n Did you use integers?")
-#'   } else{
-#'     result <- counter + increment
-#'     obj <- try_CATCH(as.numeric(deparse(substitute(counter))))
-#'     if(is.na(obj$value)){
-#'       eval(parse(text=paste(deparse(substitute(counter))," <<- result")))
-#'     } else {
-#'       return(result)
-#'     }
-#'   }
-#' }
+#
+# #' Discrete (factor or character) to numeric vector
+# #'
+# #' Converts a factor with numeric levels, or, a character vector with numeric values to a named numeric vector (using [as.numeric_factor], or, [as.numeric_character]). If the character values or factor levels are non-numeric (or mixed), a named numeric vector will be returned, values represent an unordered categorical variable (nominal), the character values are used as names. If an unnamed numeric vector is passed, it will be returned as a named numeric vector, with the values copied as names. If a continuous numeric vector is passed, a named numeric vector of bins will be returned (using [ts_discrete]), with original vaslues as names.
+# #'
+# #' @param x A factor, a character, or, numeric vector
+# #' @param keepNA Keep NA values (`TRUE`), or remove them (default = `FALSE`)
+# #' @param sortUnique In case of character values/character factor levels, should the unique values be sorted before they are assigned a number? (default = `FALSE`)
+# #' @param nbins Number of bins to use if the vector is continuous. See [ts_discrete] (default = `ceiling(2*NROW(x)^(1/3))`)
+# #'
+# #' @return A numeric vector with factor levels / numeric character values as names.
+# #' @export
+# #'
+# #' @examples
+# #'
+# #' f <- factor(round(runif(10,0,9)))
+# #' as.numeric_factor(f)
+# #'
+# #' # Add NAs
+# #' f <- factor(c(round(runif(9,0,9)),NA))
+# #' as.numeric_factor(f)
+# #' as.numeric_factor(f, keepNA = TRUE)
+# #'
+# #'
+# #'
+# as.numeric_discrete <- function(x, keepNA = FALSE, sortUnique = FALSE, nbins = ceiling(2*NROW(x)^(1/3))){
+#
+#   NAs <- sum(is.na(x%00%NA))
+#   if(!keepNA&NAs>0){
+#     x <- x[!is.na(x)]
+#   }
+#
+#   if(plyr::is.discrete(x)){
+#     x[which(sapply(as.character(x), nchar)==0)] <- NA_character_
+#     if(is.factor(x)){
+#       if(suppressWarnings(sum(is.na(as.numeric(levels(x))))==NAs)){
+#         y <- as.numeric_factor(x, keepNA = keepNA)
+#        #all(is.na(as.numeric(levels(x)))))){
+#       } else {
+#         x <- as.character(x)
+#       }
+#       }
+#     if(is.character(x)){
+#       if(suppressWarnings(sum(is.na(as.numeric(x)))==NAs)){
+#         x <- as.numeric(x)
+#       } else {
+#         if(!sortUnique){
+#           warning("sortUnique was set to TRUE. Vector contains a mix of letters and numbers.")
+#           sortUnique <- TRUE
+#         }
+#     }
+#       y <- as.numeric_character(x, keepNA = keepNA, sortUnique = sortUnique)
+#     }
+#   }
+#
+#   if(is.numeric(x)){
+#     if(all(invctr::is.wholenumber(x))){
+#       y <- x #as.factor(factor(x, ordered = sortUnique))
+#     } else {
+#       y <- ts_discrete(x, keepNA = keepNA, nbins = nbins)
+#     }
+#     if(is.null(names(y))){
+#       names(y) <- paste(signif(x,3))
+#     }
+#   }
+#
+#   return(y)
+# }
+#
 
 
 #' Repeat Copies of a Matrix

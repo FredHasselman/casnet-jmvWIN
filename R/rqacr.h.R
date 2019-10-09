@@ -185,7 +185,8 @@ rqaCRResults <- if (requireNamespace('jmvcore')) R6::R6Class(
         crpplot = function() private$.items[["crpplot"]],
         tblRP = function() private$.items[["tblRP"]],
         tblCRQA = function() private$.items[["tblCRQA"]],
-        DPplot = function() private$.items[["DPplot"]]),
+        DPplot = function() private$.items[["DPplot"]],
+        warnings = function() private$.items[["warnings"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -389,7 +390,11 @@ rqaCRResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "norm",
                     "plotDP",
                     "diagWin",
-                    "standardise")))}))
+                    "standardise")))
+            self$add(jmvcore::Preformatted$new(
+                options=options,
+                name="warnings",
+                title="Notes"))}))
 
 rqaCRBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "rqaCRBase",
@@ -439,6 +444,7 @@ rqaCRBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #'   \code{results$tblRP} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$tblCRQA} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$DPplot} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

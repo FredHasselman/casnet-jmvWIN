@@ -48,23 +48,45 @@ children:
       - type: LayoutBox
         margin: large
         children:
-          - type: CheckBox
-            name: Gweight
-          - type: CheckBox
-            name: Gdirect
-          - type: CheckBox
-            name: Glabels
-          - type: ComboBox
-            label: Graph layout
-            name: Glayout
-          - type: TextBox
-            label: Prune by node degree
-            name: PruneDegree
-            format: number
-          - type: TextBox
-            label: Prune by edge weight
-            name: PruneWeight
-            format: number
+          - type: Label
+            label: 'Edges represent:'
+            children:
+              - type: RadioButton
+                name: edgeWeigth_none
+                optionName: edgeWeight
+                optionPart: none
+              - type: RadioButton
+                name: edgeWeigth_si
+                optionName: edgeWeight
+                optionPart: si
+              - type: RadioButton
+                name: edgeWeigth_rt
+                optionName: edgeWeight
+                optionPart: rt
+              - type: RadioButton
+                name: edgeWeigth_rf
+                optionName: edgeWeight
+                optionPart: rf
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: Label
+            label: Spiral layout
+            children:
+              - type: ComboBox
+                label: Graph layout
+                name: Glayout
+              - type: TextBox
+                name: LayoutA
+                format: number
+              - type: TextBox
+                name: LayoutB
+                format: number
+              - type: TextBox
+                name: Narcs
+                format: number
+              - type: CheckBox
+                name: Glabels
       - type: LayoutBox
         margin: large
         children:
@@ -75,6 +97,10 @@ children:
                 name: nsize_deg
                 optionName: nsize
                 optionPart: degree
+              - name: nsize_strength
+                type: RadioButton
+                optionName: nsize
+                optionPart: strength
               - type: RadioButton
                 name: nsize_hub
                 optionName: nsize
@@ -83,9 +109,24 @@ children:
                 type: RadioButton
                 optionName: nsize
                 optionPart: fixed
+
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: Label
+            label: Remove nodes/edges
+            children:
+              - type: TextBox
+                label: Prune by node degree
+                name: PruneDegree
+                format: number
+              - type: TextBox
+                label: Prune by edge weight
+                name: PruneWeight
+                format: number
   - type: CollapseBox
-    label: Recurrence Matrix
-    collapsed: true
+    label: Phase Space Parameters
+    collapsed: false
     children:
       - type: TextBox
         label: Embedding lag
@@ -97,8 +138,10 @@ children:
       - type: LayoutBox
         margin: large
         children:
-          - type: LayoutBox
-            margin: large
+          - type: RadioButton
+            name: fixed_RAD
+            optionName: fixed
+            optionPart: RAD
             children:
               - type: TextBox
                 name: fixRAD

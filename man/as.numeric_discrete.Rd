@@ -4,34 +4,43 @@
 \alias{as.numeric_discrete}
 \title{Discrete (factor or character) to numeric vector}
 \usage{
-as.numeric_discrete(x, keepNA = FALSE, sortUnique = FALSE,
-  nbins = ceiling(2 * NROW(x)^(1/3)))
+as.numeric_discrete(x, keepNA = FALSE, sortUnique = FALSE)
 }
 \arguments{
-\item{x}{A factor, a character, or, numeric vector}
+\item{x}{A factor with levels that are numeric, or, a character vector representing numbers.}
 
 \item{keepNA}{Keep NA values (`TRUE`), or remove them (default = `FALSE`)}
 
-\item{sortUnique}{In case of character values/character factor levels, should the unique values be sorted before they are assigned a number? (default = `FALSE`)}
-
-\item{nbins}{Number of bins to use if the vector is continuous. See [ts_discrete] (default = `ceiling(2*NROW(x)^(1/3))`)}
+\item{sortUnique}{Should the unique character/factor level values be sorted? (default = `FALSE`)}
 }
 \value{
 A numeric vector with factor levels / numeric character values as names.
 }
 \description{
-Converts a factor with numeric levels, or, a character vector with numeric values to a named numeric vector (using [as.numeric_factor], or, [as.numeric_character]). If the character values or factor levels are non-numeric (or mixed), a named numeric vector will be returned, values represent an unordered categorical variable (nominal), the character values are used as names. If an unnamed numeric vector is passed, it will be returned as a named numeric vector, with the values copied as names. If a continuous numeric vector is passed, a named numeric vector of bins will be returned (using [ts_discrete]), with original vaslues as names.
+Converts a factor with numeric levels, or, a character vector with numeric values to a numeric vector using [as.numeric_factor], or, [as.numeric_character] respectively. If an unnamed numeric vector is passed, it will be returned as a named numeric vector.
 }
 \examples{
 
-f <- factor(round(runif(10,0,9)))
-as.numeric_factor(f)
+# Continuous
+i <- runif(10,0,9)
+as.numeric_discrete(i)
 
-# Add NAs
+# Integer
+as.numeric_discrete(round(i))
+
+# Factor with NAs
 f <- factor(c(round(runif(9,0,9)),NA))
-as.numeric_factor(f)
-as.numeric_factor(f, keepNA = TRUE)
+as.numeric_discrete(f)
+as.numeric_discrete(f, keepNA = FALSE)
 
+# Character vector
+c <- c("Thank","you", "for", "the flowers")
+as.numeric_discrete(c)
+as.numeric_discrete(c, sortUnique = TRUE)
+
+c <- c("Thank","you", "for", "the", "flowers")
+as.numeric_discrete(c)
+as.numeric_discrete(c, sortUnique = TRUE)
 
 
 }

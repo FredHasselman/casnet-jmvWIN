@@ -13,7 +13,7 @@ ts_embed(y, emDim, emLag, returnOnlyIndices = FALSE, silent = TRUE)
 
 \item{emLag}{Embedding lag}
 
-\item{returnOnlyIndices}{Return only the index of y for each surrogate dimension, not the values (default = \code{FALSE})}
+\item{returnOnlyIndices}{Return only the index of y for each surrogate dimension, not the values (default = `FALSE`)}
 
 \item{silent}{Silent-ish mode}
 }
@@ -25,9 +25,16 @@ Create a state vector based on an embedding lag and a number of embedding dimane
 }
 \seealso{
 Other Time series operations: \code{\link{ts_center}},
-  \code{\link{ts_detrend}}, \code{\link{ts_levels}},
-  \code{\link{ts_peaks}}, \code{\link{ts_slice}},
-  \code{\link{ts_standardise}}, \code{\link{ts_trimfill}}
+  \code{\link{ts_detrend}}, \code{\link{ts_duration}},
+  \code{\link{ts_levels}}, \code{\link{ts_peaks}},
+  \code{\link{ts_slice}}, \code{\link{ts_standardise}},
+  \code{\link{ts_trimfill}}
+
+Other Time series operations: \code{\link{ts_center}},
+  \code{\link{ts_detrend}}, \code{\link{ts_duration}},
+  \code{\link{ts_levels}}, \code{\link{ts_peaks}},
+  \code{\link{ts_slice}}, \code{\link{ts_standardise}},
+  \code{\link{ts_trimfill}}
 }
 \author{
 Fred Hasselman

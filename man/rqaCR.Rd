@@ -56,6 +56,7 @@ A results object containing:
   \code{results$tblRP} \tab \tab \tab \tab \tab a table \cr
   \code{results$tblCRQA} \tab \tab \tab \tab \tab a table \cr
   \code{results$DPplot} \tab \tab \tab \tab \tab an image \cr
+  \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

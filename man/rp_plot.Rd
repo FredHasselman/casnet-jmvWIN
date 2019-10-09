@@ -47,7 +47,6 @@ Plot (thresholded) distance matrix
 }
 \seealso{
 Other Distance matrix operations: \code{\link{bandReplace}},
-  \code{\link{di2bi}}, \code{\link{di2we}},
   \code{\link{dist_hamming}}, \code{\link{rp_lineDist}},
   \code{\link{rp_nzdiags}}, \code{\link{rp_size}},
   \code{\link{rp}}

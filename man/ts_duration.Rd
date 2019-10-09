@@ -10,12 +10,31 @@ ts_duration(y, timeVec = stats::time(y), fs = stats::frequency(y),
 \arguments{
 \item{y}{A time series, numeric vector, or categorical variable.}
 
-\item{timeVec}{A vector, same length as \code{y} containing timestamps, dates, or, sample indices.}
+\item{timeVec}{A vector, same length as `y` containing timestamps, or, sample indices.}
 
-\item{fs}{Optional sampling frequency if timeVec represents sample indices. An extra column \code{duration.fs} will be added which represents \code{1/fs * duration in samples}}
+\item{fs}{Optional sampling frequency if timeVec represents sample indices. An extra column `duration.fs` will be added which represents `1/fs * duration in samples`}
 
-\item{tolerance}{A number \code{tol} indicating a range \code{[y-tol,y+tol]} to consider the same value. Useful when \code{y} is continuous (\code{default = 0})}
+\item{tolerance}{A number `tol` indicating a range `[y-tol,y+tol]` to consider the same value. Useful when `y` is continuous (`default = 0`)}
+}
+\value{
+A data frame
 }
 \description{
 Time series to Duration series
 }
+\examples{
+library(invctr)
+# Create data with events and their timecodes
+coder <- data.frame(beh=c("stare","stare","coffee","type","type","stare"),t=c(0,5,10,15,20,25))
+
+ts_duration(y = coder$beh, timeVec = coder$t)
+
+}
+\seealso{
+Other Time series operations: \code{\link{ts_center}},
+  \code{\link{ts_detrend}}, \code{\link{ts_embed}},
+  \code{\link{ts_levels}}, \code{\link{ts_peaks}},
+  \code{\link{ts_slice}}, \code{\link{ts_standardise}},
+  \code{\link{ts_trimfill}}
+}
+\concept{Time series operations}

@@ -8,14 +8,18 @@ ssgUNIOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         initialize = function(
             y1 = NULL,
             time = NULL,
+            trajectories = NULL,
+            waves = NULL,
+            ssgUNIlag = 1,
             v1_labels = "",
             v1_Nstates = 0,
-            ssgUNIlag = 1,
             MinReturns = 2,
             MaxReturnTime = 0,
             MaxReturnVisits = 0,
             MinEventDuration = 0,
-            MinCellDuration = 0, ...) {
+            MinCellDuration = 0,
+            doWinnowing = FALSE,
+            screeCut = 0.5, ...) {
 
             super$initialize(
                 package='casnetjmv',
@@ -28,9 +32,11 @@ ssgUNIOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 y1,
                 rejectUnusedLevels=FALSE,
                 suggested=list(
-                    "nominal"),
+                    "nominal",
+                    "continuous"),
                 permitted=list(
-                    "factor"),
+                    "factor",
+                    "numeric"),
                 default=NULL)
             private$..time <- jmvcore::OptionVariable$new(
                 "time",
@@ -39,9 +45,27 @@ ssgUNIOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 suggested=list(
                     "ordinal",
                     "continuous"),
-                permitted=list(
-                    "numeric"),
                 default=NULL)
+            private$..trajectories <- jmvcore::OptionVariable$new(
+                "trajectories",
+                trajectories,
+                rejectUnusedLevels=TRUE,
+                suggested=list(
+                    "ordinal",
+                    "nominal"),
+                default=NULL)
+            private$..waves <- jmvcore::OptionVariable$new(
+                "waves",
+                waves,
+                rejectUnusedLevels=TRUE,
+                suggested=list(
+                    "ordinal",
+                    "nominal"),
+                default=NULL)
+            private$..ssgUNIlag <- jmvcore::OptionInteger$new(
+                "ssgUNIlag",
+                ssgUNIlag,
+                default=1)
             private$..v1_labels <- jmvcore::OptionString$new(
                 "v1_labels",
                 v1_labels,
@@ -50,10 +74,6 @@ ssgUNIOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "v1_Nstates",
                 v1_Nstates,
                 default=0)
-            private$..ssgUNIlag <- jmvcore::OptionNumber$new(
-                "ssgUNIlag",
-                ssgUNIlag,
-                default=1)
             private$..MinReturns <- jmvcore::OptionNumber$new(
                 "MinReturns",
                 MinReturns,
@@ -74,40 +94,60 @@ ssgUNIOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "MinCellDuration",
                 MinCellDuration,
                 default=0)
+            private$..doWinnowing <- jmvcore::OptionBool$new(
+                "doWinnowing",
+                doWinnowing,
+                default=FALSE)
+            private$..screeCut <- jmvcore::OptionNumber$new(
+                "screeCut",
+                screeCut,
+                default=0.5)
 
             self$.addOption(private$..y1)
             self$.addOption(private$..time)
+            self$.addOption(private$..trajectories)
+            self$.addOption(private$..waves)
+            self$.addOption(private$..ssgUNIlag)
             self$.addOption(private$..v1_labels)
             self$.addOption(private$..v1_Nstates)
-            self$.addOption(private$..ssgUNIlag)
             self$.addOption(private$..MinReturns)
             self$.addOption(private$..MaxReturnTime)
             self$.addOption(private$..MaxReturnVisits)
             self$.addOption(private$..MinEventDuration)
             self$.addOption(private$..MinCellDuration)
+            self$.addOption(private$..doWinnowing)
+            self$.addOption(private$..screeCut)
         }),
     active = list(
         y1 = function() private$..y1$value,
         time = function() private$..time$value,
+        trajectories = function() private$..trajectories$value,
+        waves = function() private$..waves$value,
+        ssgUNIlag = function() private$..ssgUNIlag$value,
         v1_labels = function() private$..v1_labels$value,
         v1_Nstates = function() private$..v1_Nstates$value,
-        ssgUNIlag = function() private$..ssgUNIlag$value,
         MinReturns = function() private$..MinReturns$value,
         MaxReturnTime = function() private$..MaxReturnTime$value,
         MaxReturnVisits = function() private$..MaxReturnVisits$value,
         MinEventDuration = function() private$..MinEventDuration$value,
-        MinCellDuration = function() private$..MinCellDuration$value),
+        MinCellDuration = function() private$..MinCellDuration$value,
+        doWinnowing = function() private$..doWinnowing$value,
+        screeCut = function() private$..screeCut$value),
     private = list(
         ..y1 = NA,
         ..time = NA,
+        ..trajectories = NA,
+        ..waves = NA,
+        ..ssgUNIlag = NA,
         ..v1_labels = NA,
         ..v1_Nstates = NA,
-        ..ssgUNIlag = NA,
         ..MinReturns = NA,
         ..MaxReturnTime = NA,
         ..MaxReturnVisits = NA,
         ..MinEventDuration = NA,
-        ..MinCellDuration = NA)
+        ..MinCellDuration = NA,
+        ..doWinnowing = NA,
+        ..screeCut = NA)
 )
 
 ssgUNIResults <- if (requireNamespace('jmvcore')) R6::R6Class(
@@ -263,14 +303,18 @@ ssgUNIBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param data .
 #' @param y1 An unordered categorical state variable
 #' @param time A variable indicating time
+#' @param trajectories A variable indicating groups
+#' @param waves A variable indicating measurement occasions
+#' @param ssgUNIlag .
 #' @param v1_labels .
 #' @param v1_Nstates .
-#' @param ssgUNIlag .
 #' @param MinReturns .
 #' @param MaxReturnTime .
 #' @param MaxReturnVisits .
 #' @param MinEventDuration .
 #' @param MinCellDuration .
+#' @param doWinnowing .
+#' @param screeCut .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
@@ -292,39 +336,50 @@ ssgUNI <- function(
     data,
     y1 = NULL,
     time = NULL,
+    trajectories = NULL,
+    waves = NULL,
+    ssgUNIlag = 1,
     v1_labels = "",
     v1_Nstates = 0,
-    ssgUNIlag = 1,
     MinReturns = 2,
     MaxReturnTime = 0,
     MaxReturnVisits = 0,
     MinEventDuration = 0,
-    MinCellDuration = 0) {
+    MinCellDuration = 0,
+    doWinnowing = FALSE,
+    screeCut = 0.5) {
 
     if ( ! requireNamespace('jmvcore'))
         stop('ssgUNI requires jmvcore to be installed (restart may be required)')
 
     if ( ! missing(y1)) y1 <- jmvcore::resolveQuo(jmvcore::enquo(y1))
     if ( ! missing(time)) time <- jmvcore::resolveQuo(jmvcore::enquo(time))
+    if ( ! missing(trajectories)) trajectories <- jmvcore::resolveQuo(jmvcore::enquo(trajectories))
+    if ( ! missing(waves)) waves <- jmvcore::resolveQuo(jmvcore::enquo(waves))
     if (missing(data))
         data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(y1), y1, NULL),
-            `if`( ! missing(time), time, NULL))
+            `if`( ! missing(time), time, NULL),
+            `if`( ! missing(trajectories), trajectories, NULL),
+            `if`( ! missing(waves), waves, NULL))
 
-    for (v in y1) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
 
     options <- ssgUNIOptions$new(
         y1 = y1,
         time = time,
+        trajectories = trajectories,
+        waves = waves,
+        ssgUNIlag = ssgUNIlag,
         v1_labels = v1_labels,
         v1_Nstates = v1_Nstates,
-        ssgUNIlag = ssgUNIlag,
         MinReturns = MinReturns,
         MaxReturnTime = MaxReturnTime,
         MaxReturnVisits = MaxReturnVisits,
         MinEventDuration = MinEventDuration,
-        MinCellDuration = MinCellDuration)
+        MinCellDuration = MinCellDuration,
+        doWinnowing = doWinnowing,
+        screeCut = screeCut)
 
     analysis <- ssgUNIClass$new(
         options = options,

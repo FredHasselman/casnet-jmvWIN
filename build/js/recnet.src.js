@@ -3,7 +3,7 @@
 
 'use strict';
 
-const options = [{"name":"data","type":"Data"},{"name":"y1","title":"Time Series Y1","type":"Variable"},{"name":"standardise","title":"Transform time series?","type":"List","options":[{"name":"none","title":"No transformation"},{"name":"meanSD","title":"Standardise on Mean and SD"},{"name":"medianMAD","title":"Standardise on Median and MAD"},{"name":"unitScale","title":"Scale to Min. and Max. (unit scale)"},{"name":"symbolicScale","title":"Symbolic representation"}],"default":"none"},{"name":"emLag","title":"Embedding lag","type":"Number","default":1},{"name":"emDim","title":"Embedding dimensions","type":"Number","default":1},{"name":"Gweight","title":"Weighted","type":"Bool"},{"name":"Gdirect","title":"Directed","type":"Bool"},{"name":"Glabels","title":"Add labels (time)","type":"Bool"},{"name":"Glayout","title":"Graph layout","type":"List","options":[{"name":"ci","title":"Circle"},{"name":"st","title":"Star"},{"name":"ni","title":"Nicely"},{"name":"tr","title":"Tree"},{"name":"fr","title":"Fruchterman-Reingold"},{"name":"md","title":"Multidimensional scaling"},{"name":"cl","title":"Cluster by segments of time"}]},{"name":"PruneDegree","title":"Prune by node degree","type":"Number","default":0},{"name":"PruneWeight","title":"Prune by edge weight","type":"Number","default":0},{"name":"nsize","title":"Node size","type":"List","default":"degree","options":[{"name":"degree","title":"Node degree"},{"name":"hubscore","title":"Node hubscore"},{"name":"fixed","title":"Same size"}]},{"name":"fixRR","title":"RR","type":"Number","default":0.05},{"name":"fixRAD","title":"Radius","type":"Number","default":0},{"name":"fixed","title":"Fix","type":"List","default":"RAD","options":[{"name":"RR","title":"fixed Radius"},{"name":"RR","title":"fixed Recurrence Rate"},{"name":"NO","title":"Unthresholded"}]},{"type":"Number","title":"Minimum diagonal line length","name":"DLmin","default":2},{"type":"Number","title":"Maximum diagonal line length","name":"DLmax","default":0},{"type":"Number","title":"Minimum vertical line length","name":"VLmin","default":2},{"type":"Number","title":"Maximum vertical line length","name":"VLmax","default":0},{"type":"Number","title":"Minimum horizontal line length","name":"HLmin","default":2},{"type":"Number","title":"Maximum horizontal line length","name":"HLmax","default":0},{"type":"Number","title":"Theiler window","name":"theiler","default":0},{"type":"List","title":"Distance norm","name":"norm","options":[{"title":"euclidean","name":"euclidean"},{"title":"maximum","name":"maximum"},{"title":"manhattan","name":"manhattan"},{"title":"canberra","name":"canberra"},{"title":"binary","name":"binary"},{"title":"minkowski","name":"minkowski"}],"default":"euclidean"}];
+const options = [{"name":"data","type":"Data"},{"name":"y1","title":"Time Series Y1","type":"Variable"},{"name":"standardise","title":"Transform time series?","type":"List","options":[{"name":"none","title":"No transformation"},{"name":"meanSD","title":"Standardise on Mean and SD"},{"name":"medianMAD","title":"Standardise on Median and MAD"},{"name":"unitScale","title":"Scale to Min. and Max. (unit scale)"},{"name":"symbolicScale","title":"Symbolic representation"}],"default":"none"},{"name":"edgeWeight","title":"Edges represent:","type":"List","options":[{"name":"none","title":"Connections (no weights)"},{"name":"si","title":"Distance in Recurrence Matrix"},{"name":"rt","title":"Recurrence Time"},{"name":"rf","title":"Recurrence Time Frequency"}],"default":"none"},{"name":"Glayout","title":"Graph layout","type":"List","options":[{"name":"ar","title":"Archimedean"},{"name":"be","title":"Bernoulli"},{"name":"fe","title":"Fermat"},{"name":"eu","title":"Euler"}]},{"name":"LayoutA","title":"Spiral parameter: a (leave 0 for default)","type":"Number","default":0},{"name":"LayoutB","title":"Spiral parameter: b (leave 0 for default)","type":"Number","default":0},{"name":"Narcs","title":"Spiral parameter: Number of arcs","type":"Number","default":4},{"name":"Glabels","title":"Add labels (time)","type":"Bool","default":true},{"name":"nsize","title":"Node size","type":"List","default":"degree","options":[{"name":"degree","title":"Node degree"},{"name":"strength","title":"Node strength (weighted network)"},{"name":"hubscore","title":"Node hubscore"},{"name":"fixed","title":"Same size"}]},{"name":"PruneDegree","title":"Prune by node degree","type":"Number","default":0},{"name":"PruneWeight","title":"Prune by edge weight","type":"Number","default":0},{"name":"emLag","title":"Embedding lag","type":"Number","default":1},{"name":"emDim","title":"Embedding dimensions","type":"Number","default":1},{"name":"fixRR","title":"RR","type":"Number","default":0.05},{"name":"fixRAD","title":"Radius","type":"Number","default":0},{"name":"fixed","title":"Fix","type":"List","default":"RAD","options":[{"name":"RAD","title":"fixed Radius"},{"name":"RR","title":"fixed Recurrence Rate"},{"name":"NO","title":"Unthresholded"}]},{"type":"Number","title":"Minimum diagonal line length","name":"DLmin","default":2},{"type":"Number","title":"Maximum diagonal line length","name":"DLmax","default":0},{"type":"Number","title":"Minimum vertical line length","name":"VLmin","default":2},{"type":"Number","title":"Maximum vertical line length","name":"VLmax","default":0},{"type":"Number","title":"Minimum horizontal line length","name":"HLmin","default":2},{"type":"Number","title":"Maximum horizontal line length","name":"HLmax","default":0},{"type":"Number","title":"Theiler window","name":"theiler","default":0},{"type":"List","title":"Distance norm","name":"norm","options":[{"title":"euclidean","name":"euclidean"},{"title":"maximum","name":"maximum"},{"title":"manhattan","name":"manhattan"},{"title":"canberra","name":"canberra"},{"title":"binary","name":"binary"},{"title":"minkowski","name":"minkowski"}],"default":"euclidean"}];
 
 const view = function() {
     
@@ -109,39 +109,82 @@ view.layout = ui.extend({
 					margin: "large",
 					controls: [
 						{
-							type: DefaultControls.CheckBox,
-							typeName: 'CheckBox',
-							name: "Gweight"
-						},
+							type: DefaultControls.Label,
+							typeName: 'Label',
+							label: "Edges represent:",
+							controls: [
+								{
+									type: DefaultControls.RadioButton,
+									typeName: 'RadioButton',
+									name: "edgeWeigth_none",
+									optionName: "edgeWeight",
+									optionPart: "none"
+								},
+								{
+									type: DefaultControls.RadioButton,
+									typeName: 'RadioButton',
+									name: "edgeWeigth_si",
+									optionName: "edgeWeight",
+									optionPart: "si"
+								},
+								{
+									type: DefaultControls.RadioButton,
+									typeName: 'RadioButton',
+									name: "edgeWeigth_rt",
+									optionName: "edgeWeight",
+									optionPart: "rt"
+								},
+								{
+									type: DefaultControls.RadioButton,
+									typeName: 'RadioButton',
+									name: "edgeWeigth_rf",
+									optionName: "edgeWeight",
+									optionPart: "rf"
+								}
+							]
+						}
+					]
+				},
+				{
+					type: DefaultControls.LayoutBox,
+					typeName: 'LayoutBox',
+					margin: "large",
+					controls: [
 						{
-							type: DefaultControls.CheckBox,
-							typeName: 'CheckBox',
-							name: "Gdirect"
-						},
-						{
-							type: DefaultControls.CheckBox,
-							typeName: 'CheckBox',
-							name: "Glabels"
-						},
-						{
-							type: DefaultControls.ComboBox,
-							typeName: 'ComboBox',
-							label: "Graph layout",
-							name: "Glayout"
-						},
-						{
-							type: DefaultControls.TextBox,
-							typeName: 'TextBox',
-							label: "Prune by node degree",
-							name: "PruneDegree",
-							format: FormatDef.number
-						},
-						{
-							type: DefaultControls.TextBox,
-							typeName: 'TextBox',
-							label: "Prune by edge weight",
-							name: "PruneWeight",
-							format: FormatDef.number
+							type: DefaultControls.Label,
+							typeName: 'Label',
+							label: "Spiral layout",
+							controls: [
+								{
+									type: DefaultControls.ComboBox,
+									typeName: 'ComboBox',
+									label: "Graph layout",
+									name: "Glayout"
+								},
+								{
+									type: DefaultControls.TextBox,
+									typeName: 'TextBox',
+									name: "LayoutA",
+									format: FormatDef.number
+								},
+								{
+									type: DefaultControls.TextBox,
+									typeName: 'TextBox',
+									name: "LayoutB",
+									format: FormatDef.number
+								},
+								{
+									type: DefaultControls.TextBox,
+									typeName: 'TextBox',
+									name: "Narcs",
+									format: FormatDef.number
+								},
+								{
+									type: DefaultControls.CheckBox,
+									typeName: 'CheckBox',
+									name: "Glabels"
+								}
+							]
 						}
 					]
 				},
@@ -163,6 +206,13 @@ view.layout = ui.extend({
 									optionPart: "degree"
 								},
 								{
+									name: "nsize_strength",
+									type: DefaultControls.RadioButton,
+									typeName: 'RadioButton',
+									optionName: "nsize",
+									optionPart: "strength"
+								},
+								{
 									type: DefaultControls.RadioButton,
 									typeName: 'RadioButton',
 									name: "nsize_hub",
@@ -179,14 +229,42 @@ view.layout = ui.extend({
 							]
 						}
 					]
+				},
+				{
+					type: DefaultControls.LayoutBox,
+					typeName: 'LayoutBox',
+					margin: "large",
+					controls: [
+						{
+							type: DefaultControls.Label,
+							typeName: 'Label',
+							label: "Remove nodes/edges",
+							controls: [
+								{
+									type: DefaultControls.TextBox,
+									typeName: 'TextBox',
+									label: "Prune by node degree",
+									name: "PruneDegree",
+									format: FormatDef.number
+								},
+								{
+									type: DefaultControls.TextBox,
+									typeName: 'TextBox',
+									label: "Prune by edge weight",
+									name: "PruneWeight",
+									format: FormatDef.number
+								}
+							]
+						}
+					]
 				}
 			]
 		},
 		{
 			type: DefaultControls.CollapseBox,
 			typeName: 'CollapseBox',
-			label: "Recurrence Matrix",
-			collapsed: true,
+			label: "Phase Space Parameters",
+			collapsed: false,
 			controls: [
 				{
 					type: DefaultControls.TextBox,
@@ -207,9 +285,11 @@ view.layout = ui.extend({
 					margin: "large",
 					controls: [
 						{
-							type: DefaultControls.LayoutBox,
-							typeName: 'LayoutBox',
-							margin: "large",
+							type: DefaultControls.RadioButton,
+							typeName: 'RadioButton',
+							name: "fixed_RAD",
+							optionName: "fixed",
+							optionPart: "RAD",
 							controls: [
 								{
 									type: DefaultControls.TextBox,

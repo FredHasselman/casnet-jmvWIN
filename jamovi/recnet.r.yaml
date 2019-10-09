@@ -52,8 +52,7 @@ items:
           - theiler
           - norm
           - standardise
-          - Gweight
-
+          - edgeWeight
 
     - name: rnetplot
       title: "Recurrence Network"
@@ -78,16 +77,16 @@ items:
         - fixed
         - theiler
         - norm
-        - Gdirect
-        - Gweight
         - Glayout
         - standardise
         - nsize
         - Glabels
         - PruneDegree
         - PruneWeight
-
-
-
+        - Glayout
+        - LayoutA
+        - LayoutB
+        - Narcs
+        - edgeWeight
 
 ...

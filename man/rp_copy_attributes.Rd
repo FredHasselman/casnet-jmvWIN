@@ -18,5 +18,5 @@ rp_copy_attributes(source, target, source_remove = c("names",
 The target matrix with attributes copied deom the source matrix.
 }
 \description{
-Simple attribute copy used in \code{casnet} to convert between \code{matrix} and \code{Matrix} classes and back.
+Simple attribute copy used in `casnet` to convert between `matrix` and `Matrix` classes and back.
 }

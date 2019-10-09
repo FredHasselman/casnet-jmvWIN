@@ -4,6 +4,7 @@ title: Cross RQA
 jrs:   '1.1'
 
 items:
+
     - name:  tblTS
       title: "Time series descriptives"
       type: Table
@@ -177,5 +178,10 @@ items:
         - plotDP
         - diagWin
         - standardise
+
+    - name: warnings
+      type: Preformatted
+      title: "Notes"
+
 
 ...

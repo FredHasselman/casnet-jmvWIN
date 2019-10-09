@@ -44,8 +44,6 @@ options:
       suggested:
         - ordinal
         - continuous
-      permitted:
-        - numeric
       default:
       description:
           R: A variable indicating time
@@ -57,8 +55,6 @@ options:
       suggested:
         - ordinal
         - nominal
-      permitted:
-        - factor
       default:
       description:
           R: A variable indicating groups
@@ -70,8 +66,6 @@ options:
       suggested:
         - ordinal
         - nominal
-      permitted:
-        - factor
       default:
       description:
           R: A variable indicating measurement occasions
