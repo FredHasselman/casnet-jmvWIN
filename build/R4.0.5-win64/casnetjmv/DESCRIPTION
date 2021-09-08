@@ -1,0 +1,29 @@
+Package: casnetjmv
+Title: CASNET
+Version: 0.1.0
+Authors@R: c(person(given = "Fred", family = "Hasselman", email = "fred.hasselman@ru.nl", role = c("aut", "cre","cph"), comment = c(ORCID = "0000-0003-1384-8361")), person(given = "Merlijn", family = "Olthof", email = "m.olthof@pwo.ru.nl", role = "ctb"))
+Maintainer: Fred Hasselman <fred.hasselman@ru.nl>
+Description: JAMOVI Module. A collection of analytic tools for studying signals recorded from complex adaptive systems or networks: (Cross) Recurrence Quantification Analyses (Continuous and Categorical (C)RQA, Chromatic RQA, Anisotropic RQA). Fluctuation Analyses (DFA, PSD slope, SDA, Multifractal DFA, Wavelet Singularity Spectrum). Network based time series analyses and visualisation (Recurrence Networks, spiral graphs). Multivariate (network based) time series analyses (Dynamic Complexity, Multiplex Recurrence Networks).    
+Year: 2020
+License: GPL-3 + file LICENSE
+Depends: R (>= 3.5.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr
+Imports: plyr, dplyr, tidyr, lubridate, magrittr, tibble, gtable,
+        ggplot2, ggimage, igraph, Matrix, nonlinearTseries, pracma,
+        proxy, invctr, scales, signal, tseries, rlang (>= 0.1.2),
+        methods, splus2R
+Suggests: xts, zoo, boot, parallel, rio, pROC, rpart, progress,
+        animation, gganimate, png, knitr, rmarkdown, graphics,
+        grDevices, gridExtra, stats, utils, devtools, tidyverse,
+        testthat, raster, mice, imputeTS, roxygen2, cowplot, lattice,
+        kableExtra, DirectedClustering, brainGraph, infotheo,
+        stabledist, partykit, tidyselect
+Language: en-US
+Author: Fred Hasselman [aut, cre, cph]
+    (<https://orcid.org/0000-0003-1384-8361>),
+  Merlijn Olthof [ctb]
+Built: R 4.0.5; ; 2021-09-08 13:17:50 UTC; windows

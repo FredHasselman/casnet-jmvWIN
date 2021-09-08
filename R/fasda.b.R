@@ -66,15 +66,23 @@ faSDAClass <- if (requireNamespace("jmvcore")) {
 
             results <- fd_sda(y=data[[y1]],
                               fs = NULL,
+                              standardise = standardise,
                               detrend = detrend,
                               polyOrder= polyOrder,
-                              standardise = standardise,
                               adjustSumOrder = self$options$sumORDER,
                               scaleMin = scaleMin,
                               scaleMax = scaleMax,
                               scaleResolution = self$options$scaleRES,
-                              scaleS = NA, overlap = 0, minData = self$options$scaleExclude, doPlot = FALSE, returnPlot = TRUE,
-                              returnPLAW = TRUE, returnInfo = FALSE, silent = TRUE, noTitle = TRUE, tsName = y1)
+                              scaleS = NA,
+                              overlap = 0,
+                              minData = self$options$scaleExclude,
+                              doPlot = FALSE,
+                              returnPlot = TRUE,
+                              returnPLAW = TRUE,
+                              returnInfo = FALSE,
+                              silent = TRUE,
+                              noTitle = TRUE,
+                              tsName = y1)
 
 
             # Descriptives ----
@@ -91,15 +99,17 @@ faSDAClass <- if (requireNamespace("jmvcore")) {
                              sd = stats::sd(data[[y1]],na.rm = TRUE),
                              standardise = standardise))
 
+            y_ori <- results$plots$g1$data$y
+
             tableTS$setRow(rowNo=2,
                            values=list(
                              var = paste(y1,""),
-                             N   = NROW(na.omit(results[[2]]$y)),
+                             N   = NROW(na.omit(y_ori)),
                              na  = sum(is.na(data[[y1]])),
-                             median = stats::median(results[[2]]$y,na.rm = TRUE),
-                             mad = stats::mad(results[[2]]$y,na.rm = TRUE),
-                             mean = mean(results[[2]]$y,na.rm = TRUE),
-                             sd = stats::sd(results[[2]]$y,na.rm = TRUE),
+                             median = stats::median(y_ori,na.rm = TRUE),
+                             mad = stats::mad(y_ori,na.rm = TRUE),
+                             mean = mean(y_ori,na.rm = TRUE),
+                             sd = stats::sd(y_ori,na.rm = TRUE),
                              standardise = ""))
 
             # SDA ----
@@ -131,7 +141,8 @@ faSDAClass <- if (requireNamespace("jmvcore")) {
             #self$results$DFAout$setContent(results)
 
             tsImage <- self$results$tsplot
-            tsImage$setState(results$plots$g1)
+            #tsImage$setState(results$plots$g1)
+            tsImage$setState(results$tsdata)
 
             sdaImage <- self$results$sdaplot
             sdaImage$setState(results$plots$g2)
@@ -147,8 +158,23 @@ faSDAClass <- if (requireNamespace("jmvcore")) {
 
         if(is.null(self$options$y1)){return(FALSE)}
 
-        g1 <- tsImage$state
-        print(g1)
+        # g1 <- tsImage$state
+        # print(g1)
+
+        tsData <- tsImage$state
+
+        plot <- ggplot2::ggplot(tsData, ggplot2::aes_(x=~x,y=~y)) +
+          ggplot2::geom_line() +
+          ggplot2::facet_grid(label ~ ., scales = "free") +
+          ggplot2::scale_x_continuous("Time", expand=c(0,0)) +
+          ggplot2::scale_y_continuous("", expand=c(0,0)) +
+          # ggplot2::ggtitle(label = title,
+          #                 subtitle = paste0("Standardisation: ",standardise, " | Detrended: ",ifelse(detrend,paste("Yes (order = ",polyOrder),"No"))) +
+          ggplot2::theme_bw() +
+          ggplot2::theme(strip.text = ggplot2::element_text(face="bold"))
+
+        #print(g1)
+        print(plot)
         TRUE
       },
 

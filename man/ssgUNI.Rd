@@ -4,11 +4,23 @@
 \alias{ssgUNI}
 \title{Univariate State Space Grid}
 \usage{
-ssgUNI(data, y1 = NULL, time = NULL, trajectories = NULL,
-  waves = NULL, ssgUNIlag = 1, v1_labels = "", v1_Nstates = 0,
-  MinReturns = 2, MaxReturnTime = 0, MaxReturnVisits = 0,
-  MinEventDuration = 0, MinCellDuration = 0, doWinnowing = FALSE,
-  screeCut = 0.5)
+ssgUNI(
+  data,
+  y1 = NULL,
+  time = NULL,
+  trajectories = NULL,
+  waves = NULL,
+  ssgUNIlag = 1,
+  v1_labels = "",
+  v1_Nstates = 0,
+  MinReturns = 2,
+  MaxReturnTime = 0,
+  MaxReturnVisits = 0,
+  MinEventDuration = 0,
+  MinCellDuration = 0,
+  doWinnowing = FALSE,
+  screeCut = 0.5
+)
 }
 \arguments{
 \item{data}{.}
@@ -44,12 +56,12 @@ ssgUNI(data, y1 = NULL, time = NULL, trajectories = NULL,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$SSGplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$tblSSG} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblSSGstates} \tab \tab \tab \tab \tab a table \cr
+\code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$SSGplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblSSG} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblSSGstates} \tab \tab \tab \tab \tab a table \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

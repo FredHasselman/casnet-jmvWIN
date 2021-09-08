@@ -4,8 +4,7 @@
 \alias{tsSUR}
 \title{Generate random surrogates}
 \usage{
-tsSUR(data, y1, surmethod = "choose", numSUR = 1, Save = FALSE,
-  savePath = "")
+tsSUR(data, y1, surmethod = "choose", numSUR = 1, Save = FALSE, savePath = "")
 }
 \arguments{
 \item{data}{.}
@@ -23,9 +22,9 @@ tsSUR(data, y1, surmethod = "choose", numSUR = 1, Save = FALSE,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$surplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$savemessage} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$surplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$savemessage} \tab \tab \tab \tab \tab a preformatted \cr
 }
 }
 \description{

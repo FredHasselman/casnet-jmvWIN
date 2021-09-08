@@ -1,11 +1,11 @@
 ---
 title: CASNET
 name: casnetjmv
-version: 0.0.9
+version: 0.1.0
 jms: '1.0'
 authors:
   - Fred Hasselman
-maintainer: Fred Hasselman <f.hasselman@bsi.ru.nl>
+maintainer: Fred Hasselman <fred.hasselman@ru.nl>
 date: '2019-08-01'
 type: R
 description: >-
@@ -89,6 +89,14 @@ analyses:
     menuTitle: Cross RQA
     menuSubtitle: null
     description: null
+  - title: Dynamic Complexity
+    name: dcomp
+    ns: casnetjmv
+    menuGroup: casnetjmv
+    menuSubgroup: Multivariate Time Series
+    menuTitle: Dynamic Complexity
+    menuSubtitle: null
+    description: null
   - title: Recurrence Networks
     name: recNet
     ns: casnetjmv
@@ -104,5 +112,7 @@ analyses:
     menuSubgroup: Time series features
     menuTitle: Generate random surrogates
     menuSubtitle: shuffle | block | AAFT
+usesNative: true
+minApp: 1.0.8
 
 ...

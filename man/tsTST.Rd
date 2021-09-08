@@ -4,9 +4,20 @@
 \alias{tsTST}
 \title{Statistical Tests of Data Assumptions}
 \usage{
-tsTST(data, y1, jb = FALSE, bTRND = FALSE, bSOSC = FALSE,
-  bVON = FALSE, adf = FALSE, kpssLVL = FALSE, kpssTRND = FALSE,
-  csd = FALSE, csu = FALSE, csdu = FALSE)
+tsTST(
+  data,
+  y1,
+  jb = FALSE,
+  bTRND = FALSE,
+  bSOSC = FALSE,
+  bVON = FALSE,
+  adf = FALSE,
+  kpssLVL = FALSE,
+  kpssTRND = FALSE,
+  csd = FALSE,
+  csu = FALSE,
+  csdu = FALSE
+)
 }
 \arguments{
 \item{data}{.}
@@ -36,16 +47,16 @@ tsTST(data, y1, jb = FALSE, bTRND = FALSE, bSOSC = FALSE,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$jbOut} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$bTRNDout} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$bSOSCout} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$bVONout} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$adfOut} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$kpssLVLout} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$kpssTRNDout} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$csdOut} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$csuOut} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$csduOut} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$jbOut} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$bTRNDout} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$bSOSCout} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$bVONout} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$adfOut} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$kpssLVLout} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$kpssTRNDout} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$csdOut} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$csuOut} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$csduOut} \tab \tab \tab \tab \tab a preformatted \cr
 }
 }
 \description{

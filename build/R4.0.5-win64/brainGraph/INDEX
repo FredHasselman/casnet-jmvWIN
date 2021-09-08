@@ -1,0 +1,102 @@
+Atlas Helpers           Atlas helper functions
+Attributes              Set graph, vertex, and edge attributes common
+                        in MRI analyses
+Bootstrapping           Bootstrapping for global graph measures
+Brain Atlases           Coordinates for data from brain atlases
+Count Edges             Count number of edges of a brain graph
+Creating_Graphs         Create a brainGraph object
+Creating_Graphs_GLM     Create a graph list with GLM-specific
+                        attributes
+GLM                     Fit General Linear Models at each vertex of a
+                        graph
+GLM basic info          Extract basic information from a bg_GLM object
+GLM design              Create a design matrix for linear model
+                        analysis
+GLM fits                Fit design matrices to one or multiple outcomes
+GLM influence measures
+                        Influence measures for a bg_GLM object
+GLM model selection     Model selection for bg_GLM objects
+GLM statistics          Extract model fit statistics from a bg_GLM
+                        object
+Graph Data Tables       Create a data table with graph global and
+                        vertex measures
+Graph Distances         Calculate Euclidean distance of edges and
+                        vertices
+IndividualContributions
+                        Approaches to estimate individual network
+                        contribution
+Inverse                 Calculate the inverse of the cross product of a
+                        design matrix
+Matrix utilities        Matrix/array utility functions
+Mediation               Mediation analysis with brain graph measures as
+                        mediator variables
+NBS                     Network-based statistic for brain MRI data
+Plotting GLM graphs     Plot a graph with results from GLM-based
+                        analyses
+Random Graphs           Perform an analysis with random graphs for
+                        brain MRI data
+Residuals               Linear model residuals in structural covariance
+                        networks
+Rich Club               Rich club calculations
+Vertex Roles            Gateway coefficient, participation coefficient,
+                        and within-mod degree z-score
+apply_thresholds        Threshold additional set of matrices
+brainGraph              Default options for brainGraph
+brainGraph-methods      brainGraph generic methods
+brainGraphList          Create a list of brainGraph graphs
+brainGraph_permute      Permutation test for group difference of graph
+                        measures
+centr_betw_comm         Calculate communicability betweenness
+                        centrality
+centr_lev               Calculate a vertex's leverage centrality
+check_sID               Test if an object is a character vector of
+                        numbers
+coeff_var               Calculate coefficient of variation
+communicability         Calculate communicability
+contract_brainGraph     Contract graph vertices based on brain lobe and
+                        hemisphere
+cor.diff.test           Calculate the p-value for differences in
+                        correlation coefficients
+corr.matrix             Calculate correlation matrix and threshold
+create_mats             Create connection matrices for tractography or
+                        fMRI data
+edge_asymmetry          Calculate an asymmetry index based on edge
+                        counts
+efficiency              Calculate graph global, local, or nodal
+                        efficiency
+hubness                 Calculate vertex hubness
+import_scn              Import data for structural connectivity
+                        analysis
+make_auc_brainGraph     Calculate the AUC across densities of given
+                        attributes
+make_ego_brainGraph     Create a graph of the union of multiple vertex
+                        neighborhoods
+make_intersection_brainGraph
+                        Create the intersection of graphs based on a
+                        logical condition
+mean_distance_wt        Calculate weighted shortest path lengths
+mtpc                    Multi-threshold permutation correction
+plot.brainGraph         Plot a brain graph with a specific spatial
+                        layout
+plot.brainGraphList     Plot a brainGraphList and write to PDF
+plot_brainGraph_gui     GUI for plotting graphs overlaid on an MNI152
+                        image or in a circle
+plot_brainGraph_multi   Save PNG of one or three views for all graphs
+                        in a brainGraphList
+plot_global             Plot global graph measures across densities
+plot_rich_norm          Plot normalized rich club coefficients against
+                        degree threshold
+plot_vertex_measures    Plot vertex-level graph measures at a single
+                        density or threshold
+plot_volumetric         Plot group distributions of volumetric measures
+                        for a given brain region
+randomise               GLM non-parametric permutation testing
+rich_club_attrs         Assign graph attributes based on rich-club
+                        analysis
+robustness              Analysis of network robustness
+s_core                  Calculate the s-core of a network
+small.world             Calculate graph small-worldness
+vif.bg_GLM              Variance inflation factors for 'bg_GLM' objects
+vulnerability           Calculate graph vulnerability
+write_brainnet          Write files to be used for visualization with
+                        BrainNet Viewer

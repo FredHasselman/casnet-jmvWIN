@@ -1,0 +1,70 @@
+FFTsurrogate            Generate surrogate data using the Fourier
+                        transform
+buildTakens             Build the Takens' vectors
+cliffordMap             Clifford map
+contourLines            Obtain the contour lines of the space time
+                        plot.
+corrDim                 Correlation sum, correlation dimension and
+                        generalized correlation dimension (order q >1).
+corrMatrix              Returns the correlation sums stored in the
+                        _corrDim_ object
+dfa                     Detrended Fluctuation Analysis
+divTime                 Returns the time in which the divergence of
+                        close trajectories was computed in order to
+                        estimate the maximum Lyapunov exponent.
+divergence              Returns the rate of divergence of close
+                        trajectories needed for the maximum Lyapunov
+                        exponent estimation.
+embeddingDims           Get the embedding dimensions used for compute a
+                        chaotic invariant.
+estimate                Estimate several chaotic invariants using
+                        linear regression
+estimateEmbeddingDim    Estimate the embedding dimension
+findAllNeighbours       neighbour search
+fixedMass               fixed mass
+fluctuationFunction     Returns the fluctuation function obtained in a
+                        DFA and represented by a _dfa_ object.
+gaussMap                Gauss map
+getContourLines         Obtain the contour lines of the space time
+                        plot.
+henon                   Henon map
+ikedaMap                Ikeda map
+infDim                  Information dimension
+keenanTest              Keenan's test
+logRadius               Obtain the the average log(radius) computed on
+                        the information dimension algorithm.
+logisticMap             Logistic map
+lorenz                  Lorenz system
+maxLyapunov             Maximum lyapunov exponent
+mcleodLiTest            McLeod-Li test
+mutualInformation       Average Mutual Information (AMI)
+neighbourSearch         neighbour search
+nlOrder                 Get the order of the nonlinear chaotic
+                        invariant.
+nonLinearNoiseReduction
+                        Nonlinear noise reduction
+nonLinearPrediction     Nonlinear time series prediction
+nonlinearityTest        Nonlinearity test
+plotLocalScalingExp     Plot local scaling exponents
+poincareMap             Poincare map
+radius                  Get the radius of the neighborhoods used for
+                        the computations of a chaotic invariant.
+recurrencePlot          Recurrence Plot
+rossler                 Rossler system
+rqa                     Recurrence Quantification Analysis (RQA)
+sampleEntropy           Sample Entropy (also known as Kolgomorov-Sinai
+                        Entropy)
+sampleEntropyFunction   Returns the sample entropy function h_q(m,r)
+                        used for the computations of the sample
+                        entropy.
+sinaiMap                Sinai map
+spaceTimePlot           Space Time plot
+surrogateTest           Surrogate data testing
+thresholdTest           Threshold nonlinearity test
+timeAsymmetry           Time Reversibility statistic
+timeAsymmetry2          Time Reversibility statistic
+timeLag                 Estimate an appropiate time lag for the Takens'
+                        vectors
+tsayTest                Tsay's test
+windowSizes             Returns the window sizes used for DFA in a
+                        _dfa_ object.

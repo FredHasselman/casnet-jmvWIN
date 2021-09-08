@@ -1,6 +1,6 @@
 title: Linear Temporal Correlations
 name: tsACF
-jus: '2.0'
+jus: '3.0'
 stage: 0
 compilerMode: tame
 children:

@@ -4,11 +4,25 @@
 \alias{ssgBI}
 \title{Bivariate State Space Grid}
 \usage{
-ssgBI(data, y1 = NULL, y2 = NULL, time = NULL, trajectories = NULL,
-  waves = NULL, v1_labels = "", v1_Nstates = 0, v2_labels = "",
-  v2_Nstates = 0, MinReturns = 2, MaxReturnTime = 0,
-  MaxReturnVisits = 0, MinEventDuration = 0, MinCellDuration = 0,
-  doWinnowing = FALSE, screeCut = 0.5)
+ssgBI(
+  data,
+  y1 = NULL,
+  y2 = NULL,
+  time = NULL,
+  trajectories = NULL,
+  waves = NULL,
+  v1_labels = "",
+  v1_Nstates = 0,
+  v2_labels = "",
+  v2_Nstates = 0,
+  MinReturns = 2,
+  MaxReturnTime = 0,
+  MaxReturnVisits = 0,
+  MinEventDuration = 0,
+  MinCellDuration = 0,
+  doWinnowing = FALSE,
+  screeCut = 0.5
+)
 }
 \arguments{
 \item{data}{.}
@@ -48,14 +62,14 @@ ssgBI(data, y1 = NULL, y2 = NULL, time = NULL, trajectories = NULL,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$SSGplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$tblSSG} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblSSGtrajectories} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblSSGstates} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblSSGattractors} \tab \tab \tab \tab \tab a table \cr
+\code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$SSGplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblSSG} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblSSGtrajectories} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblSSGstates} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblSSGattractors} \tab \tab \tab \tab \tab a table \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

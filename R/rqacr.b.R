@@ -218,7 +218,7 @@ rqaCRClass <- if (requireNamespace('jmvcore')) {
             #if(emRad<=0){emRad<-emRad+.Machine$double.eps}
           }
           if(self$options$fixed%in%"RR"){
-            emRad <- crqa_radius(y1 = tsData$y1, y2 = tsData$y2, emLag = emLag, emDim = emDim, targetValue = self$options$fixRR)$Radius
+            emRad <- est_radius(y1 = tsData$y1, y2 = tsData$y2, emLag = emLag, emDim = emDim, targetValue = self$options$fixRR)$Radius
           }
           if(self$options$fixed%in%"NO"){
             RM <- rp(y1 = tsData$y1,
@@ -247,13 +247,12 @@ rqaCRClass <- if (requireNamespace('jmvcore')) {
             HLmax <- length(Matrix::diag(RM))-1
           }
 
-          crqa_all <- crqa_rp(RM = RM, emRad = emRad,
+          crqa_out <- rp_measures(RM = RM, emRad = emRad,
                               DLmin = self$options$DLmin, DLmax = DLmax,
                               VLmin = self$options$VLmin, VLmax = VLmax,
                               HLmin = self$options$HLmin, HLmax = HLmax,
-                              theiler = self$options$theiler,
-                              matrices = TRUE)
-          crqa_out <- crqa_all$crqaMeasures
+                              theiler = self$options$theiler)
+          #crqa_out <- crqa_all$crqaMeasures
 
           RPtable <- self$results$tblRP
 
@@ -261,7 +260,7 @@ rqaCRClass <- if (requireNamespace('jmvcore')) {
                          values = list(
                            emRad = emRad,
                            RP = crqa_out$RP_N,
-                           RN = rp_size(RM, AUTO=FALSE),
+                           RN = rp_size(RM)$rp_size_theiler,
                            RR = crqa_out$RR,
                            SING = crqa_out$SING_N,
                            DIV = crqa_out$DIV_dl,
@@ -376,7 +375,7 @@ rqaCRClass <- if (requireNamespace('jmvcore')) {
 
             dp <- dpImage$state
 
-            dppl <-  crqa_diagPofile(dp,diagWin = self$options$diagWin,  xname = self$options$y1, yname = self$options$y2)
+            dppl <-  rp_diagPofile(dp,diagWin = self$options$diagWin,  xname = self$options$y1, yname = self$options$y2)
 
             print(dppl)
             TRUE

@@ -1,0 +1,9 @@
+ClustBCG                Clustering Coefficient for Directed/Undirected
+                        and Weighted Networks (Barrat et al. (2004) and
+                        Clemente, Grassi (2018) coefficients).
+ClustF                  Clustering Coefficients for Directed/Undirected
+                        and Weighted Networks (Onnela et al. (2005) and
+                        Fagiolo (2007) coefficients)
+DirectedClustering-package
+                        Alternative Clustering Coefficients for
+                        Directed/Undirected and Weighted Networks

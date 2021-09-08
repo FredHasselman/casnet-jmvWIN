@@ -7,10 +7,10 @@ const options = [{"name":"data","type":"Data"},{"name":"dv1","title":"Time serie
 
 const view = function() {
     
-    
+    this.handlers = { }
 
     View.extend({
-        jus: "2.0",
+        jus: "3.0",
 
         events: [
 
@@ -22,7 +22,7 @@ const view = function() {
 view.layout = ui.extend({
 
     label: "Linear Temporal Correlations",
-    jus: "2.0",
+    jus: "3.0",
     type: "root",
     stage: 0, //0 - release, 1 - development, 2 - proposed
     controls: [

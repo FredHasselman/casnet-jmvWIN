@@ -1,0 +1,652 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>R: Graph Theory Analysis of Brain MRI Data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+<h1> Graph Theory Analysis of Brain MRI Data
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;brainGraph&rsquo; version 3.0.0</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<p style="text-align: center;">
+<a href="# "> </a>
+<a href="#A">A</a>
+<a href="#B">B</a>
+<a href="#C">C</a>
+<a href="#D">D</a>
+<a href="#E">E</a>
+<a href="#F">F</a>
+<a href="#G">G</a>
+<a href="#H">H</a>
+<a href="#I">I</a>
+<a href="#L">L</a>
+<a href="#M">M</a>
+<a href="#N">N</a>
+<a href="#P">P</a>
+<a href="#Q">Q</a>
+<a href="#R">R</a>
+<a href="#S">S</a>
+<a href="#T">T</a>
+<a href="#V">V</a>
+<a href="#W">W</a>
+<a href="#X">X</a>
+<a href="#misc">misc</a>
+</p>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="brainGraph.html">brainGraph-package</a></td>
+<td>Default options for brainGraph</td></tr>
+</table>
+
+<h2><a name="A">-- A --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="brain_atlases.html">aal116</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">aal2.120</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">aal2.94</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">aal90</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="random_graphs.html">analysis_random_graphs</a></td>
+<td>Perform an analysis with random graphs for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">anova.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="individ_contrib.html">aop</a></td>
+<td>Approaches to estimate individual network contribution</td></tr>
+<tr><td style="width: 25%;"><a href="apply_thresholds.html">apply_thresholds</a></td>
+<td>Threshold additional set of matrices</td></tr>
+<tr><td style="width: 25%;"><a href="atlas_helpers.html">as_atlas</a></td>
+<td>Atlas helper functions</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">as_brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="atlas_helpers.html">Atlas Helpers</a></td>
+<td>Atlas helper functions</td></tr>
+<tr><td style="width: 25%;"><a href="attributes.html">Attributes</a></td>
+<td>Set graph, vertex, and edge attributes common in MRI analyses</td></tr>
+</table>
+
+<h2><a name="B">-- B --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="mediation.html">bg_to_mediate</a></td>
+<td>Mediation analysis with brain graph measures as mediator variables</td></tr>
+<tr><td style="width: 25%;"><a href="Bootstrapping.html">Bootstrapping</a></td>
+<td>Bootstrapping for global graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">Brain Atlases</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph.html">brainGraph</a></td>
+<td>Default options for brainGraph</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">brainGraph-methods</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph.html">brainGraph-options</a></td>
+<td>Default options for brainGraph</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="Bootstrapping.html">brainGraph_boot</a></td>
+<td>Bootstrapping for global graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="glm.html">brainGraph_GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="glm_design.html">brainGraph_GLM_design</a></td>
+<td>Create a design matrix for linear model analysis</td></tr>
+<tr><td style="width: 25%;"><a href="mediation.html">brainGraph_mediate</a></td>
+<td>Mediation analysis with brain graph measures as mediator variables</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph_permute.html">brainGraph_permute</a></td>
+<td>Permutation test for group difference of graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">brainnetome</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">brainsuite</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+</table>
+
+<h2><a name="C">-- C --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_info.html">case.names.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">case.names.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">case.names.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">case.names.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="centr_betw_comm.html">centr_betw_comm</a></td>
+<td>Calculate communicability betweenness centrality</td></tr>
+<tr><td style="width: 25%;"><a href="centr_lev.html">centr_lev</a></td>
+<td>Calculate a vertex's leverage centrality</td></tr>
+<tr><td style="width: 25%;"><a href="pad_zeros.html">check_sID</a></td>
+<td>Test if an object is a character vector of numbers</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">coef.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">coeff_determ</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">coeff_table</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="coeff_var.html">coeff_var</a></td>
+<td>Calculate coefficient of variation</td></tr>
+<tr><td style="width: 25%;"><a href="coeff_var.html">coeff_var.default</a></td>
+<td>Calculate coefficient of variation</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">colMax</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">colMaxAbs</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">colMin</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="communicability.html">communicability</a></td>
+<td>Calculate communicability</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">confint.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="contract_brainGraph.html">contract_brainGraph</a></td>
+<td>Contract graph vertices based on brain lobe and hemisphere</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">cooks.distance.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="cor.diff.test.html">cor.diff.test</a></td>
+<td>Calculate the p-value for differences in correlation coefficients</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">corr.matrix</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+<tr><td style="width: 25%;"><a href="count_edges.html">Count Edges</a></td>
+<td>Count number of edges of a brain graph</td></tr>
+<tr><td style="width: 25%;"><a href="count_edges.html">count_homologous</a></td>
+<td>Count number of edges of a brain graph</td></tr>
+<tr><td style="width: 25%;"><a href="count_edges.html">count_inter</a></td>
+<td>Count number of edges of a brain graph</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">covratio.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">craddock200</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="atlas_helpers.html">create_atlas</a></td>
+<td>Atlas helper functions</td></tr>
+<tr><td style="width: 25%;"><a href="create_mats.html">create_mats</a></td>
+<td>Create connection matrices for tractography or fMRI data</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">Creating_Graphs</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_brainGraphList.html">Creating_Graphs_GLM</a></td>
+<td>Create a graph list with GLM-specific attributes</td></tr>
+</table>
+
+<h2><a name="D">-- D --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="brain_atlases.html">destrieux</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">destrieux.scgm</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">deviance.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">df.residual.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">df.residual.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">df.residual.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">dfbeta.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">dfbetas.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">dffits.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">diag_sq</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">dk</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">dk.scgm</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">dkt</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">dkt.scgm</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">dosenbach160</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+</table>
+
+<h2><a name="E">-- E --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="edge_asymmetry.html">edge_asymmetry</a></td>
+<td>Calculate an asymmetry index based on edge counts</td></tr>
+<tr><td style="width: 25%;"><a href="spatial_dist.html">edge_spatial_dist</a></td>
+<td>Calculate Euclidean distance of edges and vertices</td></tr>
+<tr><td style="width: 25%;"><a href="efficiency.html">efficiency</a></td>
+<td>Calculate graph global, local, or nodal efficiency</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">Extract.brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">Extract.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">Extract.corr_mats</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+<tr><td style="width: 25%;"><a href="glm_model_select.html">extractAIC.bg_GLM</a></td>
+<td>Model selection for bg_GLM objects</td></tr>
+</table>
+
+<h2><a name="F">-- F --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG_3d</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG_3dY</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG_3dY_1p</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG_f</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">fastLmBG_t</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">fitted.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_info.html">formula.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">formula.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">formula.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+</table>
+
+<h2><a name="G">-- G --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="vertex_roles.html">gateway_coeff</a></td>
+<td>Gateway coefficient, participation coefficient, and within-mod degree z-score</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">get.resid</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">get_thresholds</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="glm.html">GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="glm_info.html">GLM basic info</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_design.html">GLM design</a></td>
+<td>Create a design matrix for linear model analysis</td></tr>
+<tr><td style="width: 25%;"><a href="glm_fit.html">GLM fits</a></td>
+<td>Fit design matrices to one or multiple outcomes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">GLM influence measures</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_model_select.html">GLM model selection</a></td>
+<td>Model selection for bg_GLM objects</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">GLM statistics</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">gordon333</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="data_tables.html">Graph Data Tables</a></td>
+<td>Create a data table with graph global and vertex measures</td></tr>
+<tr><td style="width: 25%;"><a href="spatial_dist.html">Graph Distances</a></td>
+<td>Calculate Euclidean distance of edges and vertices</td></tr>
+<tr><td style="width: 25%;"><a href="data_tables.html">graph_attr_dt</a></td>
+<td>Create a data table with graph global and vertex measures</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">groups.brainGraphList</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">groups.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">groups.corr_mats</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="atlas_helpers.html">guess_atlas</a></td>
+<td>Atlas helper functions</td></tr>
+</table>
+
+<h2><a name="H">-- H --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_influence.html">hatvalues.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">hcp_mmp1.0</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">hoa112</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="hubness.html">hubness</a></td>
+<td>Calculate vertex hubness</td></tr>
+</table>
+
+<h2><a name="I">-- I --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="import_scn.html">import_scn</a></td>
+<td>Import data for structural connectivity analysis</td></tr>
+<tr><td style="width: 25%;"><a href="individ_contrib.html">IndividualContributions</a></td>
+<td>Approaches to estimate individual network contribution</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">influence.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">inv</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">inv.array</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">inv.list</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">inv.matrix</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">inv.qr</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">Inverse</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">is.brainGraph</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">is.brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">is_binary</a></td>
+<td>Matrix/array utility functions</td></tr>
+</table>
+
+<h2><a name="L">-- L --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_info.html">labels.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">labels.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">labels.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="glm_model_select.html">logLik.bg_GLM</a></td>
+<td>Model selection for bg_GLM objects</td></tr>
+<tr><td style="width: 25%;"><a href="individ_contrib.html">loo</a></td>
+<td>Approaches to estimate individual network contribution</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">lpba40</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+</table>
+
+<h2><a name="M">-- M --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="make_auc_brainGraph.html">make_auc_brainGraph</a></td>
+<td>Calculate the AUC across densities of given attributes</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">make_brainGraph</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">make_brainGraph.bg_mediate</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">make_brainGraph.igraph</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">make_brainGraph.matrix</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">make_brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">make_brainGraphList.array</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="glm_brainGraphList.html">make_brainGraphList.bg_GLM</a></td>
+<td>Create a graph list with GLM-specific attributes</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">make_brainGraphList.corr_mats</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="glm_brainGraphList.html">make_brainGraphList.mtpc</a></td>
+<td>Create a graph list with GLM-specific attributes</td></tr>
+<tr><td style="width: 25%;"><a href="glm_brainGraphList.html">make_brainGraphList.NBS</a></td>
+<td>Create a graph list with GLM-specific attributes</td></tr>
+<tr><td style="width: 25%;"><a href="make_ego_brainGraph.html">make_ego_brainGraph</a></td>
+<td>Create a graph of the union of multiple vertex neighborhoods</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">make_empty_brainGraph</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="make_intersection_brainGraph.html">make_intersection_brainGraph</a></td>
+<td>Create the intersection of graphs based on a logical condition</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">Matrix utilities</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="mean_distance_wt.html">mean_distance_wt</a></td>
+<td>Calculate weighted shortest path lengths</td></tr>
+<tr><td style="width: 25%;"><a href="mediation.html">Mediation</a></td>
+<td>Mediation analysis with brain graph measures as mediator variables</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+</table>
+
+<h2><a name="N">-- N --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="NBS.html">NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="glm_info.html">nobs.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">nobs.brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">nobs.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">nobs.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">nobs.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">nregions</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="glm_info.html">nregions.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">nregions.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">nregions.corr_mats</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">nregions.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">nregions.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+</table>
+
+<h2><a name="P">-- P --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="pad_zeros.html">pad_zeros</a></td>
+<td>Test if an object is a character vector of numbers</td></tr>
+<tr><td style="width: 25%;"><a href="randomise.html">partition</a></td>
+<td>GLM non-parametric permutation testing</td></tr>
+<tr><td style="width: 25%;"><a href="vertex_roles.html">part_coeff</a></td>
+<td>Gateway coefficient, participation coefficient, and within-mod degree z-score</td></tr>
+<tr><td style="width: 25%;"><a href="inverse.html">pinv</a></td>
+<td>Calculate the inverse of the cross product of a design matrix</td></tr>
+<tr><td style="width: 25%;"><a href="glm.html">plot.bg_GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="plot.brainGraph.html">plot.brainGraph</a></td>
+<td>Plot a brain graph with a specific spatial layout</td></tr>
+<tr><td style="width: 25%;"><a href="plot.brainGraphList.html">plot.brainGraphList</a></td>
+<td>Plot a brainGraphList and write to PDF</td></tr>
+<tr><td style="width: 25%;"><a href="Bootstrapping.html">plot.brainGraph_boot</a></td>
+<td>Bootstrapping for global graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="glm_graph_plots.html">plot.brainGraph_GLM</a></td>
+<td>Plot a graph with results from GLM-based analyses</td></tr>
+<tr><td style="width: 25%;"><a href="glm_graph_plots.html">plot.brainGraph_mediate</a></td>
+<td>Plot a graph with results from GLM-based analyses</td></tr>
+<tr><td style="width: 25%;"><a href="glm_graph_plots.html">plot.brainGraph_mtpc</a></td>
+<td>Plot a graph with results from GLM-based analyses</td></tr>
+<tr><td style="width: 25%;"><a href="glm_graph_plots.html">plot.brainGraph_NBS</a></td>
+<td>Plot a graph with results from GLM-based analyses</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph_permute.html">plot.brainGraph_permute</a></td>
+<td>Permutation test for group difference of graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">plot.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">plot.corr_mats</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+<tr><td style="width: 25%;"><a href="individ_contrib.html">plot.IC</a></td>
+<td>Approaches to estimate individual network contribution</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">plot.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="glm_graph_plots.html">Plotting GLM graphs</a></td>
+<td>Plot a graph with results from GLM-based analyses</td></tr>
+<tr><td style="width: 25%;"><a href="plot_brainGraph_gui.html">plot_brainGraph_gui</a></td>
+<td>GUI for plotting graphs overlaid on an MNI152 image or in a circle</td></tr>
+<tr><td style="width: 25%;"><a href="plot_brainGraph_multi.html">plot_brainGraph_multi</a></td>
+<td>Save PNG of one or three views for all graphs in a brainGraphList</td></tr>
+<tr><td style="width: 25%;"><a href="plot_global.html">plot_global</a></td>
+<td>Plot global graph measures across densities</td></tr>
+<tr><td style="width: 25%;"><a href="plot_rich_norm.html">plot_rich_norm</a></td>
+<td>Plot normalized rich club coefficients against degree threshold</td></tr>
+<tr><td style="width: 25%;"><a href="plot_vertex_measures.html">plot_vertex_measures</a></td>
+<td>Plot vertex-level graph measures at a single density or threshold</td></tr>
+<tr><td style="width: 25%;"><a href="plot_volumetric.html">plot_volumetric</a></td>
+<td>Plot group distributions of volumetric measures for a given brain region</td></tr>
+<tr><td style="width: 25%;"><a href="brain_atlases.html">power264</a></td>
+<td>Coordinates for data from brain atlases</td></tr>
+<tr><td style="width: 25%;"><a href="glm.html">print.bg_GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">print.brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+</table>
+
+<h2><a name="Q">-- Q --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="matrix_utils.html">qr.array</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">qr_Q2</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">qr_R2</a></td>
+<td>Matrix/array utility functions</td></tr>
+</table>
+
+<h2><a name="R">-- R --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="random_graphs.html">Random Graphs</a></td>
+<td>Perform an analysis with random graphs for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="randomise.html">randomise</a></td>
+<td>GLM non-parametric permutation testing</td></tr>
+<tr><td style="width: 25%;"><a href="randomise.html">randomise_3d</a></td>
+<td>GLM non-parametric permutation testing</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">region.names</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="glm_info.html">region.names.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">region.names.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">region.names.corr_mats</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph-methods.html">region.names.data.table</a></td>
+<td>brainGraph generic methods</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">region.names.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">Residuals</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">residuals.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club.html">Rich Club</a></td>
+<td>Rich club calculations</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club.html">rich_club_all</a></td>
+<td>Rich club calculations</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club_attrs.html">rich_club_attrs</a></td>
+<td>Assign graph attributes based on rich-club analysis</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club.html">rich_club_coeff</a></td>
+<td>Rich club calculations</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club.html">rich_club_norm</a></td>
+<td>Rich club calculations</td></tr>
+<tr><td style="width: 25%;"><a href="rich_club.html">rich_core</a></td>
+<td>Rich club calculations</td></tr>
+<tr><td style="width: 25%;"><a href="robustness.html">robustness</a></td>
+<td>Analysis of network robustness</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">rstandard.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="glm_influence.html">rstudent.bg_GLM</a></td>
+<td>Influence measures for a bg_GLM object</td></tr>
+</table>
+
+<h2><a name="S">-- S --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="attributes.html">set_brainGraph_attr</a></td>
+<td>Set graph, vertex, and edge attributes common in MRI analyses</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">sigma.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="random_graphs.html">sim.rand.graph.clust</a></td>
+<td>Perform an analysis with random graphs for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="random_graphs.html">sim.rand.graph.hqs</a></td>
+<td>Perform an analysis with random graphs for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="random_graphs.html">sim.rand.graph.par</a></td>
+<td>Perform an analysis with random graphs for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="plot_brainGraph_multi.html">slicer</a></td>
+<td>Save PNG of one or three views for all graphs in a brainGraphList</td></tr>
+<tr><td style="width: 25%;"><a href="small.world.html">small.world</a></td>
+<td>Calculate graph small-worldness</td></tr>
+<tr><td style="width: 25%;"><a href="glm.html">summary.bg_GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="mediation.html">summary.bg_mediate</a></td>
+<td>Mediation analysis with brain graph measures as mediator variables</td></tr>
+<tr><td style="width: 25%;"><a href="make_brainGraph.html">summary.brainGraph</a></td>
+<td>Create a brainGraph object</td></tr>
+<tr><td style="width: 25%;"><a href="Bootstrapping.html">summary.brainGraph_boot</a></td>
+<td>Bootstrapping for global graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraph_permute.html">summary.brainGraph_permute</a></td>
+<td>Permutation test for group difference of graph measures</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">summary.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="individ_contrib.html">summary.IC</a></td>
+<td>Approaches to estimate individual network contribution</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">summary.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">summary.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">symmetrize</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">symmetrize.array</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">symmetrize.matrix</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="matrix_utils.html">symm_mean</a></td>
+<td>Matrix/array utility functions</td></tr>
+<tr><td style="width: 25%;"><a href="s_core.html">s_core</a></td>
+<td>Calculate the s-core of a network</td></tr>
+</table>
+
+<h2><a name="T">-- T --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_info.html">terms.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">terms.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">terms.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+</table>
+
+<h2><a name="V">-- V --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm_info.html">variable.names.bg_GLM</a></td>
+<td>Extract basic information from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="mtpc.html">variable.names.mtpc</a></td>
+<td>Multi-threshold permutation correction</td></tr>
+<tr><td style="width: 25%;"><a href="NBS.html">variable.names.NBS</a></td>
+<td>Network-based statistic for brain MRI data</td></tr>
+<tr><td style="width: 25%;"><a href="glm_stats.html">vcov.bg_GLM</a></td>
+<td>Extract model fit statistics from a bg_GLM object</td></tr>
+<tr><td style="width: 25%;"><a href="vertex_roles.html">Vertex Roles</a></td>
+<td>Gateway coefficient, participation coefficient, and within-mod degree z-score</td></tr>
+<tr><td style="width: 25%;"><a href="data_tables.html">vertex_attr_dt</a></td>
+<td>Create a data table with graph global and vertex measures</td></tr>
+<tr><td style="width: 25%;"><a href="spatial_dist.html">vertex_spatial_dist</a></td>
+<td>Calculate Euclidean distance of edges and vertices</td></tr>
+<tr><td style="width: 25%;"><a href="vif.bg_GLM.html">vif.bg_GLM</a></td>
+<td>Variance inflation factors for 'bg_GLM' objects</td></tr>
+<tr><td style="width: 25%;"><a href="vulnerability.html">vulnerability</a></td>
+<td>Calculate graph vulnerability</td></tr>
+</table>
+
+<h2><a name="W">-- W --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="vertex_roles.html">within_module_deg_z_score</a></td>
+<td>Gateway coefficient, participation coefficient, and within-mod degree z-score</td></tr>
+<tr><td style="width: 25%;"><a href="write_brainnet.html">write_brainnet</a></td>
+<td>Write files to be used for visualization with BrainNet Viewer</td></tr>
+</table>
+
+<h2><a name="X">-- X --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="attributes.html">xfm.weights</a></td>
+<td>Set graph, vertex, and edge attributes common in MRI analyses</td></tr>
+</table>
+
+<h2><a name="misc">-- misc --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="glm.html">[.bg_GLM</a></td>
+<td>Fit General Linear Models at each vertex of a graph</td></tr>
+<tr><td style="width: 25%;"><a href="brainGraphList.html">[.brainGraphList</a></td>
+<td>Create a list of brainGraph graphs</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.html">[.brainGraph_resids</a></td>
+<td>Linear model residuals in structural covariance networks</td></tr>
+<tr><td style="width: 25%;"><a href="correlation_matrices.html">[.corr_mats</a></td>
+<td>Calculate correlation matrix and threshold</td></tr>
+</table>
+</body></html>

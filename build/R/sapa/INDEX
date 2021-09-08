@@ -1,5 +1,0 @@
-ACVS                    Autocovariance sequence
-SDF                     Nonparametric (cross) spectral density function
-                        estimation
-taper                   Oracle function for obtaining a particular
-                        taper/window

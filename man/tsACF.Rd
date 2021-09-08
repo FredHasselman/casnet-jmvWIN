@@ -4,8 +4,17 @@
 \alias{tsACF}
 \title{Linear Temporal Correlations}
 \usage{
-tsACF(data, dv1, dv2, maxLAG = 20, doTest = TRUE, siglevel = 0.05,
-  hypothesis = "both", rtLAG1 = 1, rtLAG2 = 1)
+tsACF(
+  data,
+  dv1,
+  dv2,
+  maxLAG = 20,
+  doTest = TRUE,
+  siglevel = 0.05,
+  hypothesis = "both",
+  rtLAG1 = 1,
+  rtLAG2 = 1
+)
 }
 \arguments{
 \item{data}{.}
@@ -30,12 +39,12 @@ tsACF(data, dv1, dv2, maxLAG = 20, doTest = TRUE, siglevel = 0.05,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tsdesc} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$cfplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$Xcfplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$rtplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$phdiagram} \tab \tab \tab \tab \tab an image \cr
+\code{results$tsdesc} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$cfplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$Xcfplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$rtplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$phdiagram} \tab \tab \tab \tab \tab an image \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

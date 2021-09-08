@@ -1,0 +1,67 @@
+---
+name:  dcomp
+title: Dynamic Complexity
+menuGroup: casnetjmv
+version: '1.0.0'
+jas: '1.2'
+
+options:
+    - name: data
+      type: Data
+
+    - name: deps
+      title: "Select variables"
+      type: Variables
+
+    - name: dataDone
+      title: "Check to run analysis with selected variables"
+      type: Bool
+      default: false
+
+    - name: minScale
+      title: "Minimum scale value"
+      type: List
+      options:
+         - name: autoMin
+           title: "Use minimum of data"
+         - name: userMin
+           title: "Enter value"
+      default: autoMin
+
+    - name: userMinScale
+      title: "Minimum scale value"
+      type: Number
+      default: 0
+
+    - name: maxScale
+      title: "Maximum scale value"
+      type: List
+      options:
+         - name: autoMax
+           title: "Use maximum of data"
+         - name: userMax
+           title: "Enter value"
+      default: autoMax
+
+    - name: userMaxScale
+      title: "Maximum scale value"
+      type: Number
+      default: 0
+
+    - name: win
+      title: "Window size"
+      type: Number
+      default: 7
+
+    - name: Order
+      title: "Variable order in plots"
+      type: List
+      options:
+        - name: data
+          title: "Data file order."
+        - name: alpha
+          title: "Alphabetical"
+        - name: means
+          title: "Mean dynamic complexity"
+      default: data
+...

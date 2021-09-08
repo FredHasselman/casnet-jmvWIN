@@ -334,7 +334,7 @@ ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             ssg_obs <- durations %>% dplyr::group_by(y.name) %>%
               dplyr::summarise(Trajectory = traj,
                                Wave       = wav,
-                               Nvisits  = n(),
+                               Nvisits  = dplyr::n(),
                                Nreturns = Nvisits-1,
                                MNduration = mean(duration.time), na.rm=TRUE,
                                SDduration = stats::sd(duration.time, na.rm=TRUE),
@@ -512,7 +512,7 @@ ssgBIClass <- if (requireNamespace('jmvcore')) R6::R6Class(
               dplyr::group_by(y.name) %>%
               dplyr::summarise(Trajectory = traj,
                                Wave       = wav,
-                               Nvisits = n(),
+                               Nvisits = dplyr::n(),
                                Nreturns = Nvisits-1,
                                MNduration = mean(duration.time),
                                SDduration = stats::sd(duration.time),

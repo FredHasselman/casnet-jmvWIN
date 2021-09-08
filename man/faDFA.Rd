@@ -4,10 +4,21 @@
 \alias{faDFA}
 \title{Detrended Fluctuation Analysis}
 \usage{
-faDFA(data, y1, standardise = "meanSD", sumORDER = FALSE,
-  removeTrend = "poly", poly_order = 1, max_order = 5,
-  minScale = "autoMin", userMinScale = 2, maxScale = "autoMax",
-  userMaxScale = 4, scaleRES = 30, scaleExclude = 4)
+faDFA(
+  data,
+  y1,
+  standardise = "meanSD",
+  sumORDER = FALSE,
+  removeTrend = "poly",
+  poly_order = 1,
+  max_order = 5,
+  minScale = "autoMin",
+  userMinScale = 2,
+  maxScale = "autoMax",
+  userMaxScale = 4,
+  scaleRES = 30,
+  scaleExclude = 4
+)
 }
 \arguments{
 \item{data}{.}
@@ -39,10 +50,10 @@ faDFA(data, y1, standardise = "meanSD", sumORDER = FALSE,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblDFA} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$dfaplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblDFA} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$dfaplot} \tab \tab \tab \tab \tab an image \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

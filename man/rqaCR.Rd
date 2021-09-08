@@ -4,10 +4,27 @@
 \alias{rqaCR}
 \title{Cross RQA}
 \usage{
-rqaCR(data, y1, y2, standardise = "none", emLag = 1, emDim = 1,
-  fixRR = 0.05, fixRAD = 0, fixed = "RAD", DLmin = 2, DLmax = 0,
-  VLmin = 2, VLmax = 0, HLmin = 2, HLmax = 0, theiler = 0,
-  norm = "euclidean", plotDP = FALSE, diagWin = 10)
+rqaCR(
+  data,
+  y1,
+  y2,
+  standardise = "none",
+  emLag = 1,
+  emDim = 1,
+  fixRR = 0.05,
+  fixRAD = 0,
+  fixed = "RAD",
+  DLmin = 2,
+  DLmax = 0,
+  VLmin = 2,
+  VLmax = 0,
+  HLmin = 2,
+  HLmax = 0,
+  theiler = 0,
+  norm = "euclidean",
+  plotDP = FALSE,
+  diagWin = 10
+)
 }
 \arguments{
 \item{data}{.}
@@ -51,12 +68,12 @@ rqaCR(data, y1, y2, standardise = "none", emLag = 1, emDim = 1,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$crpplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$tblRP} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblCRQA} \tab \tab \tab \tab \tab a table \cr
-  \code{results$DPplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$crpplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblRP} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblCRQA} \tab \tab \tab \tab \tab a table \cr
+\code{results$DPplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$warnings} \tab \tab \tab \tab \tab a preformatted \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

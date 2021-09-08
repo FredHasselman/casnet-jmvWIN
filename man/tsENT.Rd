@@ -18,7 +18,7 @@ tsENT(data, y1, Ent_edim = 3, Ent_r = 1)
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tsdesc} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsdesc} \tab \tab \tab \tab \tab a table \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

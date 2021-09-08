@@ -62,7 +62,8 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
 
         if(scaleMax>scaleMin&scaleMax<NROW(data[[y1]])){
 
-        results <- fd_dfa(y=data[[y1]], fs = NULL,
+        results <- fd_dfa(y=data[[y1]],
+                           fs = NULL,
                            removeTrend = "poly",
                            polyOrder= polyOrder,
                            standardise = standardise,
@@ -70,8 +71,16 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
                            scaleMin = scaleMin,
                            scaleMax = scaleMax,
                            scaleResolution = self$options$scaleRES,
-                           scaleS = NA, overlap = 0, minData = 4, doPlot = FALSE, returnPlot = TRUE,
-                           returnPLAW = TRUE, returnInfo = FALSE, silent = TRUE, noTitle = TRUE, tsName = y1)
+                           scaleS = NA,
+                           overlap = 0,
+                           minData = 4,
+                           doPlot = FALSE,
+                           returnPlot = TRUE,
+                           returnPLAW = TRUE,
+                           returnInfo = FALSE,
+                           silent = TRUE,
+                           noTitle = TRUE,
+                           tsName = y1)
 
         # Descriptives ----
         tableTS <- self$results$tblTS
@@ -127,7 +136,8 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
         #self$results$DFAout$setContent(results)
 
         tsImage <- self$results$tsplot
-        tsImage$setState(results$plots$g1)
+        #tsImage$setState(results$plots$g1)
+        tsImage$setState(results$tsdata)
 
         dfaImage <- self$results$dfaplot
         dfaImage$setState(results$plots$g2)
@@ -143,8 +153,23 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
 
           if(is.null(self$options$y1)){return(FALSE)}
 
-          g1 <- tsImage$state
-          print(g1)
+          # g1 <- tsImage$state
+          # print(g1)
+
+         tsData <- tsImage$state
+
+         plot <- ggplot2::ggplot(tsData, ggplot2::aes_(x=~x,y=~y)) +
+           ggplot2::geom_line() +
+           ggplot2::facet_grid(label ~ ., scales = "free") +
+           ggplot2::scale_x_continuous("Time", expand=c(0,0)) +
+           ggplot2::scale_y_continuous("", expand=c(0,0)) +
+           # ggplot2::ggtitle(label = title,
+           #                 subtitle = paste0("Standardisation: ",standardise, " | Detrended: ",ifelse(detrend,paste("Yes (order = ",polyOrder),"No"))) +
+           ggplot2::theme_bw() +
+           ggplot2::theme(strip.text = ggplot2::element_text(face="bold"))
+
+         #print(g1)
+         print(plot)
           TRUE
         },
 
@@ -152,8 +177,8 @@ faDFAClass <- if (requireNamespace("jmvcore")) {
 
         if(is.null(self$options$y1)){return(FALSE)}
 
-        g2 <- dfaImage$state
-        print(g2)
+        plot <- dfaImage$state
+        print(plot)
         TRUE
       }
     )

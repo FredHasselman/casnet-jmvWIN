@@ -1,0 +1,31 @@
+---
+name:  dcomp
+title: Dynamic Complexity
+jrs:   '1.1'
+
+items:
+    - name:  text
+      title: Dynamic Complexity
+      type:  Preformatted
+
+    - name: tsplot
+      title: "(Multivariate) Time series"
+      type: Image
+      width: 700
+      height: 300
+      renderFun: .tsplot
+
+    - name: CRplot
+      title: "Complexity Resonance Diagram"
+      type: Image
+      width: 700
+      height: 400
+      renderFun: .CRplot
+
+    - name: CCPplot
+      title: "Cumulative Complexity Peaks"
+      type: Image
+      width: 700
+      height: 400
+      renderFun: .CCPplot
+...

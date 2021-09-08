@@ -4,12 +4,33 @@
 \alias{recNet}
 \title{Recurrence Networks}
 \usage{
-recNet(data, y1, standardise = "none", edgeWeight = "none", Glayout,
-  LayoutA = 0, LayoutB = 0, Narcs = 4, Glabels = TRUE,
-  nsize = "degree", PruneDegree = 0, PruneWeight = 0, emLag = 1,
-  emDim = 1, fixRR = 0.05, fixRAD = 0, fixed = "RAD", DLmin = 2,
-  DLmax = 0, VLmin = 2, VLmax = 0, HLmin = 2, HLmax = 0,
-  theiler = 0, norm = "euclidean")
+recNet(
+  data,
+  y1,
+  standardise = "none",
+  edgeWeight = "none",
+  Glayout,
+  LayoutA = 0,
+  LayoutB = 0,
+  Narcs = 4,
+  Glabels = TRUE,
+  nsize = "degree",
+  PruneDegree = 0,
+  PruneWeight = 0,
+  emLag = 1,
+  emDim = 1,
+  fixRR = 0.05,
+  fixRAD = 0,
+  fixed = "RAD",
+  DLmin = 2,
+  DLmax = 0,
+  VLmin = 2,
+  VLmax = 0,
+  HLmin = 2,
+  HLmax = 0,
+  theiler = 0,
+  norm = "euclidean"
+)
 }
 \arguments{
 \item{data}{.}
@@ -65,9 +86,9 @@ recNet(data, y1, standardise = "none", edgeWeight = "none", Glayout,
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$rpplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$rnetplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$rpplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$rnetplot} \tab \tab \tab \tab \tab an image \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

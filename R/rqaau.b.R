@@ -113,12 +113,25 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
           emRad <- self$options$fixRAD
         }
         if(self$options$fixed%in%"RR"){
-          emRad <- crqa_radius(y1 = tsData$y1, emLag = emLag, emDim = emDim, targetValue = self$options$fixRR)$Radius
+          emRad <- est_radius(y1 = tsData$y1,
+                              emLag = emLag,
+                              emDim = emDim,
+                              targetValue = self$options$fixRR)$Radius
         }
         if(self$options$fixed%in%"NO"){
-          RM <- rp(y1 = tsData$y1, emDim = emDim, emLag = emLag, method = as.character(self$options$norm))
+          RM <- rp(y1 = tsData$y1,
+                   emDim = emDim,
+                   emLag = emLag,
+                   method = as.character(self$options$norm),
+                   emRad = emRad,
+                   theiler = self$options$theiler)
         } else {
-          RM <- rp(y1 = tsData$y1, emDim = emDim, emLag = emLag, emRad = emRad, method = as.character(self$options$norm))
+          RM <- rp(y1 = tsData$y1,
+                   emDim = emDim,
+                   emLag = emLag,
+                   emRad = emRad,
+                   method = as.character(self$options$norm),
+                   theiler = self$options$theiler)
         }
 
         rpImage <- self$results$rpplot
@@ -136,12 +149,14 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
             HLmax <- length(Matrix::diag(RM))-1
           }
 
-          crqa_out <- crqa_rp(RM = RM,emRad = emRad,
-                              DLmin = self$options$DLmin, DLmax = DLmax,
-                              VLmin = self$options$VLmin, VLmax = VLmax,
-                              HLmin = self$options$HLmin, HLmax = HLmax,
-                              theiler = self$options$theiler,
-                              matrices = FALSE)
+          crqa_out <- rp_measures(RM = RM,
+                                  DLmin = self$options$DLmin,
+                                  DLmax = DLmax,
+                                  VLmin = self$options$VLmin,
+                                  VLmax = VLmax,
+                                  HLmin = self$options$HLmin,
+                                  HLmax = HLmax,
+                                  theiler = self$options$theiler)
           #crqa_out <- crqa_all$crqaMeasures
 
           RPtable <- self$results$tblRP
@@ -150,7 +165,7 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
                          values = list(
                            emRad = emRad,
                            RP = crqa_out$RP_N,
-                           RN = rp_size(RM, AUTO=TRUE),
+                           RN = rp_size(RM)$rp_size_theiler,
                            RR = crqa_out$RR,
                            SING = crqa_out$SING_N,
                            DIV = crqa_out$DIV_dl,
@@ -260,7 +275,10 @@ rqaAUClass <- if (requireNamespace("jmvcore")) {
 
           dp <- dpImage$state
 
-          dppl <-  crqa_diagPofile(dp,diagWin = self$options$diagWin, xname = self$options$y1, yname  = self$options$y1)
+          dppl <-  rp_diagPofile(dp,
+                                 diagWin = self$options$diagWin,
+                                 xname = self$options$y1,
+                                 yname  = self$options$y1)
 
           print(dppl)
           TRUE

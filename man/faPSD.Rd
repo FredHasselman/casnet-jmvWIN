@@ -4,8 +4,16 @@
 \alias{faPSD}
 \title{Power Spectral Density Slope}
 \usage{
-faPSD(data, y1, standardise = "meanSD", removeTrend = "nodet",
-  polydet_order = 1, fs = 1, nfft = "nyquist", userNFFT = 256)
+faPSD(
+  data,
+  y1,
+  standardise = "meanSD",
+  removeTrend = "nodet",
+  polydet_order = 1,
+  fs = 1,
+  nfft = "nyquist",
+  userNFFT = 256
+)
 }
 \arguments{
 \item{data}{.}
@@ -27,10 +35,10 @@ faPSD(data, y1, standardise = "meanSD", removeTrend = "nodet",
 \value{
 A results object containing:
 \tabular{llllll}{
-  \code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tblPSD} \tab \tab \tab \tab \tab a table \cr
-  \code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
-  \code{results$psdplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$tblTS} \tab \tab \tab \tab \tab a table \cr
+\code{results$tblPSD} \tab \tab \tab \tab \tab a table \cr
+\code{results$tsplot} \tab \tab \tab \tab \tab an image \cr
+\code{results$psdplot} \tab \tab \tab \tab \tab an image \cr
 }
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
